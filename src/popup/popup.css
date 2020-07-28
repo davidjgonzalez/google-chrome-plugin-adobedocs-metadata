@@ -1,0 +1,9 @@
+body {
+  min-width: 600px;
+  padding: 0.5rem 1rem 1rem 1rem;
+}
+
+.spectrum-ActionButton {
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+}
