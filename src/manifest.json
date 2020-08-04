@@ -20,7 +20,8 @@
       "*://docs.adobe.com/*",
       "*://docs-stg.corp.adobe.com/*",
       "*://experienceleague.adobe.com/*",
-      "*://experienceleague.corp.adobe.com/*"
+      "*://experienceleague.corp.adobe.com/*",
+      "*://guided.corp.adobe.com/*"
       ],
     "js": ["content.js"]
   }],

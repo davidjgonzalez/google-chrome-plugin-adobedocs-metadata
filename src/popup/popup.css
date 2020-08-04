@@ -7,3 +7,7 @@ body {
   margin-right: 0.5rem;
   margin-bottom: 0.5rem;
 }
+
+#error-alert {
+    display: none;
+}

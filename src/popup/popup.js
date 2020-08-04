@@ -5,6 +5,7 @@ import "@spectrum-css/vars/dist/spectrum-medium.css";
 import "@spectrum-css/vars/dist/spectrum-light.css";
 import "@spectrum-css/page/dist/index-vars.css";
 import "@spectrum-css/button/dist/index-vars.css";
+import "@spectrum-css/alert/dist/index-vars.css";
 
 import "./popup.css";
 
@@ -17,6 +18,12 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     tabs[0].id,
     { text: "collect_adobedocs_metadata" },
     function (response) {
+      
+        if (!response) {
+          document.getElementById("error-alert").style.display = 'block';
+          return;
+      }
+
       chrome.storage.sync.get(OPTIONS.FS_CONTENT_ROOT, function (optionsObj) {
         let optionsContentRoot = _getOptionsContentFileSystemPath(optionsObj);
 

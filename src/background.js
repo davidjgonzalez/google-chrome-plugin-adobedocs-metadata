@@ -6,7 +6,7 @@ chrome.runtime.onInstalled.addListener(function () {
       {
         conditions: [
           new chrome.declarativeContent.PageStateMatcher({
-            pageUrl: { hostSuffix: "adobe.com", pathPrefix: "/content/help/" },
+            pageUrl: { hostSuffix: "adobe.com", pathPrefix: "/" }
           }),
         ],
         actions: [new chrome.declarativeContent.ShowPageAction()],

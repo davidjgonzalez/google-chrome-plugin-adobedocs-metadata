@@ -24,7 +24,9 @@ module.exports = {
     ],
   },
   plugins: [
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({
+        minify: true,
+    }),
     new HtmlWebpackPlugin({
       filename: "options.html",
       template: "src/options/options.html",

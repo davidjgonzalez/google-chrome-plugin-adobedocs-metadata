@@ -5,6 +5,7 @@
   "main": "background.js",
   "dependencies": {
     "@spectrum-css/actionmenu": "^3.0.0-beta.3",
+    "@spectrum-css/alert": "^3.0.0-beta.3",
     "@spectrum-css/button": "^3.0.0-beta.3",
     "@spectrum-css/fieldlabel": "^3.0.0-beta.4",
     "@spectrum-css/icon": "^2.1.1",
