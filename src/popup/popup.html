@@ -1,14 +1,20 @@
 <!DOCTYPE html>
-<html class="spectrum spectrum--medium spectrum--light">
+<html>
   <head>
   </head>
   <body>
     
-    <div id="error-alert" class="spectrum-Alert spectrum-Alert--warning">
-        <div class="spectrum-Alert-header">Chrome plugin unable to communicate with AdobeDocs page.</div>
-        <div class="spectrum-Alert-content">Please refresh the page and try clicking the Chrome plug-in again.</div>
-    </div>
+    <sp-theme scale="medium" color="light">
 
-    <div id="metadata"></div>
+        <div id="error-alert" class="spectrum-Alert spectrum-Alert--warning">
+            <div class="spectrum-Alert-header">Chrome plugin unable to communicate with AdobeDocs page.</div>
+            <div class="spectrum-Alert-content">Please ensure the active tab contains a valid Adobe Docs page and refresh the page and try clicking the Chrome plug-in again.</div>
+        </div>
+
+        <div id="metadata"></div>
+
+    </sp-theme>
+
+    <input type="hidden" id="copy-paste-input"/>
   </body>
 </html>

@@ -3,11 +3,17 @@ body {
   padding: 0.5rem 1rem 1rem 1rem;
 }
 
-.spectrum-ActionButton {
-  margin-right: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
 #error-alert {
     display: none;
+}
+
+sp-action-menu {
+    border: solid 1px #cacaca;
+    background-color: #fafafa;
+    border-radius: 3px;
+}
+
+sp-action-button {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
 }
