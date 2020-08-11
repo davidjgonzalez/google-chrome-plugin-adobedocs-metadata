@@ -10,6 +10,8 @@ import "@spectrum-web-components/menu/sp-menu-item.js";
 import "@spectrum-css/alert/dist/index-vars.css";
 
 import '@spectrum-web-components/icon/sp-icon.js';
+import '@spectrum-web-components/icons/sp-icons-medium.js';
+
 import '@spectrum-web-components/action-menu/sp-action-menu.js';
 import '@spectrum-web-components/button/sp-button.js';
 import '@spectrum-web-components/button/sp-clear-button.js';
@@ -37,7 +39,8 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         let ul = document.getElementById("metadata");
 
         ul.innerHTML = `
-          ${getSection("Links", [
+          ${getSection("Quick links", [
+            getPageLinks(response.currentDoc.host, response.currentDoc.path),
             getJira(response.kt),
             getCorpGitEdit(response.gitEdit),
             getPublicGitEdit(response.gitEdit),
@@ -51,19 +54,39 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
           ${getSection("Videos", [getVideosMultiControl(response.videos)])}
 
           ${getSection("Doc details", [
-            getLastUpdated("Last updated", response.lastUpdated),
+            getDateTime("Last updated", response.lastUpdated),
+            getDateTime("Build date", response.buildDate),
             getMeta("Team", response.team, null),
             getMetas("Versions", response.versions, null),
             getMetas("Topics", response.topics, "None"),
             getMetas("Features", response.features, "None"),
-            getThumbnail(response.thumbnail),
           ])}
+
+          ${getSection("Thumbnail", [getThumbnail(response.thumbnail)])}
         `;
 
         document.querySelectorAll('sp-action-button[href]').forEach((el) => {
             el.addEventListener('click', (e) => {
                 el.setAttribute('selectedItemText', '');
                 window.open(el.getAttribute('href'), el.getAttribute('target') || null);
+            });
+        });
+
+        document.querySelectorAll('[data-copy-to-clipboard]').forEach((el) => {
+            el.addEventListener('click', (e) => {
+                _copyToClipboard(el.getAttribute('data-copy-to-clipboard'));
+            });
+        });
+
+        document.querySelectorAll('sp-action-menu').forEach((activeEl) => {
+            activeEl.addEventListener('mousedown', (e) => {
+                console.log("mousedown!");
+                document.querySelectorAll('sp-action-menu[open]').forEach((el) => {
+                    if (activeEl.getAttribute('id') !== el.getAttribute('id')) {
+                        el.toggleAttribute('open');
+                        console.log("Closed the open: " + el.getAttribute("id")); 
+                    }
+                });
             });
         });
       });
@@ -81,9 +104,9 @@ function getSection(sectionTitle, lists) {
   if (html) {
     return `<div>
       <p class="spectrum-Heading spectrum-Heading--L spectrum-Heading--light">${sectionTitle}</p>
-      <sp-button-group>
+      <div>
         ${html}
-      </sp-button-group>
+      </div>
     </div>`;
   } else {
     return "";
@@ -98,27 +121,20 @@ function getJira(kts) {
   let html = '';
   
   for (let kt of kts) {
-    /*
-    html += `<a class="spectrum-ActionButton spectrum-ActionButton--emphasized"
-              href="https://jira.corp.adobe.com/browse/${kt}" target="_blank">
-              <span class="spectrum-ActionButton-label">Jira @ KT-${kt}</span>
-            </a>`;
-    */
-
     html += `<sp-action-button href="https://jira.corp.adobe.com/browse/KT-${kt}" target="_blank">Jira @ KT-${kt}</sp-action-button>`
   }
 
   return html;
 }
 
-function getLastUpdated(title, lastUpdated) {
+function getDateTime(title, lastUpdated) {
   if (!lastUpdated) {
     return '';
   }
 
   let m = moment(lastUpdated);
 
-  return ` <sp-action-button selected>${title}: ${m.fromNow()} <em>(${m.format("MM/DD/YYYY")})</sp-action-button>`
+  return ` <sp-action-button selected>${title}: ${m.fromNow()} <em>(${m.format("MM/DD/YYYY")})</em></sp-action-button>`
 }
 
 function getCorpGitEdit(publicGitEdit) {
@@ -131,14 +147,7 @@ function getCorpGitEdit(publicGitEdit) {
     "//git.corp.adobe.com/"
   );
 
-  return `<sp-action-button href="${corpGitEdit}" target="_blank">Adobe Corp Git</sp-action-button>`
-
-  /*
-  return `<a class="spectrum-ActionButton spectrum-ActionButton--emphasized"
-            href="${corpGitEdit}" target="_blank">
-          <span class="spectrum-ActionButton-label">Adobe Corp Git</span>
-          </a>`;
-    */          
+  return `<sp-action-button href="${corpGitEdit}" target="_blank">Adobe Corp Git</sp-action-button>`        
 }
 
 function getPublicGitEdit(publicGitEdit) {
@@ -146,14 +155,7 @@ function getPublicGitEdit(publicGitEdit) {
     return '';
   }
 
-  return `<sp-action-button href="${publicGitEdit}" target="_blank">Github.com</sp-action-button>`
-
-  /*
-  return `<a class="spectrum-ActionButton spectrum-ActionButton--emphasized"
-            href="${publicGitEdit}" target="_blank">
-          <span class="spectrum-ActionButton-label">Github.com</span>
-          </a>`;
-    */          
+  return `<sp-action-button href="${publicGitEdit}" target="_blank">Github.com</sp-action-button>`        
 }
 
 function getVsCode(contentRoot, gitRepo, filename) {
@@ -164,63 +166,22 @@ function getVsCode(contentRoot, gitRepo, filename) {
   const gitRepoName = gitRepo.substring(gitRepo.lastIndexOf("/") + 1);
   const fileSystemPath = `${contentRoot}${gitRepoName}/${filename}`;
 
-  return `<sp-action-button href="vscode://file/${fileSystemPath}">Open in VS Code</sp-action-button>`
-
-
-  /*
-  return `<a class="spectrum-ActionButton spectrum-ActionButton--emphasized"
-            href="vscode://file/${fileSystemPath}">
-          <span class="spectrum-ActionButton-label">Open in VS Code</span>
-          </a>`;
-    */          
+  return `<sp-action-button href="vscode://file/${fileSystemPath}">Open in VS Code</sp-action-button>`       
 }
 
 function getThumbnail(thumbnailId) {
   if (!thumbnailId) {
-    return '';
+    return '<div class="thumbnail thumbnail--missing">Missing</div>';
   }
 
-  return `<sp-action-button href="https://cdn.experienceleague.adobe.com/thumb/${thumbnailId}" target="thumbnail_${thumbnailId}">
-             Thumbnail: ${thumbnailId}
-          </sp-action-button>`;
+  return `
+    <sp-action-button href="https://cdn.experienceleague.adobe.com/thumb/${thumbnailId}" target="thumbnail_${thumbnailId}">
+        ${thumbnailId}
+    </sp-action-button>
+    <br/>
+    <img src="https://cdn.experienceleague.adobe.com/thumb/${thumbnailId}" class="thumbnail"/>
+    `;
 }
-
-
-function getVideos(mpcVideoUrls, renderFunction) {
-    let list = "";
-  
-    if (!mpcVideoUrls) {
-      return '';
-    }
-  
-    for (const mpcVideoUrl of mpcVideoUrls) {
-      const videoIdRegex = /https:\/\/video.tv.adobe.com\/v\/(\d+)[\/?]+.*/gi;
-  
-      let videoId = null;  
-      let match = videoIdRegex.exec(mpcVideoUrl);
-  
-      if (match && match.length === 2) {
-        videoId = match[1];
-      } else {
-        console.log("Could not get video id from: " + mpcVideoUrl);
-      }
-  
-      if (videoId && !isNaN(videoId)) {
-        list += renderFunction(videoId);
-      } else {
-        console.error("Invalid video Id: " + videoId);
-      }
-    }
-  
-    if (!list) {
-      return `<button class="spectrum-ActionButton is-selected">
-                <span class="spectrum-ActionButton-label">No videos</span>
-              </button>`;
-    } else {
-      return list;
-    }
-  }
-  
 
 function getVideosMultiControl(mpcVideoUrls) {
     let list = "";
@@ -242,11 +203,11 @@ function getVideosMultiControl(mpcVideoUrls) {
       }
   
       if (videoId && !isNaN(videoId)) {
-        //list += renderFunction(videoId);
 
             list += `
-            <sp-action-menu placement="top-start">
+            <sp-action-menu id="actionMenu_mpcVideos_${videoId}" placement="bottom-end">
                 <sp-icon slot="icon" size="xxs" name="ui:ChevronDownSmall"></sp-icon>
+
                 <span slot="label">MPC @ ${videoId}</span>
                 <sp-menu>
                     <sp-menu-item href="https://publish.tv.adobe.com/search?q=${videoId}" target="mpcAdminConsole_${videoId}">
@@ -255,7 +216,7 @@ function getVideosMultiControl(mpcVideoUrls) {
                     <sp-menu-item href="https://video.tv.adobe.com/v/${videoId}/?quality=12&amp;learn=on" target="mpcDirectVideo_${videoId}">
                         Direct video link
                     </sp-menu-item>
-                    <sp-menu-item>
+                    <sp-menu-item data-copy-to-clipboard="${videoId}">
                         Copy '${videoId}' to clipboard
                     </sp-menu-item>               
                 </sp-menu>
@@ -272,22 +233,63 @@ function getVideosMultiControl(mpcVideoUrls) {
     } else {
       return list;
     }
-  }
-
-function renderMpcAdminConsoleLinks(videoId) {
-    return `<a class="spectrum-ActionButton spectrum-ActionButton--emphasized"
-                href="https://publish.tv.adobe.com/search?q=${videoId}" target="mpcAdminConsole_${videoId}">
-                    <span class="spectrum-ActionButton-label">${videoId}</span>
-            </a>`;
 }
 
-function renderMpcDirectVideoLinks(videoId) {
-    return `<a class="spectrum-ActionButton spectrum-ActionButton--emphasized"
-                href="https://video.tv.adobe.com/v/${videoId}/?quality=12&amp;learn=on" target="mpcDirectVideo_${videoId}">
-                    <span class="spectrum-ActionButton-label">${videoId}</span>
-            </a>`;
-}
 
+function getPageLinks(host, path) {
+    const DOCS_PROD_DOMAIN = 'docs.adobe.com';
+    const DOCS_STAGE_DOMAIN = 'docs-stg.corp.adobe.com';
+    const EXL_PROD_DOMAIN = 'experienceleague.adobe.com';
+    const EXL_STAGE_DOMAIN = 'experienceleague.corp.adobe.com';
+
+    // <meta name="publish-url" content="https://experienceleague.corp.adobe.com/docs/experience-manager-learn/foundation/security/develop-for-cross-origin-resource-sharing.html">
+    // <meta name="publish-url" content="https://docs.adobe.com/content/help/en/experience-manager-learn/assets/overview.html">
+
+    const HOST = host;
+    const PATH = path;
+    const DOCS_PATH_PREFIX = '/content/help/en';
+    const EXL_PATH_PREFIX = '/docs';
+
+    let docsUrl;
+    let docsStageUrl;
+    let exlUrl;
+    let exlStageUrl;
+
+    debugger 
+
+    if (HOST === DOCS_PROD_DOMAIN || HOST === DOCS_STAGE_DOMAIN) {
+        docsUrl = DOCS_PROD_DOMAIN + PATH;
+        docsStageUrl = DOCS_STAGE_DOMAIN + PATH;
+        exlUrl = EXL_PROD_DOMAIN + EXL_PATH_PREFIX + PATH.substring(DOCS_PATH_PREFIX.length);
+        exlStageUrl = EXL_STAGE_DOMAIN + EXL_PATH_PREFIX + PATH.substring(DOCS_PATH_PREFIX.length);
+    } else {
+        docsUrl = DOCS_PROD_DOMAIN + DOCS_PATH_PREFIX + PATH.substring(EXL_PATH_PREFIX.length);
+        docsStageUrl = DOCS_STAGE_DOMAIN + DOCS_PATH_PREFIX + PATH.substring(EXL_PATH_PREFIX.length);
+        exlUrl = EXL_PROD_DOMAIN + PATH;
+        exlStageUrl = EXL_STAGE_DOMAIN + PATH;
+    }
+
+    return `
+        <sp-action-menu id="actionMenu_pageLinks" placement="bottom-start">
+            <sp-icon slot="icon" size="xxs" name="ui:ChevronDownSmall"></sp-icon>
+
+            <span slot="label">Doc urls</span>
+            <sp-menu>
+                <sp-menu-item href="https://${docsUrl}" target="_blank"">
+                    Production (docs.adobe.com)
+                </sp-menu-item>
+                <sp-menu-item href="https://${docsStageUrl}" target="_blank"">
+                    Stage (docs-stg.corp.adobe.com)
+                </sp-menu-item>
+                <sp-menu-item href="https://${exlUrl}" target="_blank"">
+                    Production (experienceleague.adobe.com)
+                </sp-menu-item>
+                <sp-menu-item href="https://${exlStageUrl}" target="_blank"">
+                    Stage (experienceleague.corp.adobe.com)
+                </sp-menu-item>                         
+            </sp-menu>
+        </sp-action-menu>`;
+}
 
 function getMeta(title, value, missingValue) {
   if (!value) {
@@ -334,11 +336,10 @@ function _getOptionsContentFileSystemPath(obj) {
 }
 
 function _copyToClipboard(text) {
-    let copyEl = document.getElementById("copy-paste-input");
-    copyEl.value = text;
-    copyEl.select();
-    copyEl.setSelectionRange(0, 99999);
-    document.execCommand("copy");
-    alert(copyEl.value);
-    //copyEl.value = '';
+    if (text) {
+        let copyEl = document.getElementById("copy-to-clipboard-input");
+        copyEl.value = text;
+        copyEl.select();
+        document.execCommand("copy");
+    }
 }

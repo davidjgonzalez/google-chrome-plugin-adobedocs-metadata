@@ -1,13 +1,18 @@
 function getMetadata() {
   const metadata = {
+    currentDoc: {
+        host: window.location.host,
+        path: window.location.pathname
+    },
     kt: getMetas("kt"),
     team: getMeta("team"),
     gitEdit: getMeta("git-edit"),
     gitRepo: getMeta("git-repo"),
     gitFilename: getMeta("git-filename"),
     lastUpdated: getMeta("last-update"),
+    buildDate: getMeta("build-date"),
     thumbnail: getMeta("thumbnail"),
-
+    publishUrl: getMeta("publish-url"),
     versions: getMetas("version"),
     topics: getMetas("topics"),
     features: getMetas("feature"),

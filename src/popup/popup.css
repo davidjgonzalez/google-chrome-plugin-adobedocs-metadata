@@ -1,10 +1,17 @@
 body {
   min-width: 600px;
+  min-height: 475px;
   padding: 0.5rem 1rem 1rem 1rem;
 }
 
 #error-alert {
     display: none;
+}
+
+#copy-to-clipboard-input {
+    position: absolute;
+    top: -10000px;
+    left: -10000px;
 }
 
 sp-action-menu {
@@ -13,7 +20,28 @@ sp-action-menu {
     border-radius: 3px;
 }
 
-sp-action-button {
+sp-action-button, sp-action-menu {
     margin-right: 0.5rem;
     margin-bottom: 0.5rem;
+}
+
+.thumbnail {
+    max-height: 146px;
+    box-sizing: border-box;
+    border: solid 1px #ccc;
+    border-radius: 3px;
+    box-shadow: 0 2px #fafafa;
+}
+
+.thumbnail.thumbnail--missing {
+    background-color: #fafafa;
+    border: dashed 2px #cacaca;
+    display: flex;
+    width: 260px;
+    height: 146px;
+    justify-content: center;
+    align-items: center;
+    color: #cacaca;
+    font-size: 2.5rem;
+    text-transform: uppercase;
 }

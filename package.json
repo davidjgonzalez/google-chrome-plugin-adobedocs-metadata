@@ -16,6 +16,7 @@
     "@spectrum-web-components/button": "^0.8.3",
     "@spectrum-web-components/dropdown": "^0.6.4",
     "@spectrum-web-components/icon": "^0.5.1",
+    "@spectrum-web-components/icons": "^0.4.0",
     "moment": "^2.27.0"
   },
   "devDependencies": {
