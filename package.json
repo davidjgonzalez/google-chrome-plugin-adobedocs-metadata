@@ -1,6 +1,6 @@
 {
   "name": "google-chrome-adobedocs-metadata",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Google Chrome plugin for AdobeDocs content management",
   "main": "background.js",
   "dependencies": {
