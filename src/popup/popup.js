@@ -77,18 +77,6 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
                 _copyToClipboard(el.getAttribute('data-copy-to-clipboard'));
             });
         });
-
-        document.querySelectorAll('sp-action-menu').forEach((activeEl) => {
-            activeEl.addEventListener('mousedown', (e) => {
-                console.log("mousedown!");
-                document.querySelectorAll('sp-action-menu[open]').forEach((el) => {
-                    if (activeEl.getAttribute('id') !== el.getAttribute('id')) {
-                        el.toggleAttribute('open');
-                        console.log("Closed the open: " + el.getAttribute("id")); 
-                    }
-                });
-            });
-        });
       });
     }
   );
