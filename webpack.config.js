@@ -1,6 +1,7 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyPlugin = require('copy-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const path = require("path");
 
 module.exports = {
@@ -24,6 +25,7 @@ module.exports = {
     ],
   },
   plugins: [
+    new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
         minify: true,
     }),
@@ -40,7 +42,8 @@ module.exports = {
     new CopyPlugin({
         patterns: [
           { from: 'src/manifest.json', to: 'manifest.json' },
-          { from: 'src/icon.png', to: 'icon128.png' }
+          { from: 'src/icon.png', to: 'icon128.png' },
+          { from: 'src/assets/thumbnail-missing-on-cdn.png', to: 'assets/thumbnail-missing-on-cdn.png' }
         ],
       }),
   ],

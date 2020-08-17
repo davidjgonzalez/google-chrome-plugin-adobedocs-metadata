@@ -65,18 +65,28 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
           ${getSection("Thumbnail", [getThumbnail(response.thumbnail)])}
         `;
 
+        /*
         document.querySelectorAll('sp-action-button[href]').forEach((el) => {
             el.addEventListener('click', (e) => {
                 el.setAttribute('selectedItemText', '');
                 window.open(el.getAttribute('href'), el.getAttribute('target') || null);
             });
         });
+        */
+
+       document.querySelectorAll('img[data-error]').forEach((el) => {
+           el.addEventListener('error', (e) => {
+               el.setAttribute('src', el.getAttribute('data-error'));
+            });
+        });
+
 
         document.querySelectorAll('[data-copy-to-clipboard]').forEach((el) => {
             el.addEventListener('click', (e) => {
                 _copyToClipboard(el.getAttribute('data-copy-to-clipboard'));
             });
         });
+
       });
     }
   );
@@ -109,8 +119,26 @@ function getJira(kts) {
   let html = '';
   
   for (let kt of kts) {
-    html += `<sp-action-button href="https://jira.corp.adobe.com/browse/KT-${kt}" target="_blank">Jira @ KT-${kt}</sp-action-button>`
-  }
+    //html += `<sp-action-button href="https://jira.corp.adobe.com/browse/KT-${kt}" target="_blank">Jira @ KT-${kt}</sp-action-button>`
+    if (kt === 'None' || kt === 'none') {
+        continue;
+
+    }
+    html += `
+        <sp-action-menu id="actionMenu_jira_${kt}" placement="bottom-end">
+            <sp-icon slot="icon" size="xxs" name="ui:ChevronDownSmall"></sp-icon>
+
+            <span slot="label">Jira @ KT-${kt}</span>
+            <sp-menu>
+                <sp-menu-item href="https://jira.corp.adobe.com/browse/KT-${kt}" target="jira_${kt}">
+                    Open in Jira
+                </sp-menu-item>
+                <sp-menu-item data-copy-to-clipboard="KT-${kt}">
+                    Copy 'KT-${kt}' to clipboard
+                </sp-menu-item>               
+            </sp-menu>
+        </sp-action-menu>`;
+    }
 
   return html;
 }
@@ -167,7 +195,9 @@ function getThumbnail(thumbnailId) {
         ${thumbnailId}
     </sp-action-button>
     <br/>
-    <img src="https://cdn.experienceleague.adobe.com/thumb/${thumbnailId}" class="thumbnail"/>
+    <img src="https://cdn.experienceleague.adobe.com/thumb/${thumbnailId}" 
+        class="thumbnail"
+        data-error="/assets/thumbnail-missing-on-cdn.png"/>
     `;
 }
 
@@ -199,13 +229,16 @@ function getVideosMultiControl(mpcVideoUrls) {
                 <span slot="label">MPC @ ${videoId}</span>
                 <sp-menu>
                     <sp-menu-item href="https://publish.tv.adobe.com/search?q=${videoId}" target="mpcAdminConsole_${videoId}">
-                        MPC Admin console
+                       Open in MPC Admin console
                     </sp-menu-item>
                     <sp-menu-item href="https://video.tv.adobe.com/v/${videoId}/?quality=12&amp;learn=on" target="mpcDirectVideo_${videoId}">
                         Direct video link
                     </sp-menu-item>
                     <sp-menu-item data-copy-to-clipboard="${videoId}">
                         Copy '${videoId}' to clipboard
+                    </sp-menu-item>  
+                    <sp-menu-item data-copy-to-clipboard="<iframe width=&quot;1280&quot; height=&quot;720&quot; src=&quot;https://video.tv.adobe.com/v/${videoId}/?quality=12&amp;learn=on&quot; frameborder=&quot;0&quot; webkitallowfullscreen mozallowfullscreen allowfullscreen scrolling=&quot;no&quot;></iframe>">
+                        Copy embed code to clipboard
                     </sp-menu-item>               
                 </sp-menu>
             </sp-action-menu>
@@ -242,8 +275,6 @@ function getPageLinks(host, path) {
     let docsStageUrl;
     let exlUrl;
     let exlStageUrl;
-
-    debugger 
 
     if (HOST === DOCS_PROD_DOMAIN || HOST === DOCS_STAGE_DOMAIN) {
         docsUrl = DOCS_PROD_DOMAIN + PATH;
@@ -331,3 +362,4 @@ function _copyToClipboard(text) {
         document.execCommand("copy");
     }
 }
+
