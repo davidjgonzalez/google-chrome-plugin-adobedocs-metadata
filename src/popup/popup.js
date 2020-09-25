@@ -74,19 +74,18 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         });
         */
 
-       document.querySelectorAll('img[data-error]').forEach((el) => {
-           el.addEventListener('error', (e) => {
-               el.setAttribute('src', el.getAttribute('data-error'));
+       document.querySelectorAll('img.thumbnail--image').forEach((el) => {
+            el.addEventListener('error', (e) => {
+                el.style.display = 'none';
+                document.querySelector('.thumbnail--missing-on-cdn').style.display = 'flex';
             });
         });
-
 
         document.querySelectorAll('[data-copy-to-clipboard]').forEach((el) => {
             el.addEventListener('click', (e) => {
                 _copyToClipboard(el.getAttribute('data-copy-to-clipboard'));
             });
         });
-
       });
     }
   );
@@ -187,7 +186,7 @@ function getVsCode(contentRoot, gitRepo, filename) {
 
 function getThumbnail(thumbnailId) {
   if (!thumbnailId) {
-    return '<div class="thumbnail thumbnail--missing">Missing</div>';
+    return '<div class="thumbnail thumbnail--missing">Thumbnail not set</div>';
   }
 
   return `
@@ -196,8 +195,10 @@ function getThumbnail(thumbnailId) {
     </sp-action-button>
     <br/>
     <img src="https://cdn.experienceleague.adobe.com/thumb/${thumbnailId}" 
-        class="thumbnail"
-        data-error="/assets/thumbnail-missing-on-cdn.png"/>
+        class="thumbnail thumbnail--image"/>
+    <div class="thumbnail thumbnail--missing-on-cdn">
+        ${thumbnailId} missing on CDN
+    </div>
     `;
 }
 
