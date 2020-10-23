@@ -10,7 +10,8 @@ module.exports = {
     options: "./src/options/options.js",
     popup: "./src/popup/popup.js",
     content: "./src/content.js",
-    background: "./src/background.js"
+    background: "./src/background.js",
+    pretty: "./src/styles/pretty.js"
   },
   output: {
     filename: "[name].js",
@@ -18,6 +19,14 @@ module.exports = {
   },
   module: {
     rules: [
+      {
+            test: /\.scss$/,
+            use: [
+              MiniCssExtractPlugin.loader,
+              "css-loader",
+              "sass-loader"
+            ]
+      },
       {
         test: /\.css$/i,
         use: [MiniCssExtractPlugin.loader, "css-loader"],
@@ -27,6 +36,8 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
+        filename: "[name].css",
+        chunkFilename: "[id].css",
         minify: true,
     }),
     new HtmlWebpackPlugin({
@@ -43,7 +54,6 @@ module.exports = {
         patterns: [
           { from: 'src/manifest.json', to: 'manifest.json' },
           { from: 'src/icon.png', to: 'icon128.png' },
-          { from: 'src/assets/thumbnail-missing-on-cdn.png', to: 'assets/thumbnail-missing-on-cdn.png' }
         ],
       }),
   ],
