@@ -76,16 +76,25 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 
 chrome.storage.sync.get(OPTIONS.EXTRA_STYLES, function (optionsObj) {
     let optionsExtraStyles = optionsObj[OPTIONS.EXTRA_STYLES] || 'none';
-    
-    if (optionsExtraStyles && optionsExtraStyles !== 'none') {
+
+    if (optionsExtraStyles && 
+            optionsExtraStyles !== 'none' && 
+            _isExLDocs()) {
+        
         var path = chrome.extension.getURL(`${optionsExtraStyles}.css`);
         document.body.setAttribute("id", optionsExtraStyles);
         document.head.innerHTML = `<link rel="stylesheet" type="text/css" media="print,screen" href="${path}"></link>` + document.head.innerHTML;    
     } 
 
-    var appEl = document.getElementById("app");
-    appEl.style.display = 'block';
+    if (_isExLDocs()) {
+        var appEl = document.getElementById("app");
+        appEl.style.display = 'block';
 
-    var footerEl = document.getElementById("footer");
-    footerEl.style.display = 'block';
+        var footerEl = document.getElementById("footer");
+        footerEl.style.display = 'block';
+    }
 });
+
+function _isExLDocs() {
+    return window.location.hostname.indexOf('experienceleague.') === 0 && window.location.pathname.indexOf('/docs/') === 0;
+}

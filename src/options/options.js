@@ -13,8 +13,10 @@ import "./options.css";
 import OPTIONS from "../constants";
 
 const HTML_IDS = {
-  SAVE_BUTTON: "gcp-adobedocs-metadata__options__save-button",
+  SAVE_BUTTON: 'gcp-adobedocs-metadata__options__save-button',
   FS_CONTENT_ROOT_INPUT: OPTIONS.FS_CONTENT_ROOT,
+  STYLES_EASTER_EGG_BUTTON: 'gcp-adobedocs-metadata__options__extra-styles-button',
+  STYLES_EASTER_EGG_SECTION: 'gcp-adobedocs-metadata__options__extra-styles-section',
 };
 
 /** Load prior values and attach click handler **/
@@ -30,6 +32,10 @@ const HTML_IDS = {
   chrome.storage.sync.get(OPTIONS.EXTRA_STYLES, function (obj) {             
     var extraStylesValue = obj[OPTIONS.EXTRA_STYLES] || 'none';
     document.querySelector(`#${OPTIONS.EXTRA_STYLES} option[value="${extraStylesValue}"]`).setAttribute('selected', 'selected');     
+
+    document
+    .getElementById(HTML_IDS.STYLES_EASTER_EGG_BUTTON)
+    .addEventListener("click", _enableStyles);
   })
 })();
 
@@ -40,6 +46,17 @@ function _handleSave() {
 
   chrome.storage.sync.set({ [OPTIONS.FS_CONTENT_ROOT]: fsContentRootValue }, function () { console.log("Saved content root path as: " + fsContentRootValue);});
   chrome.storage.sync.set({ [OPTIONS.EXTRA_STYLES]: extraStylesValue }, function () { console.log("Saved extra styles as: " + extraStylesValue);});
+}
+
+
+/** Handle click of Save button **/
+var clicks = 0;
+function _enableStyles() {
+    ++clicks;
+
+    if (clicks > 3) {
+        document.getElementById(HTML_IDS.STYLES_EASTER_EGG_SECTION).style.display = 'block';
+    }
 }
 
 export default OPTIONS;

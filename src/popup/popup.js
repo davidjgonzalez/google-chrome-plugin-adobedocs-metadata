@@ -174,7 +174,7 @@ function getPublicGitEdit(publicGitEdit) {
 }
 
 function getVsCode(contentRoot, gitRepo, filename) {
-  if (!contentRoot) {
+  if (!contentRoot || !gitRepo || !filename) {
     return '';
   }
 

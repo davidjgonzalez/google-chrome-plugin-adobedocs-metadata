@@ -1,6 +1,6 @@
 {
   "name": "google-chrome-adobedocs-metadata",
-  "version": "1.2.1",
+  "version": "1.3.3",
   "description": "Google Chrome plugin for AdobeDocs content management",
   "main": "background.js",
   "dependencies": {
@@ -43,7 +43,7 @@
     "type": "git",
     "url": "git+https://github.com/davidjgonzalez/google-chrome-docs-metadata.git"
   },
-  "author": "",
+  "author": "David Gonzalez",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/davidjgonzalez/google-chrome-docs-metadata/issues"

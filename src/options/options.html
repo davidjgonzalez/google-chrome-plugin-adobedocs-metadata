@@ -2,6 +2,8 @@
 <html class="spectrum spectrum--medium spectrum--light">
   <head></head>
   <body>
+    <div id="gcp-adobedocs-metadata__options__extra-styles-button"></div>
+
     <div class="options-wrapper">
       <h1 class="spectrum-Heading spectrum-Heading--L">
         AdobeDocs metadata plug-in options
@@ -22,20 +24,24 @@
           />
         </div>
 
-        <!-- Extra styles -->
+        <div id="gcp-adobedocs-metadata__options__extra-styles-section">
+             <!-- Easter egg: Extra styles -->
 
-        <br/>
-        </br/>
+            <br/>
+            <br/>
 
-        <label for="extraStyles" class="spectrum-FieldLabel">
-            Extra styles    
-        </label>
+            <label for="extraStyles" class="spectrum-FieldLabel">
+                Custom style pack   
+                <br/>
+                <br/>
+                <em>This (easter egg) feature applies custom CSS to the Experience League Web site itself, adjusting how its content is presented.</em>
+            </label>
 
-        <select id="gcp-adobedocs-metadata__options__extra-styles">
-            <option value="none">None</option>
-            <option value="pretty">Pretty</option>
-        </select>
-
+            <select id="gcp-adobedocs-metadata__options__extra-styles">
+                <option value="none">None (Default Experience League styles)</option>
+                <option value="pretty">Experimental v1</option>
+            </select>
+        </div>
 
         <!-- Submit -->
 

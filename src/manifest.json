@@ -1,6 +1,6 @@
 {
   "name": "AdobeDocs metadata",
-  "version": "1.3.0",
+  "version": "1.3.3",
   "description": "AdobeDocs metadata extension!",
   "permissions": ["activeTab", "declarativeContent", "storage"],
 
@@ -24,12 +24,19 @@
       "*://docs.adobe.com/*",
       "*://docs-stg.corp.adobe.com/*",
       "*://experienceleague.adobe.com/*",
-      "*://experienceleague.corp.adobe.com/*",
-      "*://guided.corp.adobe.com/*"
+      "*://experienceleague.corp.adobe.com/*"
+      ],
+    "js": ["content.js"]
+  },
+  {
+    "matches": [
+      "*://experienceleague.adobe.com/docs/*",
+      "*://experienceleague.corp.adobe.com/docs/*"
       ],
     "js": ["content.js"],
     "css": ["content.css"]
   }],
+ 
 
   "icons": { 
     "16": "icon128.png",

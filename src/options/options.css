@@ -6,3 +6,28 @@
 .spectrum-Textfield {
     width: 100%;
 }
+
+#gcp-adobedocs-metadata__options__extra-styles-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 50px;
+    height: 50px;
+}
+
+#gcp-adobedocs-metadata__options__extra-styles-section {
+    display: none;
+}
+
+#gcp-adobedocs-metadata__options__extra-styles-section select {
+    color: #999;
+    border-color: #ccc;
+    border-radius: 3px;
+    padding: .25rem 1rem;
+    width: 100%;
+}
+
+#gcp-adobedocs-metadata__options__extra-styles-section select option {
+    color: #999;
+}
