@@ -30,6 +30,13 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       
         if (!response) {
           document.getElementById("error-alert").style.display = 'block';
+          
+          let head = document.getElementsByTagName("head")[0];        
+          let metaRefresh = document.createElement("meta");
+          metaRefresh.setAttribute("http-equiv", "refresh");
+          metaRefresh.setAttribute("content", "2");
+          head.appendChild(metaRefresh);
+
           return;
       }
 
@@ -295,18 +302,15 @@ function getPageLinks(host, path) {
 
             <span slot="label">Doc urls</span>
             <sp-menu>
-                <sp-menu-item href="https://${docsUrl}" target="_blank"">
-                    Production (docs.adobe.com)
-                </sp-menu-item>
-                <sp-menu-item href="https://${docsStageUrl}" target="_blank"">
-                    Stage (docs-stg.corp.adobe.com)
-                </sp-menu-item>
                 <sp-menu-item href="https://${exlUrl}" target="_blank"">
                     Production (experienceleague.adobe.com)
                 </sp-menu-item>
                 <sp-menu-item href="https://${exlStageUrl}" target="_blank"">
                     Stage (experienceleague.corp.adobe.com)
-                </sp-menu-item>                         
+                </sp-menu-item>
+                <sp-menu-item href="https://${docsStageUrl}" target="_blank"">
+                    Legacy stage (docs-stg.corp.adobe.com)
+                </sp-menu-item>                                     
             </sp-menu>
         </sp-action-menu>`;
 }

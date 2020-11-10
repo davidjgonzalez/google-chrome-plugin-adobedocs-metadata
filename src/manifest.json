@@ -1,6 +1,6 @@
 {
   "name": "AdobeDocs metadata",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "AdobeDocs metadata extension!",
   "permissions": ["activeTab", "declarativeContent", "storage"],
 
@@ -21,7 +21,6 @@
 
   "content_scripts": [{
     "matches": [
-      "*://docs.adobe.com/*",
       "*://docs-stg.corp.adobe.com/*",
       "*://experienceleague.adobe.com/*",
       "*://experienceleague.corp.adobe.com/*"
