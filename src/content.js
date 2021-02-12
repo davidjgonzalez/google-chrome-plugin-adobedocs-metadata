@@ -8,26 +8,36 @@ function getMetadata() {
         host: window.location.host,
         path: window.location.pathname
     },
-    kt: getMetas("kt"),
-    team: getMeta("team"),
+    description: getMeta("description"),
     gitEdit: getMeta("git-edit"),
     gitRepo: getMeta("git-repo"),
     gitFilename: getMeta("git-filename"),
     lastUpdated: getMeta("last-update"),
     buildDate: getMeta("build-date"),
-    thumbnail: getMeta("thumbnail"),
     publishUrl: getMeta("publish-url"),
-    versions: getMetas("version"),
-    topics: getMetas("topics"),
-    features: getMetas("feature"),
-
     videos: getMpcVideos(),
+
+    features: getMetas("feature"),
+    hide: getMeta("hide"),
+    hideFromToc: getMeta("hidefromtoc"),
+    kt: getMetas("kt"),
+    level: getMeta("level"),
+    products: getMetas("product"),
+    role: getMetas("role"),
+    snippet: getMeta("snippet"),
+    solutions: getMetas("solution"),
+    subproducts: getMetas("sub-product"),
+    thumbnail: getMeta("thumbnail"),
+    title: getMeta("title"),    
+    topics: getMetas("topic"),
+    type: getMeta("type"),
+    versions: getMetas("version")
   };
 
   return metadata;
 }
 
-function getMeta(name) {
+function getMeta(name, defaultValue) {
   let el = document.querySelector("meta[name='" + name + "']");
 
   if (el) {
@@ -37,16 +47,16 @@ function getMeta(name) {
     }
   }
 
-  return null;
+  return defaultValue ? defaultValue : null;
 }
 
-function getMetas(name) {
+function getMetas(name, defaultValues) {
   let value = getMeta(name);
   if (value) {
     let values = value.split(",");
     return values.map((val) => val.trim());
   } else {
-    return null;
+    return defaultValues ? defaultValues : null;
   }
 }
 

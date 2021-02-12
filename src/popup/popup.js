@@ -58,15 +58,35 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
             ),
           ])}
 
-          ${getSection("Videos", [getVideosMultiControl(response.videos)])}
+          ${getSection("Videos", [
+              getVideosMultiControl(response.videos)
+          ])}
 
           ${getSection("Doc details", [
+            getMeta("Type", response.type, "Missing"),
+
             getDateTime("Last updated", response.lastUpdated),
-            getDateTime("Build date", response.buildDate),
-            getMeta("Team", response.team, null),
-            getMetas("Versions", response.versions, null),
-            getMetas("Topics", response.topics, "None"),
-            getMetas("Features", response.features, "None"),
+            getDateTime("Last built", response.buildDate),
+
+            getMeta("Hide (from Google)", response.hide, response.hide ? "Yes" : "No"),
+            getMeta("Allow as Google snippet", response.snippet, response.snippet ? "Yes" : "No"),
+            getMeta("Hide From TOC", response.hideFromToc, response.hideFromToc ? "No" : "Yes"),
+          ])}
+
+          ${getSection("Doc metadata", [
+            //getMeta("Title", response.title, "Missing"),
+            //getMeta("Description", response.description, "Missing"),
+
+            getMetas("Solution(s)", response.solutions, "Missing"),
+            getMetas("Product(s)", response.products, "Missing"),
+            getMetas("Sub-Product(s)", response.subproducts, null),
+            getMetas("Version(s)", response.versions, null),
+
+            getMetas("Feature(s)", response.features, "None"),
+            getMetas("Topic(s)", response.topics, "None"),
+
+            getMeta("Role", response.role, "Missing"),
+            getMeta("Level", response.level, "Missing")
           ])}
 
           ${getSection("Thumbnail", [getThumbnail(response.thumbnail)])}
@@ -204,7 +224,7 @@ function getThumbnail(thumbnailId) {
     <img src="https://cdn.experienceleague.adobe.com/thumb/${thumbnailId}" 
         class="thumbnail thumbnail--image"/>
     <div class="thumbnail thumbnail--missing-on-cdn">
-        ${thumbnailId} missing on CDN
+        ${thumbnailId} <span class="thumbnail--missing-on-cdn-message">missing on CDN</span>
     </div>
     `;
 }
@@ -367,4 +387,3 @@ function _copyToClipboard(text) {
         document.execCommand("copy");
     }
 }
-
