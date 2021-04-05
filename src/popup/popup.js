@@ -68,25 +68,25 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
             getDateTime("Last updated", response.lastUpdated),
             getDateTime("Last built", response.buildDate),
 
-            getMeta("Hide (from Google)", response.hide, response.hide ? "Yes" : "No"),
-            getMeta("Allow as Google snippet", response.snippet, response.snippet ? "Yes" : "No"),
-            getMeta("Hide From TOC", response.hideFromToc, response.hideFromToc ? "No" : "Yes"),
+            getMeta("Hide (from Google)", response.indexByGoogle ? "No" : "Yes", "No"),
+            getMeta("Allow as Google snippet", response.snippet ? "Yes" : "No", "Yes"),
+            getMeta("Hide From TOC", response.hideFromToc ? "Yes" : "No",  "No"),
           ])}
 
           ${getSection("Doc metadata", [
-            //getMeta("Title", response.title, "Missing"),
-            //getMeta("Description", response.description, "Missing"),
+            getMeta("Title", response.title, "Missing"),
 
             getMetas("Solution(s)", response.solutions, "Missing"),
             getMetas("Product(s)", response.products, "Missing"),
             getMetas("Sub-Product(s)", response.subproducts, null),
             getMetas("Version(s)", response.versions, null),
 
-            getMetas("Feature(s)", response.features, "None"),
-            getMetas("Topic(s)", response.topics, "None"),
-
             getMeta("Role", response.role, "Missing"),
-            getMeta("Level", response.level, "Missing")
+            getMeta("Level", response.level, "Missing"),
+
+            getMetas("Topic(s)", response.topics, "None"),
+            getMetas("Feature(s)", response.features, "None")
+
           ])}
 
           ${getSection("Thumbnail", [getThumbnail(response.thumbnail)])}
@@ -245,7 +245,7 @@ function getVideosMultiControl(mpcVideoUrls) {
       if (match && match.length === 2) {
         videoId = match[1];
       } else {
-        console.log("Could not get video id from: " + mpcVideoUrl);
+        console.error("Could not get video id from: " + mpcVideoUrl);
       }
   
       if (videoId && !isNaN(videoId)) {
@@ -322,6 +322,9 @@ function getPageLinks(host, path) {
 
             <span slot="label">Doc urls</span>
             <sp-menu>
+                <sp-menu-item data-copy-to-clipboard="${HOST}${PATH}">
+                    Copy 'clean' URL to clipboard
+                </sp-menu-item>   
                 <sp-menu-item href="https://${exlUrl}" target="_blank"">
                     Production (experienceleague.adobe.com)
                 </sp-menu-item>

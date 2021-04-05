@@ -1,6 +1,6 @@
 body {
   min-width: 600px;
-  min-height: 475px;
+  min-height: 500px;
   padding: 0.5rem 1rem 1rem 1rem;
 }
 
@@ -51,6 +51,7 @@ sp-action-button, sp-action-menu {
     color: #cacaca;
     font-size: 2.5rem;
     line-height: 100%;
+    padding: 0 2rem;
 }
 
 .thumbnail .thumbnail--missing-on-cdn-message {

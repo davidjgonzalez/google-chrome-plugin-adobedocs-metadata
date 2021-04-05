@@ -18,7 +18,7 @@ function getMetadata() {
     videos: getMpcVideos(),
 
     features: getMetas("feature"),
-    hide: getMeta("hide"),
+    indexByGoogle: getMeta("index"),
     hideFromToc: getMeta("hidefromtoc"),
     kt: getMetas("kt"),
     level: getMeta("level"),
@@ -28,11 +28,13 @@ function getMetadata() {
     solutions: getMetas("solution"),
     subproducts: getMetas("sub-product"),
     thumbnail: getMeta("thumbnail"),
-    title: getMeta("title"),    
+    title: getElementText("title"),
     topics: getMetas("topic"),
     type: getMeta("type"),
     versions: getMetas("version")
   };
+
+  
 
   return metadata;
 }
@@ -80,6 +82,20 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     sendResponse(metadata);
   }
 });
+
+
+function getElementText(name, defaultValue) {
+    let el = document.querySelector(name);
+  
+    if (el) {
+      let content = el.innerText;
+      if (content) {
+        return content;
+      }
+    }
+  
+    return defaultValue ? defaultValue : null;
+  }
 
 
 /** Extra styles */

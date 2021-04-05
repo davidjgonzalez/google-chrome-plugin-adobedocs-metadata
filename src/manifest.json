@@ -1,23 +1,24 @@
 {
   "name": "AdobeDocs metadata",
-  "version": "1.5.0",
+  "version": "1.5.2",
   "description": "AdobeDocs metadata extension!",
   "permissions": ["activeTab", "declarativeContent", "storage"],
-
+  
   "background": {
-    "scripts": ["background.js"],
-    "persistent": false
+    "service_worker": "background.js"
   },
   
   "options_page": "options.html",
 
-  "page_action": {
+  "action": {
     "default_popup": "popup.html"
   },
 
-  "web_accessible_resources": [
-    "pretty.css"
-  ],
+  "web_accessible_resources": [{
+    "resources": ["pretty.css"],
+    "matches": [],
+    "extension_ids": []
+  }],
 
   "content_scripts": [{
     "matches": [
@@ -43,13 +44,16 @@
    "128": "icon128.png" 
   },
  
-  "manifest_version": 2,
+  "manifest_version": 3,
 
   "commands": {
     "_execute_page_action": {
-      "description": "Testing",
+      "description": "Open AdobeDocs Metadata",
       "suggested_key": {
-        "mac": "Ctrl+K"
+        "mac": "Ctrl+K",
+        "windows": "Ctrl+Shift+K",
+        "chromeos": "Ctrl+Shift+K",
+        "linux": "Ctrl+Shift+K"
       }
     }
   }
