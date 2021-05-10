@@ -37,8 +37,7 @@ module.exports = {
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
         filename: "[name].css",
-        chunkFilename: "[id].css",
-        minify: true,
+        chunkFilename: "[id].css"
     }),
     new HtmlWebpackPlugin({
       filename: "options.html",
