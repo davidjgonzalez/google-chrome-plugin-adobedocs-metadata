@@ -9,7 +9,8 @@ module.exports = {
   entry: {
     options: "./src/options/options.js",
     popup: "./src/popup/popup.js",
-    content: "./src/content.js",
+    "content-exl": "./src/content/content-exl.js",
+    "content-jira": "./src/content/content-jira.js",
     background: "./src/background.js",
     pretty: "./src/styles/pretty.js"
   },

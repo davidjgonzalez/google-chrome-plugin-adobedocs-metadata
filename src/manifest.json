@@ -1,6 +1,6 @@
 {
   "name": "AdobeDocs metadata",
-  "version": "1.5.4",
+  "version": "1.6.1",
   "description": "AdobeDocs metadata extension!",
   "permissions": ["activeTab", "declarativeContent", "storage"],
   
@@ -22,22 +22,19 @@
 
   "content_scripts": [{
     "matches": [
-      "*://docs-stg.corp.adobe.com/*",
       "*://experienceleague.adobe.com/*",
-      "*://experienceleague.corp.adobe.com/*"
+      "*://experienceleague-stage.corp.adobe.com/*"
       ],
-    "js": ["content.js"]
+    "js": ["content-exl.js"],
+    "css": ["content-exl.css"]
   },
   {
     "matches": [
-      "*://experienceleague.adobe.com/docs/*",
-      "*://experienceleague.corp.adobe.com/docs/*"
+      "*://jira.corp.adobe.com/*"
       ],
-    "js": ["content.js"],
-    "css": ["content.css"]
+    "js": ["content-jira.js"],
+    "css": ["content-jira.css"]
   }],
- 
-
   "icons": { 
     "16": "icon128.png",
     "48": "icon128.png",

@@ -1,9 +1,10 @@
-import OPTIONS from "./constants";
+import OPTIONS from "../constants";
 
 import './content.css';
 
 function getMetadata() {
   const metadata = {
+    website: 'EXPERIENCE LEAGUE',
     currentDoc: {
         host: window.location.host,
         path: window.location.pathname
@@ -36,7 +37,6 @@ function getMetadata() {
     versions: getMetas("version")
   };
 
-  
 
   return metadata;
 }

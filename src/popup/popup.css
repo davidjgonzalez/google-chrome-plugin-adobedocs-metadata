@@ -86,3 +86,8 @@ sp-action-button, sp-action-menu {
 .tab-content[data-tab="1"] {
     display: block;
 }
+
+textarea.markdown {
+    width: 100%;
+    height: 20rem;
+}
