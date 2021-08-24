@@ -60,7 +60,6 @@ function getJiraId(windowLocation) {
 }
 
 function parseJiraJSON(json) {
-    console.log(json);
     return {
         title: parseTitle(json),
         description: parseDescription(json),

@@ -53,8 +53,6 @@ function getMarkdown(jira) {
 
     let versions =  null;
 
-    console.log(jira);
-
     if  (jira.products?.includes('Experience Manager')) {
         versions = versions || [];
 
@@ -114,7 +112,6 @@ function parseTitle(title) {
     // [Asset Essentials] Getting started with Assets Essentials - Feature Video
     let found = title.match(/[^\]]+](.*)-+\s?(Feature Video|Technical Video|Tutorial|Article|Code Sample|Event|Exercise|Intro Video|Presentation|Value Video)/i);
     if (found && found.length >= 2 && found[1]) {
-        console.log(found);
         return found[1].trim();
     }
 
