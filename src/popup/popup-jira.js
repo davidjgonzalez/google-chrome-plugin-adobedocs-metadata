@@ -98,7 +98,7 @@ kt: ${jira.kt}
 thumbnail: ${jira.videoId ? jira.videoId : 'KT-' + jira.kt}.jpeg
 ---
 
-# ${jira.title || 'Missing title'}
+# ${title || 'Missing title'}
 
 ${jira.description || 'Missing description'}
 

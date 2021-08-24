@@ -102,6 +102,7 @@ function getElementText(name, defaultValue) {
 
 /** Extra styles */
 
+
 chrome.storage.sync.get(OPTIONS.EXTRA_STYLES, function (optionsObj) {
     let optionsExtraStyles = optionsObj[OPTIONS.EXTRA_STYLES] || 'none';
 
@@ -122,6 +123,7 @@ chrome.storage.sync.get(OPTIONS.EXTRA_STYLES, function (optionsObj) {
         footerEl.style.display = 'block';
     }
 });
+
 
 function _isExLDocs() {
     return window.location.hostname.indexOf('experienceleague.') === 0 && window.location.pathname.indexOf('/docs/') === 0;
