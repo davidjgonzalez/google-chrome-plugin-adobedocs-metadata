@@ -410,19 +410,15 @@ function getSection(sectionTitle, lists) {
                     <td class="spectrum-Table-cell">${data.value}</td>
                 </tr>`;
         } else {
-            console.log("fooo");
             return '';
         }
    }
   
-
     function getStatus(data) {
-        if (isAnyMissing([ data.exlId, data.products, data.title, data.description])) { 
-            return `<div class="status"><sp-status-light size="M" variant="negative">Missing vital metadata</sp-status-light></div>`;
-        } else if (isAnyMissing([data.cloud, data.solutions, data.features])) {
-            return `<div class="status"><sp-status-light size="M" variant="notice">Missing non-vital metadata</sp-status-light></div>`;
+        if (isAnyMissing([data.exlId, data.products, data.title, data.description, data.cloud, data.solutions, data.role, data.level, data.topics])) { 
+            return `<div class="status"><sp-status-light size="M" variant="negative">Fix metadata</sp-status-light></div>`;
         } else {
-            return `<div class="status"><sp-status-light size="M" variant="positive">Metadata is good</sp-status-light></div>`;
+            return `<div class="status"><sp-status-light size="M" variant="positive">Metadata good</sp-status-light></div>`;
         }
     }
 

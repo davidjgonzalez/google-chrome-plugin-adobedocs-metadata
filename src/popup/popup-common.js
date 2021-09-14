@@ -28,14 +28,6 @@ function getResourcesTabHtml() {
 
         <hr/>
 
-        <p class="spectrum-Heading spectrum-Heading--sizeS spectrum-Heading--light">Other helpful tools</em></p>
-
-        <ul>
-            <li><a href="http://or1010051255223.corp.adobe.com:4503/content/AemForms/createjirastory.html" target="3-1">Front-matter to Jira Generator <em>(requires Adobe VPN)</em></a></li>                
-        </ul>
-
-        <hr/>
-
         <p class="spectrum-Heading spectrum-Heading--sizeS spectrum-Heading--light">About this extension</em></p>
 
         <p>
@@ -48,7 +40,8 @@ function getResourcesTabHtml() {
             This extension supports exposing metadata about the active Experience League content page on:
             <ul>
                 <li>https://experienceleague.adobe.com/docs</li>
-                <li>https://experienceleague-stage.corp.adobe.com/docs</li>
+                <li>https://experienceleague.corp.adobe.com/docs</li>
+                <li>https://experienceleague-*.corp.adobe.com/docs</li>
             </ul>
         </p>
         

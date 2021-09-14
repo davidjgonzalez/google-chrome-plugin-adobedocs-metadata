@@ -1,7 +1,7 @@
 {
   "name": "google-chrome-adobedocs-metadata",
-  "version": "1.7.1",
-  "description": "Google Chrome plugin for AdobeDocs content management",
+  "version": "1.7.2",
+  "description": "Google Chrome extension for AdobeDocs content management",
   "main": "background.js",
   "dependencies": {
     "@spectrum-css/alert": "^3.0.0-beta.3",
