@@ -2,6 +2,13 @@ import moment from 'moment';
 import OPTIONS from "../constants";
 import { getResourcesTabHtml } from "./popup-common";
 
+import { StatusLight } from '@spectrum-web-components/status-light';
+
+const Missing = {
+    ERROR: 'error',
+    NOTICE: 'notice',
+    OK: 'ok'
+};
 
 export default function experienceLeaguePopup(response, callback) {
 
@@ -10,6 +17,9 @@ export default function experienceLeaguePopup(response, callback) {
         let optionsContentRoot = _getOptionsContentFileSystemPath(optionsObj);
         
         let html = `
+                    
+            ${getStatus(response)}
+
             <sp-tabs selected="1">
                 <sp-tab data-tabs="1" label="General" value="1"></sp-tab>
                 <sp-tab data-tabs="2" label="Metadata" value="2"></sp-tab>
@@ -49,17 +59,17 @@ export default function experienceLeaguePopup(response, callback) {
             
             <div data-tab="2" class="tab-content">
                 ${getTable([
-                    getDisplayRow(getMeta("Title", response.title, "Missing")),
-                    getDisplayRow(getMeta("Description", response.description, "Missing")),
-                    getDisplayRow(getMeta("ExL ID", response.exlId, "Missing")),
+                    getDisplayRow(getMeta("Title", response.title, "Missing", Missing.ERROR)),
+                    getDisplayRow(getMeta("Description", response.description, "Missing", Missing.ERROR)),
+                    getDisplayRow(getMeta("ExL ID", response.exlId, "Missing", Missing.ERROR)),
 
-                    getDisplayRow(getMeta("Cloud", response.cloud, "Missing")),
-                    getDisplayRow(getMetas("Product(s)", response.products, "Missing")),
-                    getDisplayRow(getMetas("Solution(s)", response.solutions, "Missing")),
+                    getDisplayRow(getMeta("Cloud", response.cloud, "Missing", Missing.NOTICE)),
+                    getDisplayRow(getMetas("Product(s)", response.products, "Missing", Missing.ERROR)),
+                    getDisplayRow(getMetas("Solution(s)", response.solutions, "Missing", Missing.NOTICE)),
                     getDisplayRow(getMetas("Version(s)", response.versions, null)),
 
-                    getDisplayRow(getMeta("Role", response.role, "Missing")),
-                    getDisplayRow(getMeta("Level", response.level, "Missing")),
+                    getDisplayRow(getMeta("Role", response.role, "Missing", Missing.NOTICE)),
+                    getDisplayRow(getMeta("Level", response.level, "Missing", Missing.NOTICE)),
 
                     getDisplayRow(getMetas("Topic(s)", response.topics, "None")),
                     getDisplayRow(getMetas("Feature(s)", response.features, "None"))
@@ -91,7 +101,6 @@ function _getOptionsContentFileSystemPath(obj) {
     return "";
   }
   
-
 
 function getSection(sectionTitle, lists) {
     let html = '';
@@ -335,23 +344,33 @@ function getSection(sectionTitle, lists) {
           </sp-action-menu>`;
   }
   
-  function getMeta(title, value, missingValue) {
+  function getMeta(title, value, missingValue, requirement) {
+    let require;
+
     if (!value) {
+      require = requirement;
       value = missingValue;
     }
   
     if (value !== null) {
       return {
           title: title,
-          value: value
+          value: value,
+          require: require
       };        
     } else {
-      return {};
+      return {
+      };
     }
   }
   
-  function getMetas(title, values, missingValues) {
+  function getMetas(title, values, missingValues, requirement) {
+    let require;
+
     if (!values || values.length === 0) {
+      
+      require = requirement;
+
       if (missingValues) {
         if (Array.isArray(missingValues)) {
           values = missingValues;
@@ -364,7 +383,8 @@ function getSection(sectionTitle, lists) {
     if (values && values.length > 0) {
       return {
           title: title,
-          value: values.join(", ")
+          value: values.join(", "),
+          require: require
       };
     } else {
       return {};
@@ -379,15 +399,41 @@ function getSection(sectionTitle, lists) {
     }
   }
   
-  function getDisplayRow(data) {
-      if (data.title && data.value) {
-        return `
-          <tr class="spectrum-Table-row">
-              <td class="spectrum-Table-cell spectrum-Table-cell--divider">${data.title}</td>
-              <td class="spectrum-Table-cell">${data.value}</td>
-          </tr>`;
-      } else {
-        return '';
-      }
-    }
+    function getDisplayRow(data) {
+        if (data.title && data.value) {
+
+            let status = data.require || Missing.OK;
+
+            return `
+                <tr class="spectrum-Table-row metadata-${status.toLowerCase()}">
+                    <td class="spectrum-Table-cell spectrum-Table-cell--divider">${data.title}</td>
+                    <td class="spectrum-Table-cell">${data.value}</td>
+                </tr>`;
+        } else {
+            console.log("fooo");
+            return '';
+        }
+   }
   
+
+    function getStatus(data) {
+        if (isAnyMissing([ data.exlId, data.products, data.title, data.description])) { 
+            return `<div class="status"><sp-status-light size="M" variant="negative">Missing vital metadata</sp-status-light></div>`;
+        } else if (isAnyMissing([data.cloud, data.solutions, data.features])) {
+            return `<div class="status"><sp-status-light size="M" variant="notice">Missing non-vital metadata</sp-status-light></div>`;
+        } else {
+            return `<div class="status"><sp-status-light size="M" variant="positive">Metadata is good</sp-status-light></div>`;
+        }
+    }
+
+    function isAnyMissing(values) {
+        for (let i in values) {    
+            if (isMissing(values[i])) { return true; }
+        }
+
+        return false;
+    }
+
+    function isMissing(value) {
+        return !value || value?.length === 0;
+    }

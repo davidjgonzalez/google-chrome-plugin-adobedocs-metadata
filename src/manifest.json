@@ -1,6 +1,6 @@
 {
   "name": "AdobeDocs metadata",
-  "version": "1.6.4",
+  "version": "1.7.1",
   "description": "AdobeDocs metadata extension!",
   "permissions": ["activeTab", "declarativeContent", "storage"],
   
@@ -23,7 +23,8 @@
   "content_scripts": [{
     "matches": [
       "*://experienceleague.adobe.com/docs/*",
-      "*://experienceleague-stage.corp.adobe.com/docs/*"
+      "*://experienceleague.corp.adobe.com/docs/*",
+      "*://experienceleague-*.corp.adobe.com/docs/*"
       ],
     "js": ["content-exl.js"],
     "css": ["content-exl.css"]

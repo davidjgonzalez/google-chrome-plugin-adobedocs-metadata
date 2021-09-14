@@ -1,6 +1,6 @@
 {
   "name": "google-chrome-adobedocs-metadata",
-  "version": "1.6.4",
+  "version": "1.7.1",
   "description": "Google Chrome plugin for AdobeDocs content management",
   "main": "background.js",
   "dependencies": {
@@ -9,6 +9,7 @@
     "@spectrum-css/fieldlabel": "^3.0.3",
     "@spectrum-css/icon": "^2.1.1",
     "@spectrum-css/page": "^3.0.2",
+    "@spectrum-css/statuslight": "^3.0.2",
     "@spectrum-css/table": "^3.0.3",
     "@spectrum-css/textfield": "^3.0.2",
     "@spectrum-css/typography": "^3.0.2",
@@ -21,6 +22,7 @@
     "@spectrum-web-components/icons": "^0.7.5",
     "@spectrum-web-components/icons-ui": "^0.6.5",
     "@spectrum-web-components/icons-workflow": "^0.6.5",
+    "@spectrum-web-components/status-light": "^0.8.2",
     "@spectrum-web-components/tab": "^0.3.10",
     "@spectrum-web-components/tabs": "^0.5.5",
     "add": "^2.0.6",

@@ -18,10 +18,12 @@ import '@spectrum-web-components/button/sp-clear-button.js';
 import '@spectrum-web-components/action-button/sp-action-button.js';
 import '@spectrum-web-components/tabs/sp-tabs.js';
 import '@spectrum-web-components/tabs/sp-tab.js';
+import '@spectrum-web-components/status-light/sp-status-light.js';
 
 import "@spectrum-css/alert/dist/index-vars.css";
 import "@spectrum-css/table/dist/index-vars.css";
 import "@spectrum-css/icon/dist/index-vars.css";
+import "@spectrum-css/typography/dist/index-vars.css";
 
 import "./popup.css";
 

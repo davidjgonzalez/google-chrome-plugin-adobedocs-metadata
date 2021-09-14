@@ -1,6 +1,6 @@
 body {
   min-width: 600px;
-  min-height: 600px;
+  min-height: 650px;
   padding: 0.5rem 1rem 1rem 1rem;
 }
 
@@ -90,4 +90,32 @@ sp-action-button, sp-action-menu {
 textarea.markdown {
     width: 100%;
     height: 20rem;
+}
+
+.status {
+    margin-top: 0;
+    right: 1.5rem;
+    position: absolute;
+}
+
+
+.metadata-error {
+    background-color:#ffe7ec;
+}
+
+.metadata-error:hover {
+    background-color: #fcd5de;
+}
+
+.metadata-notice {
+    background-color: #feffe7;
+}
+
+.metadata-notice:hover {
+    background-color: #f9fdbd;
+}
+
+hr {
+    border-width: 0;
+    border-bottom: solid 1px #ccc;
 }
