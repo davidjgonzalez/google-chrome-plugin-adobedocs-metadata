@@ -1,17 +1,24 @@
 import fetch from 'node-fetch';
 
 import './content.css';
+import { parseJiraTitle } from '../utils';
 
-function getMetadata(jiraJSON) {
+async function getMetadata(jiraJSON) {
 
   const metadata = {
     website: 'JIRA',
+    type: jiraJSON.fields?.issuetype?.name || 'Story',
     currentDoc: {
         host: window.location.host,
         path: window.location.pathname
-    },
-    jira: parseJiraJSON(jiraJSON)
+    }
   };
+
+  if (metadata.type === 'Initiative') {
+    metadata.jira = await parseJiraCourseJSON(jiraJSON);
+  } else {
+    metadata.jira = await parseJiraStoryJSON(jiraJSON);
+  }
 
   return metadata;
 }
@@ -22,29 +29,30 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 
   if (msg.text === "collect_adobedocs_metadata") {
 
-    getJira(window.location).then(jiraJSON => { 
-        
-        getJiraRemoteLinks(jiraJSON.key).then(jiraRemoteLinksJSON  => {
+    let jiraId = getJiraId(window.location);
 
-            jiraJSON.remoteLinks = jiraRemoteLinksJSON || [];
-
-            sendResponse(getMetadata(jiraJSON));
-        });
+    getJira(jiraId).then(jiraJSON => {         
+        if (jiraJSON.issuetype?.name === 'Initiative') {
+            jiraJSON.lessons = parseLessons(jiraJSON);
+            getMetadata(jiraJSON).then(metadata => sendResponse(metadata));
+        } else {
+            getJiraRemoteLinks(jiraJSON.key).then(jiraRemoteLinksJSON  => {
+                jiraJSON.remoteLinks = jiraRemoteLinksJSON || [];    
+                getMetadata(jiraJSON).then(metadata => sendResponse(metadata));
+            });
+        }    
     });
     return true;
   }
 });
 
-
-function getJira(url) {
-    let jiraId = getJiraId(url);
+function getJira(jiraId) {
     const JIRA_URL = `/rest/api/latest/issue/${jiraId}`;
 
     if (jiraId) {
         return fetch(JIRA_URL).then(res => res.json());
     } 
 }
-
 
 function getJiraRemoteLinks(jiraId) {
     const JIRA_URL = `/rest/api/latest/issue/${jiraId}/remotelink`;
@@ -59,8 +67,9 @@ function getJiraId(windowLocation) {
     } 
 }
 
-function parseJiraJSON(json) {
+async function parseJiraStoryJSON(json) {
     return {
+        jiraId: json.key,
         title: parseTitle(json),
         description: parseDescription(json),
         kt: parseKT(json),
@@ -72,12 +81,25 @@ function parseJiraJSON(json) {
         videoId: parseVideoId(json),
         publishUrl: parsePublishUrl(json),
         products: parseProducts(json),
-        components: parseComponents(json)
+        components: parseComponents(json),
+        duration: parseDuration(json),
+        publishLink: parsePublishLink(json)
+    }
+}
+
+async function parseJiraCourseJSON(json) {
+    return {
+        jiraId: json.key,
+        title: parseTitle(json),
+        description: parseDescription(json),
+        kt: parseKT(json),
+        duration: parseDuration(json),
+        lessons: await parseLessons(json)
     }
 }
 
 function parseTitle(json) {
-    return json.fields.summary;
+    return parseJiraTitle(json.fields.summary);
 }
 
 function parseDescription(json) {
@@ -130,4 +152,55 @@ function parseProducts(json) {
 
 function parseComponents(json) {
     return json?.fields?.components?.map(component => component.name);
+}
+
+function parseDuration(json) {
+    return json?.fields?.customfield_32300 || '00:00:00';
+}
+
+function parsePublishLink(json) {
+    return json?.fields?.customfield_30500 || '';
+}
+
+async function parseLessons(json) {
+    const regex = /KT-\d+/;
+    
+    const lessons = [];
+    let lesson = [];
+
+    const lines = (parseDescription(json) || '').split('\r\n')
+    let lessonTitle;
+
+    for (let i in lines) {
+        let line = lines[i];
+
+        if (!line.trim() && lesson.length > 0) {
+            if (lessonTitle) {
+                lesson.title = lessonTitle;
+            }
+
+            lessons.push({
+                title: lessonTitle || "Enter lesson title",
+                stories: lesson
+            });
+            lesson = [];
+        } else if (line.trim()){
+            let match = regex.exec(line);
+
+            if (match && match[0]) {
+                let jiraId = match[0];
+
+                let jiraJSON = await getJira(jiraId);
+
+                if (jiraJSON.fields?.issuetype?.name === 'Story') {
+                    jiraJSON.remoteLinks = await getJiraRemoteLinks(jiraJSON.key) || [];                        
+                    lesson.push(await parseJiraStoryJSON(jiraJSON));
+                }
+            } else {                
+                lessonTitle = line.trim();
+            }
+        }
+    }
+
+    return lessons;
 }

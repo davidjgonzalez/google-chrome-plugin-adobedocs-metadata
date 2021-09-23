@@ -19,6 +19,7 @@ import '@spectrum-web-components/action-button/sp-action-button.js';
 import '@spectrum-web-components/tabs/sp-tabs.js';
 import '@spectrum-web-components/tabs/sp-tab.js';
 import '@spectrum-web-components/status-light/sp-status-light.js';
+import '@spectrum-web-components/progress-circle/sp-progress-circle.js';
 
 import "@spectrum-css/alert/dist/index-vars.css";
 import "@spectrum-css/table/dist/index-vars.css";
@@ -28,14 +29,17 @@ import "@spectrum-css/typography/dist/index-vars.css";
 import "./popup.css";
 
 import experienceLeaguePopup from "./popup-exl.js"
-import jiraPopup from "./popup-jira"
+import jiraStoryPopup from "./popup-jira-story"
+import jiraCoursePopup from "./popup-jira-course";
 
 chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
   chrome.tabs.sendMessage(
     tabs[0].id,
     { text: "collect_adobedocs_metadata" },
     function (response) {
-      
+        console.log("Content script scraped the following data for the extension to display:")
+        console.log(response);
+        
         if (!response) {
 
           document.getElementById("error-alert").style.display = 'block';
@@ -51,8 +55,10 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         } else if (response.website === 'EXPERIENCE LEAGUE') {
             // ExL needs to wait until Local Storage is 
             experienceLeaguePopup(response, _injectHtml);
-        } else if (response.website === 'JIRA') {
-            jiraPopup(response, _injectHtml);
+        } else if (response.website === 'JIRA' && response.type === 'Story') {
+            jiraStoryPopup(response, _injectHtml); 
+        } else if (response.website === 'JIRA' && response.type === 'Initiative') {
+            jiraCoursePopup(response, _injectHtml);
         }
     }
   );

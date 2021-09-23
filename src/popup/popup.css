@@ -92,12 +92,16 @@ textarea.markdown {
     height: 20rem;
 }
 
+textarea.community-post {
+    width: 100%;
+    height: 6rem;
+}
+
 .status {
     margin-top: 0;
     right: 1.5rem;
     position: absolute;
 }
-
 
 .metadata-error {
     background-color:#ffe7ec;
@@ -118,4 +122,12 @@ textarea.markdown {
 hr {
     border-width: 0;
     border-bottom: solid 1px #ccc;
+}
+
+.loading {
+    width: 100%; 
+    height: 500px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-around;
 }

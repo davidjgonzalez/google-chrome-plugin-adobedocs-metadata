@@ -1,6 +1,7 @@
 import { getResourcesTabHtml } from "./popup-common";
+import { parseJiraTitle } from "../utils";
 
-export default function jiraPopup(response, callback) {
+export default function jiraStoryPopup(response, callback) {
 
     let markdown = getMarkdown(response.jira);
 
@@ -36,7 +37,7 @@ function getMarkdown(jira) {
 
     if (!jira) { return 'Could not collect information from Jira to generate the Markdown :(' };
 
-    let title = parseTitle(jira.title) || 'Missing title';
+    let title = parseJiraTitle(jira.title) || 'Missing title';
 
     if (title.length > 59) {
         title = title.substring(0, 59) + '&mldr; (Titles should be no more than 60 characters)';
@@ -81,6 +82,28 @@ function getMarkdown(jira) {
         }));
     }
 
+    let levels =  [];
+    levels.push(...jira.level?.map(level => { 
+        if (level === 'Advanced') {
+            return 'Experienced';
+        } else {
+            return level;
+        }
+    }));
+
+    let roles =  [];
+    roles.push(...jira.role?.map(role => { 
+        if (role === 'Business Practitioner') {
+            return 'User';
+        } else if (role === 'Administrator') {
+            return 'Admin';
+        } else if (role === 'Executive') {
+            return 'Leader';            
+        } else {
+            return role;
+        }
+    }));
+
     let md = `---
 title: ${title}
 description: ${description}${
@@ -90,8 +113,8 @@ description: ${description}${
 }
 feature: ???
 topic: ???
-role: ${jira.role ? jira.role?.join(', ') : '???'}
-level: ${jira.level ? jira.level?.join(', ') : '???'}
+role: ${roles ? roles?.join(', ') : 'Leader, Architect, Developer, Data Architect, Data Engineer, Admin, User'}
+level: ${levels ? levels?.join(', ') : 'Beginner, Intermediate, Advanced'}
 kt: ${jira.kt}
 thumbnail: ${jira.videoId ? jira.videoId : 'KT-' + jira.kt}.jpeg
 ---
@@ -106,32 +129,3 @@ ${jira.videoId ? '>[!VIDEO](https://video.tv.adobe.com/v/' + jira.videoId + '/?q
 }
 
 
-
-function parseTitle(title) {
-
-    // [Asset Essentials] Getting started with Assets Essentials - Feature Video
-    let found = title.match(/[^\]]+](.*)-+\s?(Feature Video|Technical Video|Tutorial|Article|Code Sample|Event|Exercise|Intro Video|Presentation|Value Video)/i);
-    if (found && found.length >= 2 && found[1]) {
-        return found[1].trim();
-    }
-
-    // [Asset Essentials] Getting started with Assets Essentials
-    found = title.match(/[^\]]+](.*)/i)
-    if (found && found.length >= 2 && found[1]) {
-        return found[1].trim();
-    }
-
-    // ACC - Configure the integration between ACC and AEM - Feature Video
-    found = title.match(/[^-]+-(.*)-+\s?(Feature Video|Technical Video|Tutorial|Article|Code Sample|Event|Exercise|Intro Video|Presentation|Value Video)/i)
-    if (found && found.length >= 2 && found[1]) {
-        return found[1].trim();
-    }
-
-    // URS - Project & Repository structure
-    found = title.match(/[^-]+-(.*)/i)
-    if (found && found.length >= 2 && found[1]) {
-        return found[1].trim();
-    }
-
-    return title;
-}
