@@ -86,6 +86,8 @@ function getMarkdown(course) {
 
 *Course duration:* ${getCourseDuration(course.lessons).format('hh:mm:ss')}
 
+*ExL Community Link*:
+
 ----
 
 *Intro Video title*: Introduction to ${course.title}
@@ -124,7 +126,7 @@ function getMarkdown(course) {
 
 function getCommunityPost(course) {
 
-    let post = `Use this thread to ask any questions related to the upcoming "${course.title}" course on Experience League. 
+    let post = `Use this thread to ask any questions related to the upcoming ${course.title} course on Experience League. 
     
 Experts are monitoring this thread to ensure your questions are answered.`;
 

@@ -63,15 +63,15 @@ export default function experienceLeaguePopup(response, callback) {
                     getDisplayRow(getMeta("Description", response.description, "Missing", Missing.ERROR)),
                     getDisplayRow(getMeta("ExL ID", response.exlId, "Missing", Missing.ERROR)),
 
-                    getDisplayRow(getMeta("Cloud", response.cloud, "Missing", Missing.NOTICE)),
+                    getDisplayRow(getMeta("Cloud", response.cloud, "Missing", Missing.ERROR)),
                     getDisplayRow(getMetas("Product(s)", response.products, "Missing", Missing.ERROR)),
-                    getDisplayRow(getMetas("Solution(s)", response.solutions, "Missing", Missing.NOTICE)),
+                    getDisplayRow(getMetas("Solution(s)", response.solutions, "Missing", Missing.ERROR)),
                     getDisplayRow(getMetas("Version(s)", response.versions, null)),
 
-                    getDisplayRow(getMeta("Role", response.role, "Missing", Missing.NOTICE)),
-                    getDisplayRow(getMeta("Level", response.level, "Missing", Missing.NOTICE)),
+                    getDisplayRow(getMeta("Role", response.role, "Missing", Missing.ERROR)),
+                    getDisplayRow(getMeta("Level", response.level, "Missing", Missing.ERROR)),
 
-                    getDisplayRow(getMetas("Topic(s)", response.topics, "None")),
+                    getDisplayRow(getMetas("Topic(s)", response.topics, "Missing", Missing.ERROR)),
                     getDisplayRow(getMetas("Feature(s)", response.features, "None"))
 
                 ])}
@@ -415,7 +415,7 @@ function getSection(sectionTitle, lists) {
    }
   
     function getStatus(data) {
-        if (isAnyMissing([data.exlId, data.products, data.title, data.description, data.cloud, data.solutions, data.role, data.level, data.topics])) { 
+        if (isAnyMissing([data.exlId, data.products, data.title, data.description, data.cloud, data.solutions, data.role, data.level])) { 
             return `<div class="status"><sp-status-light size="M" variant="negative">Fix metadata</sp-status-light></div>`;
         } else {
             return `<div class="status"><sp-status-light size="M" variant="positive">Metadata good</sp-status-light></div>`;
