@@ -1,5 +1,5 @@
 body {
-  min-width: 600px;
+  min-width: 700px;
   min-height: 650px;
   padding: 0.5rem 1rem 1rem 1rem;
 }
@@ -130,4 +130,13 @@ hr {
     display: flex; 
     align-items: center; 
     justify-content: space-around;
+}
+
+
+.inputs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 2rem;
+    margin-bottom: 2rem;
 }

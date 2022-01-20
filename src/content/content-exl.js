@@ -34,9 +34,9 @@ function getMetadata() {
     title: getElementText("title"),
     topics: getMetas("topic"),
     type: getMeta("type"),
-    versions: getMetas("version")
+    versions: getMetas("version"),
+    recommendations: getMetas("recommendations"),
   };
-
 
   return metadata;
 }

@@ -56,5 +56,5 @@ module.exports = {
           { from: 'src/icon.png', to: 'icon128.png' },
         ],
       }),
-  ],
+  ]
 };

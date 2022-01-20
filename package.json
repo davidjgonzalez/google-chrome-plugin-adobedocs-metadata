@@ -1,6 +1,6 @@
 {
   "name": "google-chrome-adobedocs-metadata",
-  "version": "1.8.2",
+  "version": "1.10.0",
   "description": "Google Chrome extension for AdobeDocs content management",
   "main": "background.js",
   "dependencies": {
@@ -16,6 +16,7 @@
     "@spectrum-css/vars": "^2.3.0",
     "@spectrum-web-components/action-button": "^0.4.6",
     "@spectrum-web-components/action-menu": "^0.9.6",
+    "@spectrum-web-components/bundle": "^0.24.1",
     "@spectrum-web-components/button": "^0.13.6",
     "@spectrum-web-components/dropdown": "^0.10.1",
     "@spectrum-web-components/icon": "^0.9.5",
@@ -26,6 +27,7 @@
     "@spectrum-web-components/status-light": "^0.8.2",
     "@spectrum-web-components/tab": "^0.3.10",
     "@spectrum-web-components/tabs": "^0.5.5",
+    "@spectrum-web-components/textfield": "^0.10.2",
     "add": "^2.0.6",
     "moment": "^2.29.1",
     "moment-duration-format": "^2.3.2",

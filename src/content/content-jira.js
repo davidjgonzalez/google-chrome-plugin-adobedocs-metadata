@@ -79,6 +79,7 @@ async function parseJiraStoryJSON(json) {
         topics: '',
         features: '',
         videoId: parseVideoId(json),
+        videoUrl: parsePublishVideoUrl(json),
         publishUrl: parsePublishUrl(json),
         products: parseProducts(json),
         components: parseComponents(json),
@@ -88,13 +89,20 @@ async function parseJiraStoryJSON(json) {
 }
 
 async function parseJiraCourseJSON(json) {
+    let lessons = await parseLessons(json);
+
     return {
         jiraId: json.key,
-        title: parseTitle(json),
-        description: parseDescription(json),
+        title: lessons[0].title || 'Missing first lesson title',
+        assignee: parseAssignee(json),
+        description: lessons[0].description || 'Missing first lesson description',
         kt: parseKT(json),
+        role: parseRoles(json),
+        level: parseLevels(json),
+        products: parseProducts(json),
+        components: parseComponents(json),
         duration: parseDuration(json),
-        lessons: await parseLessons(json)
+        lessons: lessons
     }
 }
 
@@ -102,8 +110,17 @@ function parseTitle(json) {
     return parseJiraTitle(json.fields.summary);
 }
 
+function parseCourseDefinition(json) {
+    return json.fields.description;
+}
+
 function parseDescription(json) {
     return json.fields.description;
+}
+
+function parseAssignee(json) {
+    return json.fields.assignee?.displayName || 'None';
+
 }
 
 function parseKT(json) {
@@ -124,6 +141,18 @@ function parseVideoUrl(json) {
             return remoteLink?.object?.url;
         }
     }
+}
+
+function parsePublishVideoUrl(json) {
+
+    let videoId = parseVideoId(json);
+
+    if (videoId) {
+        return `https://video.tv.adobe.com/v/${videoId}/?quality=12&learn=on`
+    } else {
+        return '';
+    }
+
 }
 
 function parseVideoId(json) {
@@ -166,25 +195,50 @@ async function parseLessons(json) {
     const regex = /KT-\d+/;
     
     const lessons = [];
-    let lesson = [];
+    let stories = [];
 
-    const lines = (parseDescription(json) || '').split('\r\n')
-    let lessonTitle;
+    const lines = (parseCourseDefinition(json) || '').split('\r\n')
+    let lesson = {};
+
+    let qualifierId = '';
+    let revision = '';
+    let series = '';
+    let communityLink = '';
+
 
     for (let i in lines) {
         let line = lines[i];
 
-        if (!line.trim() && lesson.length > 0) {
-            if (lessonTitle) {
-                lesson.title = lessonTitle;
-            }
-
+        if (line.trim() === '!END COURSE') {
+            return lessons;
+        } else if (line.trim().toLowerCase().startsWith("qualifier id:")) {
+            qualifierId = parseInt(line.trim().toLowerCase().substring("qualifier id:".length).trim());      
+        } else if (line.trim().toLowerCase().startsWith("revision:")) {
+            revision = line.trim().toLowerCase().substring("revision:".length).trim();            
+        } else if (line.trim().toLowerCase().startsWith("series:")) {
+            series = line.trim().toLowerCase().substring("series:".length).trim();            
+        } else if (line.trim().toLowerCase().startsWith("community link:")) {
+            communityLink = line.trim().toLowerCase().substring("community link:".length).trim();  
+            if (communityLink.startsWith('[')) {
+                communityLink = communityLink.substring(1);
+            }    
+            if (communityLink.endsWith(']')) {
+                communityLink = communityLink.substring(0, communityLink.length - 1);
+            }    
+        } else if (!line.trim() && stories.length > 0) { // If its blank line, and there are stories    
             lessons.push({
-                title: lessonTitle || "Enter lesson title",
-                stories: lesson
+                title: lesson.title || "Enter lesson title",
+                description: lesson.description || "Enter lesson description",
+                stories: stories,
+                qualifierId: qualifierId + lessons.length,
+                revision: revision,
+                series: series,
+                communityLink: communityLink,
+                index: lessons.length
             });
-            lesson = [];
-        } else if (line.trim()){
+            lesson = {};
+            stories = [];
+        } else if (line.trim()) {
             let match = regex.exec(line);
 
             if (match && match[0]) {
@@ -194,10 +248,15 @@ async function parseLessons(json) {
 
                 if (jiraJSON.fields?.issuetype?.name === 'Story') {
                     jiraJSON.remoteLinks = await getJiraRemoteLinks(jiraJSON.key) || [];                        
-                    lesson.push(await parseJiraStoryJSON(jiraJSON));
+                    stories.push(await parseJiraStoryJSON(jiraJSON));
                 }
-            } else {                
-                lessonTitle = line.trim();
+            } else {          
+      
+                if (!lesson.title) {
+                    lesson.title = line.trim();
+                } else if (!lesson.description) {
+                    lesson.description = line.trim();
+                }
             }
         }
     }

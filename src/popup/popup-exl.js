@@ -2,7 +2,7 @@ import moment from 'moment';
 import OPTIONS from "../constants";
 import { getResourcesTabHtml } from "./popup-common";
 
-import { StatusLight } from '@spectrum-web-components/status-light';
+import '@spectrum-web-components/status-light';
 
 const Missing = {
     ERROR: 'error',
