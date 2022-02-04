@@ -15,14 +15,14 @@ export default function jiraStoryPopup(response, callback) {
             <br/>
             <br/>
             
-            <sp-button data-copy-to-clipboard="${markdown}">
+            <sp-button data-copy-to-clipboard="popup-jira-story__markdown">
                 Copy Markdown to clipboard
             </sp-button>  
 
             <br/>
             <br/>
 
-            <textarea class="markdown" readonly>${markdown}</textarea>
+            <textarea id="popup-jira-story__markdown" class="markdown" readonly>${markdown}</textarea>
         </div>
 
         <div data-tab="2" class="tab-content">

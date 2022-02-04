@@ -87,7 +87,13 @@ function _injectHtml(html, elementId) {
 
     document.querySelectorAll('[data-copy-to-clipboard]').forEach((el) => {
         el.addEventListener('click', (e) => {
-            _copyToClipboard(el.getAttribute('data-copy-to-clipboard'));
+            let textarea = document.getElementById(el.getAttribute('data-copy-to-clipboard'));
+
+            if (textarea) {
+                _copyToClipboard(textarea.value);
+            } else {
+                _copyToClipboard(el.getAttribute('data-copy-to-clipboard'));
+            }
         });
     });
 

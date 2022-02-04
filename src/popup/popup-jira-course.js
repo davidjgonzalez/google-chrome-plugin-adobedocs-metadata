@@ -4,7 +4,6 @@ import momentDurationFormatSetup from 'moment-duration-format';
 
 momentDurationFormatSetup(moment);
 
-
 export default function jiraCoursePopup(response, callback) {
     let course = response.jira;
     let communityPost = getCommunityPost(course);
@@ -22,21 +21,18 @@ export default function jiraCoursePopup(response, callback) {
 
             <div data-tab="0" class="tab-content">
 
-                <sp-button data-copy-to-clipboard="${getJiraTemplate()}">
-                Copy Jira description template to clipboard
+                <sp-button data-copy-to-clipboard="popup-jira-course__jira-template">
+                    Copy Jira description template to clipboard
                 </sp-button>  
 
                 <br/>
                 <br/>
-                <textarea class="markdown" readonly>${getJiraTemplate()}</textarea>
-
+                <textarea id="popup-jira-course__jira-template" class="markdown" readonly>${getJiraTemplate()}</textarea>
             </div>
-
 
             <div data-tab="1" class="tab-content">
             `;
     
-            
                 course.lessons.forEach((lesson, lessonIndex) => {
                     let md = getMarkdown(course, lesson, lessonIndex);
 
@@ -46,14 +42,14 @@ export default function jiraCoursePopup(response, callback) {
 
                     <h4>Filename: ${getFilename(getLessonId(course, lessonIndex, lesson.revision, lesson.series))}.md</h4>
 
-                    <sp-button data-copy-to-clipboard="${md}">
-                    Copy lesson ${lessonIndex + 1} to clipboard
+                    <sp-button data-copy-to-clipboard="popup-jira-course__lesson-${lessonIndex + 1}">
+                        Copy lesson ${lessonIndex + 1} to clipboard
                     </sp-button>  
 
                     <br/>
                     <br/>
 
-                    <textarea class="markdown" readonly>${md}</textarea>
+                    <textarea id="popup-jira-course__lesson-${lessonIndex + 1}" class="markdown" readonly>${md}</textarea>
 
                     <hr/>
 
@@ -70,7 +66,7 @@ export default function jiraCoursePopup(response, callback) {
             <br/>
             <br/>
             
-            <sp-button data-copy-to-clipboard="${communityPost}">
+            <sp-button data-copy-to-clipboard="popup-jira-course__community-post">
                 Copy ExL Community post to clipboard
             </sp-button>  
 
@@ -79,9 +75,9 @@ export default function jiraCoursePopup(response, callback) {
 
             <p><strong>Discussion thread title:</strong> Course Discussion: ${course.title}</p>
 
-            <textarea class="community-post" readonly>${communityPost}</textarea>
+            <textarea id="popup-jira-course__community-post" class="community-post" readonly>${communityPost}</textarea>
 
-            <br/></br>
+            <br/><br/>
 
             Instructions
 
@@ -89,8 +85,7 @@ export default function jiraCoursePopup(response, callback) {
                 <li>Create a new <strong>Discussions</strong> post on the appropriate <a target="_blank" href="https://experienceleaguecommunities.adobe.com/">ExL Community</a></strong></li>
                 <li>Save this discussion and copy the URL and paste it into your course description.</li>
                 <li>When the course is published, Copy the live production URL for the course.</li>
-                <li>Go back into your course, and simply edit the wording, removing "upcoming", and making the course name into a link.</li>
-                 
+                <li>Go back into your course, and simply edit the wording, removing "upcoming", and making the course name into a link.</li>                 
             </ol>
         </div>
 
@@ -137,8 +132,8 @@ function getMarkdown(course, lesson, lessonIndex) {
     let courseDuration = formatDuration(getCourseDuration(course.lessons).humanize());
 
     let md = `---
-title: ${lesson.title || '' }
-description: ${lesson.description || ''}
+title: ${lessonIndex === 0 ? course.title : lesson.title }
+description: ${lessonIndex === 0 ? course.description : lesson.description}
 solution: ${course.products?.join(', ') || ''} 
 role: ${course.role?.join(',') || ''} 
 level: ${course.level?.join(',') || ''} 
@@ -156,8 +151,8 @@ community-url: ${lesson.communityLink}
 community-manager: ${course.assignee}
 community-manager-picture: ${getCommunityPicture(course.assignee)}
 course-hide: false
-award-title: ${lastOnly(course.lessons[0].title, course, lessonIndex) || 'Title of first lesson...' }
-award-description: ${lastOnly(course.lessons[0].description, course, lessonIndex) || 'Description of first lesson...'}
+award-title: ${lastOnly(course.title, course, lessonIndex) || 'Title of course...' }
+award-description: ${lastOnly(course.description, course, lessonIndex) || 'Description of course...'}
 archived: false
 publish: false
 hide: false
@@ -192,15 +187,15 @@ steps:
     guide: ${lesson.qualifierId}
 ---
 
-# ${lesson.title}
+# ${lessonIndex === 0 ? course.title : lesson.title}
 
 ## Course Description
 
-${lesson.description}
+${lessonIndex === 0 ? course.description : lesson.description}
 
 ## What you'll learn {#learn} 
 ${ lessonIndex === 0 ? `
-+ Optional list of learning objectives - only add to first lesson` : `` }
+1. Optional list of learning objectives - only add to first lesson` : `` }
 
 ## Let's get learning.
 
@@ -216,17 +211,6 @@ function getCommunityPost(course) {
 Experts are monitoring this thread to ensure your questions are answered.`;
 
     return post;
-}
-
-function getCommunityPicture(name) {
-
-    if ('David Gonzalez' === name) {
-        return 'https://experienceleaguecommunities.adobe.com/legacyfs/online/avatars/a1007_car_sedan_blue.png';
-    } else if ('Girish Bedekar' === name) {
-        return 'https://experienceleaguecommunities.adobe.com/t5/image/serverpage/avatar-name/vampire/avatar-theme/candy/avatar-collection/monsters/avatar-display-size/profile/version/2?xdesc=1.0'
-    }
-
-    return null;
 }
 
 function getCourseDuration(lessons) {
@@ -259,15 +243,24 @@ function getStoryDuration(story) {
     return m;
 }
 
-function getCourseIdSolution(solution) {
+function getCourseIdSolution(jiraSolution) {
 
-    if (solution === 'Experience Manager') {
-        return 'ExperienceManager';
-    } else if (solution === 'Analytics') {
-        return 'analytics'
-    } 
+    let solutions = {
+        "Experience Manager": "ExperienceManager",
+        "Analytics": "Analytics",
+        "Campaign": "Campaign",
+        "Experience Cloud": "ExperienceCloud",
+        "Audience Manager": "AudienceManager",
+        "Customer Journey Analytics": "CustomerJourneyAnalytics",
+        "Customer Experience Management": "CXM"
+    }
 
-    return '?';
+    let solution = solutions[jiraSolution];
+    if (!solution) {
+        solution = jiraSolution.replaceAll(' ', '');
+    }
+
+    return solution;
 }
 
 function getCourseIdRole(role) {
@@ -285,16 +278,34 @@ function getCourseIdRole(role) {
     return '?';
 }
 
+function getCommunityPicture(name) {
+
+    const pictures = {
+        "David Gonzalez": "https://experienceleaguecommunities.adobe.com/legacyfs/online/avatars/a1007_car_sedan_blue.png",
+        "Girish Bedekar": "https://experienceleaguecommunities.adobe.com/t5/image/serverpage/avatar-name/vampire/avatar-theme/candy/avatar-collection/monsters/avatar-display-size/profile/version/2?xdesc=1.0",
+        "Daniel Gordon": "https://experienceleaguecommunities.adobe.com/t5/image/serverpage/image-id/26309i06EC86FA92AAE9C7/image-dimensions/150x150/image-coordinates/0%2C0%2C2316%2C2316?v=1.0",
+        "Doug Moore": "https://experienceleaguecommunities.adobe.com/t5/image/serverpage/image-id/27685i780BC8DF8A1C6B83/image-dimensions/150x150/image-coordinates/0%2C57%2C572%2C629/constrain-image/false?v=1.0",
+        "Sandra Hausmann": "https://experienceleaguecommunities.adobe.com/t5/image/serverpage/image-id/28105i7877BD74D9A7B834/image-dimensions/150x150/image-coordinates/240%2C0%2C1200%2C960?v=1.0",
+        "Amelia Waliany": "https://experienceleaguecommunities.adobe.com/legacyfs/online/avatars/a1108419_18921916_10106387200505789_7290354218988888756_n.png",
+        "Daniel Wright": "https://experienceleaguecommunities.adobe.com/t5/image/serverpage/image-id/27241i57BD4B9F4A057CB0/image-dimensions/150x150/image-coordinates/23%2C41%2C300%2C318/constrain-image/false?v=1.0"
+    }
+
+    return pictures[name] || ''
+}
+
+
 function getJiraTemplate() {
 
-    return `Qualifier ID: ######
+    return `Course title: ...
+Course description: ...
+Qualifier ID: ######
 Revision: #
 Series: AAAA
-Community Link: https://....
+Community link: https://...
 
-The course name
-The course description on a single line.
-KT-#-of-the-intro-video
+Intro name
+The intro description on a single line.
+KT-#-of-the-intro-video (Jira publishLink set to video link)
 
 Lesson 1 name
 Lesson 1 course description on a single line.

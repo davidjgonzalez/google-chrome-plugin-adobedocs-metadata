@@ -93,9 +93,9 @@ async function parseJiraCourseJSON(json) {
 
     return {
         jiraId: json.key,
-        title: lessons[0].title || 'Missing first lesson title',
+        title: lessons[0].course?.title || 'Missing course title',
         assignee: parseAssignee(json),
-        description: lessons[0].description || 'Missing first lesson description',
+        description: lessons[0].course?.description || 'Missing course description',
         kt: parseKT(json),
         role: parseRoles(json),
         level: parseLevels(json),
@@ -135,7 +135,8 @@ function parseVideoUrl(json) {
     for (let key in json.remoteLinks) {
         let remoteLink = json.remoteLinks[key];
 
-        if (remoteLink?.object?.url.indexOf('https://publish.tv.adobe.com/') === 0) {
+        if (remoteLink?.object?.url.indexOf('https://publish.tv.adobe.com/') === 0 ||
+                    remoteLink?.object?.url.indexOf('https://video.tv.adobe.com/v/') === 0) {
             
             // Use first video link found
             return remoteLink?.object?.url;
@@ -143,23 +144,27 @@ function parseVideoUrl(json) {
     }
 }
 
-function parsePublishVideoUrl(json) {
+function parseVideoId(json) {
+    let videoUrl = parseVideoUrl(json);
 
+    if (videoUrl) {
+        if (videoUrl.match(/https:\/\/publish.tv.adobe.com\/bucket\/\d+\/category\/\d+\/video\/(\d+)(\/|\?)(.*)/i)) {
+            return videoUrl.match(/https:\/\/publish.tv.adobe.com\/bucket\/\d+\/category\/\d+\/video\/(\d+)(\/|\?)(.*)/i)[1];
+        } else if (videoUrl.match(/https:\/\/video.tv.adobe.com\/v\/([\d]+)\/?.*/i)) {
+            return videoUrl.match(/https:\/\/video.tv.adobe.com\/v\/([\d]+)\/?.*/i)[1];
+        }
+    }
+
+    return 'Cannot find MPC Link';
+}
+
+function parsePublishVideoUrl(json) {
     let videoId = parseVideoId(json);
 
     if (videoId) {
         return `https://video.tv.adobe.com/v/${videoId}/?quality=12&learn=on`
     } else {
         return '';
-    }
-
-}
-
-function parseVideoId(json) {
-    let videoUrl = parseVideoUrl(json);
-
-    if (videoUrl) {
-        return videoUrl.match(/https:\/\/publish.tv.adobe.com\/bucket\/\d+\/category\/\d+\/video\/(\d+)(\/|\?)(.*)/i)[1];
     }
 }
 
@@ -200,6 +205,8 @@ async function parseLessons(json) {
     const lines = (parseCourseDefinition(json) || '').split('\r\n')
     let lesson = {};
 
+    let courseTitle = '';
+    let courseDescription = '';
     let qualifierId = '';
     let revision = '';
     let series = '';
@@ -207,26 +214,34 @@ async function parseLessons(json) {
 
 
     for (let i in lines) {
-        let line = lines[i];
+        let line = lines[i].trim();
 
-        if (line.trim() === '!END COURSE') {
+        if (line === '!END COURSE') {
             return lessons;
-        } else if (line.trim().toLowerCase().startsWith("qualifier id:")) {
-            qualifierId = parseInt(line.trim().toLowerCase().substring("qualifier id:".length).trim());      
-        } else if (line.trim().toLowerCase().startsWith("revision:")) {
-            revision = line.trim().toLowerCase().substring("revision:".length).trim();            
-        } else if (line.trim().toLowerCase().startsWith("series:")) {
-            series = line.trim().toLowerCase().substring("series:".length).trim();            
-        } else if (line.trim().toLowerCase().startsWith("community link:")) {
-            communityLink = line.trim().toLowerCase().substring("community link:".length).trim();  
+        } else if (line?.toLowerCase().startsWith("course title:")) {
+            courseTitle = line.substring("course title:".length).trim(); 
+        } else if (line?.toLowerCase().startsWith("course description:")) {
+            courseDescription = line.substring("course description:".length).trim();                        
+        } else if (line?.toLowerCase().startsWith("qualifier id:")) {
+            qualifierId = parseInt(line.toLowerCase().substring("qualifier id:".length).trim());      
+        } else if (line?.toLowerCase().startsWith("revision:")) {
+            revision = line.substring("revision:".length).trim();            
+        } else if (line?.toLowerCase().startsWith("series:")) {
+            series = line.substring("series:".length).trim();            
+        } else if (line?.toLowerCase().startsWith("community link:")) {
+            communityLink = line.substring("community link:".length).trim();  
             if (communityLink.startsWith('[')) {
                 communityLink = communityLink.substring(1);
             }    
             if (communityLink.endsWith(']')) {
                 communityLink = communityLink.substring(0, communityLink.length - 1);
             }    
-        } else if (!line.trim() && stories.length > 0) { // If its blank line, and there are stories    
+        } else if (!line && stories.length > 0) { // If its blank line, and there are stories    
             lessons.push({
+                course: {
+                    title: courseTitle,
+                    description: courseDescription
+                },
                 title: lesson.title || "Enter lesson title",
                 description: lesson.description || "Enter lesson description",
                 stories: stories,
@@ -238,7 +253,7 @@ async function parseLessons(json) {
             });
             lesson = {};
             stories = [];
-        } else if (line.trim()) {
+        } else if (line) {
             let match = regex.exec(line);
 
             if (match && match[0]) {
