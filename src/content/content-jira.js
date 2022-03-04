@@ -210,6 +210,7 @@ async function parseLessons(json) {
     let qualifierId = '';
     let revision = '';
     let series = '';
+    let menu = '';
     let communityLink = '';
 
 
@@ -228,6 +229,8 @@ async function parseLessons(json) {
             revision = line.substring("revision:".length).trim();            
         } else if (line?.toLowerCase().startsWith("series:")) {
             series = line.substring("series:".length).trim();            
+        } else if (line?.toLowerCase().startsWith("menu:")) {
+            menu = line.substring("menu:".length).trim();            
         } else if (line?.toLowerCase().startsWith("community link:")) {
             communityLink = line.substring("community link:".length).trim();  
             if (communityLink.startsWith('[')) {
@@ -249,6 +252,7 @@ async function parseLessons(json) {
                 revision: revision,
                 series: series,
                 communityLink: communityLink,
+                menu: menu,
                 index: lessons.length
             });
             lesson = {};

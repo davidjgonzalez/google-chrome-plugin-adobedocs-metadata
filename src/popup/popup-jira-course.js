@@ -156,7 +156,7 @@ award-description: ${lastOnly(course.description, course, lessonIndex) || 'Descr
 archived: false
 publish: false
 hide: false
-menu: ''
+menu:  ${firstOnly(course.menu, lessonIndex) || ''}
 training: ''
 meta:
   - title: Length
@@ -181,7 +181,7 @@ for (let j in lesson.stories) {
 
 md += `
 steps:
-    - title: ${lesson.title}
+  - title: ${lesson.title}
     description: ${lesson.description}
     label: ${lessonIndex === 0 ? 'Get Started' : 'Get Value'}
     guide: ${lesson.qualifierId}
@@ -301,6 +301,7 @@ Course description: ...
 Qualifier ID: ######
 Revision: #
 Series: AAAA
+Menu: Select value from values listed in https://adobe.ly/3soOaCS
 Community link: https://...
 
 Intro name

@@ -54,55 +54,61 @@ function getMarkdown(jira) {
 
     let versions =  null;
 
-    if  (jira.products?.includes('Experience Manager')) {
-        versions = versions || [];
+    if (jira.products) { 
+        if  (jira.products?.includes('Experience Manager')) {
+            versions = versions || [];
 
-        versions.push(...jira.versions?.map(version => { 
-            if (version === 'AEM CS') {
-                return 'Cloud Service';
-            } else if (version == '6.5') {
-                return '6.5';
-            } else if (version === '6.4') {
-                return '6.4';
-            }
-        }));
-    } 
+            versions.push(...jira.versions?.map(version => { 
+                if (version === 'AEM CS') {
+                    return 'Cloud Service';
+                } else if (version == '6.5') {
+                    return '6.5';
+                } else if (version === '6.4') {
+                    return '6.4';
+                }
+            }));
+        } 
 
-    if (jira.products?.includes('Campaign')) {
-        versions = versions || [];
+        if (jira.products?.includes('Campaign')) {
+            versions = versions || [];
 
-        versions.push(...jira.components?.map(component => { 
-            if (component === 'AV V8') {
-                return 'v8';
-            } else if (component == 'ACC') {
-                return 'Classic v7';
-            } else if (component === 'ACS') {
-                return 'Standard';
+            versions.push(...jira.components?.map(component => { 
+                if (component === 'AV V8') {
+                    return 'v8';
+                } else if (component == 'ACC') {
+                    return 'Classic v7';
+                } else if (component === 'ACS') {
+                    return 'Standard';
+                }
+            }));
+        }
+    }
+
+    let levels =  [];
+    if (jira.level) { 
+        levels.push(...jira.level?.map(level => { 
+            if (level === 'Advanced') {
+                return 'Experienced';
+            } else {
+                return level;
             }
         }));
     }
 
-    let levels =  [];
-    levels.push(...jira.level?.map(level => { 
-        if (level === 'Advanced') {
-            return 'Experienced';
-        } else {
-            return level;
-        }
-    }));
-
     let roles =  [];
-    roles.push(...jira.role?.map(role => { 
-        if (role === 'Business Practitioner') {
-            return 'User';
-        } else if (role === 'Administrator') {
-            return 'Admin';
-        } else if (role === 'Executive') {
-            return 'Leader';            
-        } else {
-            return role;
-        }
-    }));
+    if (jira.role) {
+        roles.push(...jira.role?.map(role => { 
+            if (role === 'Business Practitioner') {
+                return 'User';
+            } else if (role === 'Administrator') {
+                return 'Admin';
+            } else if (role === 'Executive') {
+                return 'Leader';            
+            } else {
+                return role;
+            }
+        }));
+    }
 
     let md = `---
 title: ${title}
@@ -113,8 +119,8 @@ description: ${description}${
 }
 feature: ???
 topic: ???
-role: ${roles ? roles?.join(', ') : 'Leader, Architect, Developer, Data Architect, Data Engineer, Admin, User'}
-level: ${levels ? levels?.join(', ') : 'Beginner, Intermediate, Advanced'}
+role: ${roles.length > 0 ? roles?.join(', ') : '??? - select one or more: Leader, Architect, Developer, Data Architect, Data Engineer, Admin, User'}
+level: ${levels.length > 0 ? levels?.join(', ') : '??? - select one or more: Beginner, Intermediate, Advanced'}
 kt: ${jira.kt}
 thumbnail: ${jira.videoId ? jira.videoId : 'KT-' + jira.kt}.jpeg
 ---
