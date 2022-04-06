@@ -41,7 +41,6 @@ function getResourcesTabHtml() {
             <ul>
                 <li>https://experienceleague.adobe.com/docs</li>
                 <li>https://experienceleague.corp.adobe.com/docs</li>
-                <li>https://experienceleague-*.corp.adobe.com/docs</li>
             </ul>
         </p>
         
@@ -50,6 +49,10 @@ function getResourcesTabHtml() {
             <ul>
                 <li>https://jira.corp.adobe.com/docs</li>
             </ul>
+        </p>
+
+        <p>
+            Jira descriptions are parsed from the top of the description down to the first instance of the string <pre>!END DESCRIPTION</pre>.
         </p>
         `;
 }

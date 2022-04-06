@@ -130,6 +130,7 @@ function getMarkdown(course, lesson, lessonIndex) {
 
     let lessonId = getLessonId(course, lessonIndex, lesson.revision, lesson.series);
     let courseDuration = formatDuration(getCourseDuration(course.lessons).humanize());
+    let courseThumbnail = course.title.toLowerCase().replace(new RegExp("[^a-z0-9-]", "g"), "");
 
     let md = `---
 title: ${lessonIndex === 0 ? course.title : lesson.title }
@@ -138,7 +139,7 @@ solution: ${course.products?.join(', ') || ''}
 role: ${course.role?.join(',') || ''} 
 level: ${course.level?.join(',') || ''} 
 course-id: ${lessonId}
-course-thumbnail: /www/img/thumb/${course.title.toLowerCase().replaceAll(' ', '-')}.png
+course-thumbnail: /www/img/thumb/${courseThumbnail}.png
 course-title: ${lesson.title || ''}
 course-description: ${lesson.description || ''}
 course-path-title: ${firstOnly(course.title, lessonIndex) || ''}
@@ -156,13 +157,13 @@ award-description: ${lastOnly(course.description, course, lessonIndex) || 'Descr
 archived: false
 publish: false
 hide: false
-menu:  ${firstOnly(course.menu, lessonIndex) || ''}
+menu: ${firstOnly(course.menu, lessonIndex) || ''}
 training: ''
 meta:
   - title: Length
     description: ${getLessonDuration(lesson).humanize()}
   - title: Audience
-    description: ${course.role.join(', ')}
+    description: ${course.role.map((r) => { getExlRole(r) }).join(', ')}
 guides:`;
 
 let storyIndex = 0;
@@ -173,10 +174,10 @@ for (let j in lesson.stories) {
   - guide-title: ${lesson.title}
     step-title: ${story.title}
     title: ${story.title}
-    description: ${lessonIndex === 0 ? course.description : story.description}
+    description: ${story.description}
     qualifier-id: ${lesson.qualifierId} 
-    thumbnail: /www/img/thumb/${story.videoId}.jpeg
-    url: ${lessonIndex === 0 ? story.videoUrl : story.publishLink}`;
+    thumbnail: /www/img/thumb/${lessonIndex == 0 ? `${courseThumbnail}.png` : `${story.videoId}.jpeg` }
+    url: ${lessonIndex === 0 ? story.videoUrl : getGuideUrl(story.publishLink)}`;
 }
 
 md += `
@@ -263,6 +264,17 @@ function getCourseIdSolution(jiraSolution) {
     return solution;
 }
 
+function getExlRole(role) {
+    let roles = {
+        'A': 'Admin',
+        'D': 'Developer',
+        'L': 'Leader',
+        'U': 'User'
+    }
+
+    return roles[getCourseIdRole(role)] ? roles[getCourseIdRole(role)] : '?';
+}
+
 function getCourseIdRole(role) {
 
     if (['User'].includes(role)) {
@@ -301,7 +313,7 @@ Course description: ...
 Qualifier ID: ######
 Revision: #
 Series: AAAA
-Menu: Select value from values listed in https://adobe.ly/3soOaCS
+Menu: Select value from values listed in https://adobe.ly/369BrfD
 Community link: https://...
 
 Intro name
@@ -332,4 +344,24 @@ function formatDuration(humanized) {
     }
 
     return humanized;
+}
+
+
+function getMenu(solution) {
+    // https://adobe-my.sharepoint.com/:i:/p/dgonzale/EUbiOSZZpm1Fh9VQlbTZEDwBgkFkuZkMbb_QjM-psvU6Zw?e=WHMUva
+
+    let menu = { 
+        'Analytics': 'Get Smart'
+    }
+
+    return menu(solution);
+}
+
+function getGuideUrl(fullUrl) {
+    try {
+        let url = new URL(fullUrl)
+        return url?.pathname || fullUrl;
+    } catch(error) {
+        return fullUrl;
+    }
 }

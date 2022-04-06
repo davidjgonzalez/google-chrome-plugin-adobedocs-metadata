@@ -117,10 +117,10 @@ description: ${description}${
     versions != null ? '\nversion: ' + (versions.length === 0 ? '???' : versions.join(', ')) : ''
 
 }
-feature: ???
-topic: ???
+feature: ??? - select one or more from: https://adobe.ly/3JfnRW9
+topic: ??? - select 0 or more from: https://adobe.ly/3NRHfMp
 role: ${roles.length > 0 ? roles?.join(', ') : '??? - select one or more: Leader, Architect, Developer, Data Architect, Data Engineer, Admin, User'}
-level: ${levels.length > 0 ? levels?.join(', ') : '??? - select one or more: Beginner, Intermediate, Advanced'}
+level: ${levels.length > 0 ? levels?.join(', ') : '??? - select one or more: Beginner, Intermediate, Experienced'}
 kt: ${jira.kt}
 thumbnail: ${jira.videoId ? jira.videoId : 'KT-' + jira.kt}.jpeg
 ---

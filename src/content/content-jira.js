@@ -71,7 +71,7 @@ async function parseJiraStoryJSON(json) {
     return {
         jiraId: json.key,
         title: parseTitle(json),
-        description: parseDescription(json),
+        description: parseDescription(json, '!END DESCRIPTION'),
         kt: parseKT(json),
         role: parseRoles(json),
         level: parseLevels(json),
@@ -111,11 +111,21 @@ function parseTitle(json) {
 }
 
 function parseCourseDefinition(json) {
-    return json.fields.description;
+    return parseDescription(json);
 }
 
-function parseDescription(json) {
-    return json.fields.description;
+function parseDescription(json, delimiter) {
+    let description = json.fields.description;
+
+    if (delimiter) {
+        let endDescriptionIndex = (description || '').indexOf(delimiter);
+
+        if (endDescriptionIndex >= 0) {
+            description = description.substring(0, endDescriptionIndex);
+        }
+    }
+
+    return description?.trim();
 }
 
 function parseAssignee(json) {

@@ -92,6 +92,10 @@ textarea.markdown {
     height: 20rem;
 }
 
+#popup-jira-story__markdown {
+    height: 26rem;
+}
+
 textarea.community-post {
     width: 100%;
     height: 6rem;
