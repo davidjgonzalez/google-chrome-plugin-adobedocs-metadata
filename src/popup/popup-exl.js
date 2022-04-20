@@ -49,7 +49,7 @@ export default function experienceLeaguePopup(response, callback) {
                     getDisplayButton(getDateTime("Last updated", response.lastUpdated)),
                     getDisplayButton(getDateTime("Last built", response.buildDate)),
                             
-                    getDisplayButton(getMeta("Hide from Search", !response.hideFromSearch ? "No" : "Yes", "No")),
+                    getDisplayButton(getMeta("Hide from Search", response.hideFromSearch ? "Yes" : "No", "No")),
                     getDisplayButton(getMeta("Hide From TOC", response.hideFromToc ? "Yes" : "No",  "No")),
                   ])}      
                   

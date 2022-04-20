@@ -1,5 +1,4 @@
 import { getResourcesTabHtml } from "./popup-common";
-import { parseJiraTitle } from "../utils";
 
 export default function jiraStoryPopup(response, callback) {
 
@@ -37,20 +36,18 @@ function getMarkdown(jira) {
 
     if (!jira) { return 'Could not collect information from Jira to generate the Markdown :(' };
 
-    let title = parseJiraTitle(jira.title) || 'Missing title';
+    let title = jira.title || 'Missing title';
 
     if (title.length > 59) {
-        title = title.substring(0, 59) + '&mldr; (Titles should be no more than 60 characters)';
+        title = title + ' (Titles should be no more than 60 characters, but is ' + title.length + ' characters)';
     }
 
     let description = jira.description || 'Missing description'
     description = description.replace(/(\r\n|\n|\r|\*|)/gm,"").trim();
 
-    if (description.length < 60) {
-        description = description + ' (Between 60 and 160 characters)'
-    } else if (description.length > 159) {
-        description = description.substring(0, 159) + '&mldr; (Descriptions should be between 60 and 160 characters)'
-    }
+    if (description.length < 60 || description.length > 160) {
+        description = description + ' (Should be between 60 and 160 characters, but is ' + description.length + ' characters)'
+    } 
 
     let versions =  null;
 
