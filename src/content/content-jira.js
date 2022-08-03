@@ -158,8 +158,8 @@ function parseVideoId(json) {
     let videoUrl = parseVideoUrl(json);
 
     if (videoUrl) {
-        if (videoUrl.match(/https:\/\/publish.tv.adobe.com\/bucket\/\d+\/category\/\d+\/video\/(\d+)(\/|\?)(.*)/i)) {
-            return videoUrl.match(/https:\/\/publish.tv.adobe.com\/bucket\/\d+\/category\/\d+\/video\/(\d+)(\/|\?)(.*)/i)[1];
+        if (videoUrl.match(/https:\/\/publish.tv.adobe.com\/bucket\/\d+\/category\/\d+\/video\/(\d+)(\/?)(.*)/i)) {
+            return videoUrl.match(/https:\/\/publish.tv.adobe.com\/bucket\/\d+\/category\/\d+\/video\/(\d+)(\/?)(.*)/i)[1];
         } else if (videoUrl.match(/https:\/\/video.tv.adobe.com\/v\/([\d]+)\/?.*/i)) {
             return videoUrl.match(/https:\/\/video.tv.adobe.com\/v\/([\d]+)\/?.*/i)[1];
         }
