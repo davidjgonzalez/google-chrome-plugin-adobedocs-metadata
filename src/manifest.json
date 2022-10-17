@@ -1,6 +1,6 @@
 {
   "name": "AdobeDocs metadata",
-  "version": "1.11.4",
+  "version": "1.13.0",
   "description": "AdobeDocs metadata extension!",
   "permissions": ["activeTab", "declarativeContent", "storage"],
   

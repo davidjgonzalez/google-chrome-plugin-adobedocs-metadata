@@ -33,6 +33,7 @@ export default function jiraStoryPopup(response, callback) {
 }
 
 function getMarkdown(jira) {
+    var today = new Date();
 
     if (!jira) { return 'Could not collect information from Jira to generate the Markdown :(' };
 
@@ -118,6 +119,7 @@ feature: ??? - select one or more from: https://adobe.ly/3JfnRW9
 topic: ??? - select 0 or more from: https://adobe.ly/3NRHfMp
 role: ${roles.length > 0 ? roles?.join(', ') : '??? - select one or more: Leader, Architect, Developer, Data Architect, Data Engineer, Admin, User'}
 level: ${levels.length > 0 ? levels?.join(', ') : '??? - select one or more: Beginner, Intermediate, Experienced'}
+last-substantial-update: ${today.getUTCFullYear() + "-" + ("0" + (today.getUTCMonth()+1)).slice(-2) + "-" + ("0" + today.getUTCDate()).slice(-2)}
 kt: ${jira.kt}
 thumbnail: ${jira.videoId ? jira.videoId : 'KT-' + jira.kt}.jpeg
 ---

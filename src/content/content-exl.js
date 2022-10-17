@@ -27,6 +27,8 @@ function getMetadata() {
     level: getMeta("level"),
     products: getMetas("product"),
     role: getMetas("role"),
+    articleId: getMeta("id"),
+    lastSubstantialUpdate: getMeta("last-substantial-update"),
     exlId: getMeta("exl-id"),
     solutions: getMetas("solution"),
     subproducts: getMetas("sub-product"),

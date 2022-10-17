@@ -48,6 +48,7 @@ export default function experienceLeaguePopup(response, callback) {
         
                     getDisplayButton(getDateTime("Last updated", response.lastUpdated)),
                     getDisplayButton(getDateTime("Last built", response.buildDate)),
+                    getDisplayButton(getDateTime("Last substantial update", response.lastSubstantialUpdate)),
                             
                     getDisplayButton(getMeta("Hide from Search", response.hideFromSearch ? "Yes" : "No", "No")),
                     getDisplayButton(getMeta("Hide From TOC", response.hideFromToc ? "Yes" : "No",  "No")),
@@ -62,7 +63,7 @@ export default function experienceLeaguePopup(response, callback) {
                     getDisplayRow(getMeta("Title", response.title, "Missing", Missing.ERROR)),
                     getDisplayRow(getMeta("Description", response.description, "Missing", Missing.ERROR)),
                     getDisplayRow(getMeta("ExL ID", response.exlId, "Missing", Missing.ERROR)),
-
+                    getDisplayRow(getMeta("Article ID", response.articleId, "Missing", Missing.ERROR)),
                     getDisplayRow(getMeta("Cloud", response.cloud, "Missing", Missing.ERROR)),
                     getDisplayRow(getMetas("Product(s)", response.products, "Missing", Missing.ERROR)),
                     getDisplayRow(getMetas("Solution(s)", response.solutions, "Missing", Missing.ERROR)),
@@ -72,8 +73,8 @@ export default function experienceLeaguePopup(response, callback) {
                     getDisplayRow(getMeta("Level", response.level, "Missing", Missing.ERROR)),
 
                     getDisplayRow(getMetas("Topic(s)", response.topics, "Missing", Missing.ERROR)),
-                    getDisplayRow(getMetas("Feature(s)", response.features, "None"))
-
+                    getDisplayRow(getMetas("Feature(s)", response.features, "None")),
+                    getDisplayRow(getMeta("Last substantial update", response.lastSubstantialUpdate, null))
                 ])}
             </div>
 
@@ -407,7 +408,7 @@ function getSection(sectionTitle, lists) {
             return `
                 <tr class="spectrum-Table-row metadata-${status.toLowerCase()}">
                     <td class="spectrum-Table-cell spectrum-Table-cell--divider">${data.title}</td>
-                    <td class="spectrum-Table-cell">${data.value}</td>
+                    <td class="spectrum-Table-cell" data-copy-to-clipboard="${data.value}">${data.value}</td>
                 </tr>`;
         } else {
             return '';
