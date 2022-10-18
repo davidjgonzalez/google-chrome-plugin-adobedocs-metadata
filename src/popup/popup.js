@@ -1,7 +1,7 @@
 "use strict";
 
 import "@spectrum-web-components/theme/sp-theme.js";
-import "@spectrum-web-components/theme/theme-light.js";
+import "@spectrum-web-components/theme/theme-lightest.js";
 import "@spectrum-web-components/theme/scale-medium.js";
 import "@spectrum-web-components/action-menu/sp-action-menu.js";
 import "@spectrum-web-components/menu/sp-menu.js";
@@ -14,6 +14,7 @@ import "@spectrum-web-components/icons-workflow/icons/sp-icon-chevron-down.js";
 
 import '@spectrum-web-components/action-menu/sp-action-menu.js';
 import '@spectrum-web-components/button/sp-button.js';
+import '@spectrum-web-components/toast/sp-toast.js';
 
 import '@spectrum-web-components/button/sp-clear-button.js';
 import '@spectrum-web-components/action-button/sp-action-button.js';
@@ -22,12 +23,17 @@ import '@spectrum-web-components/tabs/sp-tab.js';
 import '@spectrum-web-components/status-light/sp-status-light.js';
 import '@spectrum-web-components/progress-circle/sp-progress-circle.js';
 
+import "@spectrum-css/vars/dist/spectrum-global.css";
+import "@spectrum-css/vars/dist/spectrum-medium.css";
+import "@spectrum-css/vars/dist/spectrum-lightest.css";
+import "@spectrum-css/page/dist/index-vars.css";
 import "@spectrum-css/alert/dist/index-vars.css";
 import "@spectrum-css/button/dist/index-vars.css";
 import "@spectrum-css/table/dist/index-vars.css";
 import "@spectrum-css/textfield/dist/index-vars.css";
 import "@spectrum-css/fieldlabel/dist/index-vars.css";
 import "@spectrum-css/typography/dist/index-vars.css";
+import "@spectrum-css/toast/dist/index-vars.css";
 
 import "./popup.css";
 

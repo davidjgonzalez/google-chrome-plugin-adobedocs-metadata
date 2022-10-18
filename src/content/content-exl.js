@@ -37,7 +37,7 @@ function getMetadata() {
     topics: getMetas("topic"),
     type: getMeta("type"),
     versions: getMetas("version"),
-    recommendations: getMetas("recommendations"),
+    recommendations: getMetas("recommendations")
   };
 
   return metadata;

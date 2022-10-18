@@ -165,7 +165,7 @@ function parseVideoId(json) {
         }
     }
 
-    return 'Cannot find MPC Link';
+    return null;
 }
 
 function parsePublishVideoUrl(json) {

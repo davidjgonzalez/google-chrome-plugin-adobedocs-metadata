@@ -60,21 +60,23 @@ export default function experienceLeaguePopup(response, callback) {
             
             <div data-tab="2" class="tab-content">
                 ${getTable([
-                    getDisplayRow(getMeta("Title", response.title, "Missing", Missing.ERROR)),
-                    getDisplayRow(getMeta("Description", response.description, "Missing", Missing.ERROR)),
-                    getDisplayRow(getMeta("ExL ID", response.exlId, "Missing", Missing.ERROR)),
-                    getDisplayRow(getMeta("Article ID", response.articleId, "Missing", Missing.ERROR)),
-                    getDisplayRow(getMeta("Cloud", response.cloud, "Missing", Missing.ERROR)),
-                    getDisplayRow(getMetas("Product(s)", response.products, "Missing", Missing.ERROR)),
-                    getDisplayRow(getMetas("Solution(s)", response.solutions, "Missing", Missing.ERROR)),
-                    getDisplayRow(getMetas("Version(s)", response.versions, null)),
+                    getDisplayRow(getMeta("Title", response.title, "Missing", Missing.ERROR), "title"),
+                    getDisplayRow(getMeta("Description", response.description, "Missing", Missing.ERROR), "description"),
+                    getDisplayRow(getMeta("ExL ID", response.exlId, "Missing", Missing.ERROR), "N/A"),
+                    getDisplayRow(getMeta("Article ID", response.articleId, "Missing", Missing.ERROR), "N/A"),
+                    getDisplayRow(getMeta("Cloud", response.cloud, "Missing", Missing.ERROR), "cloud"),
+                    getDisplayRow(getMetas("Product(s)", response.products, "Missing", Missing.ERROR), "product"),
+                    getDisplayRow(getMetas("Solution(s)", response.solutions, "Missing", Missing.ERROR), "solution"),
+                    getDisplayRow(getMetas("Version(s)", response.versions, null), "version"),
 
-                    getDisplayRow(getMeta("Role", response.role, "Missing", Missing.ERROR)),
-                    getDisplayRow(getMeta("Level", response.level, "Missing", Missing.ERROR)),
+                    getDisplayRow(getMeta("Role", response.role, "Missing", Missing.ERROR), "role"),
+                    getDisplayRow(getMeta("Level", response.level, "Missing", Missing.ERROR), "level"),
 
-                    getDisplayRow(getMetas("Topic(s)", response.topics, "Missing", Missing.ERROR)),
-                    getDisplayRow(getMetas("Feature(s)", response.features, "None")),
-                    getDisplayRow(getMeta("Last substantial update", response.lastSubstantialUpdate, null))
+                    getDisplayRow(getMetas("Topic(s)", response.topics, "Missing", Missing.ERROR), "topic"),
+                    getDisplayRow(getMetas("Feature(s)", response.features, "None"), "feature"),
+                    
+                    getDisplayRow(getMeta("Last substantial update", response.lastSubstantialUpdate || "Not set", null), "last-substantial-update"),
+                    getDisplayRow(getMeta("Recommendations", response.recommendations, "Default (Catalog, Display)", null), "recommendations"),
                 ])}
             </div>
 
@@ -133,8 +135,18 @@ function getSection(sectionTitle, lists) {
       if (html) {
         return `
             <br/>
-            <table class="spectrum-Table" style="width: 100%">
-               
+            <table class="spectrum-Table spectrum-Table--sizeS" style="width: 100%">
+                <thead class="spectrum-Table-head">
+                  <tr>
+                    <th class="spectrum-Table-headCell" aria-sort="descending" tabindex="0">
+                      Property
+                    </th>
+                    <th class="spectrum-Table-headCell" aria-sort="none">
+                      Property value
+                    </th>
+                    <th class="spectrum-Table-headCell">Frontmatter name</th>
+                  </tr>
+                </thead>
                 <tbody class="spectrum-Table-body">
                     ${html}
                 </tbody>
@@ -286,7 +298,7 @@ function getSection(sectionTitle, lists) {
       }
     
       if (!list) {
-          return `<sp-action-button selected>No videos on the page</sp-action-button>`;
+          return `<sp-action-button>No videos on the page</sp-action-button>`;
       } else {
         return list;
       }
@@ -394,13 +406,13 @@ function getSection(sectionTitle, lists) {
   
   function getDisplayButton(data) {
     if (data.title && data.value) {
-      return `<sp-action-button selected>${data.title}: ${data.value}</sp-action-button>`;
+      return `<sp-action-button>${data.title}: ${data.value}</sp-action-button>`;
     } else {
       return '';
     }
   }
   
-    function getDisplayRow(data) {
+    function getDisplayRow(data, property) {
         if (data.title && data.value) {
 
             let status = data.require || Missing.OK;
@@ -409,6 +421,7 @@ function getSection(sectionTitle, lists) {
                 <tr class="spectrum-Table-row metadata-${status.toLowerCase()}">
                     <td class="spectrum-Table-cell spectrum-Table-cell--divider">${data.title}</td>
                     <td class="spectrum-Table-cell" data-copy-to-clipboard="${data.value}">${data.value}</td>
+                    <td class="spectrum-Table-cell" data-copy-to-clipboard="${property}">${property}</td>
                 </tr>`;
         } else {
             return '';

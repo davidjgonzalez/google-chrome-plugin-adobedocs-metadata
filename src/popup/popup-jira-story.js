@@ -13,7 +13,9 @@ export default function jiraStoryPopup(response, callback) {
         <div data-tab="1" class="tab-content">
             <br/>
             <br/>
-            
+
+            ${getWarning(response.jira)}
+
             <sp-button data-copy-to-clipboard="popup-jira-story__markdown">
                 Copy Markdown to clipboard
             </sp-button>  
@@ -32,22 +34,53 @@ export default function jiraStoryPopup(response, callback) {
     callback(html);
 }
 
+function getWarning(jira) {
+    let messages = [];
+    
+    if (jira.title.length > 59) {
+        messages.push('Titles should be no more than 60 characters, but is ' + jira.title.length + ' characters.');
+    }
+    if (jira.description.length < 60 || jira.description.length > 160) {
+        messages.push('Descriptions should be between 60 and 160 characters, but is ' + jira.description.length + ' characters');
+    }
+    if (!jira.videoId) {
+        messages.push('Could not detect a linked MPC video on Jira.')
+    }    
+
+    if (messages.length > 0) {
+
+        return `<div class="spectrum-Toast spectrum-Toast--negative" style="width: 100%">
+                    <div class="spectrum-Toast-body">
+                        <div class="spectrum-Toast-content">
+                            <ul>
+                            ${messages.map((message) => {
+                                return `<li>${message}</li>`
+                            }).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div><br/><br/>`
+    } else {
+        return '';
+    }
+}
+
 function getMarkdown(jira) {
     var today = new Date();
 
-    if (!jira) { return 'Could not collect information from Jira to generate the Markdown :(' };
+    if (!jira) { return 'Could not collect information from Jira to generate the Markdown &#9785;' };
 
     let title = jira.title || 'Missing title';
 
     if (title.length > 59) {
-        title = title + ' (Titles should be no more than 60 characters, but is ' + title.length + ' characters)';
+        //title = title + ' (Titles should be no more than 60 characters, but is ' + title.length + ' characters)';
     }
 
     let description = jira.description || 'Missing description'
     description = description.replace(/(\r\n|\n|\r|\*|)/gm,"").trim();
 
     if (description.length < 60 || description.length > 160) {
-        description = description + ' (Should be between 60 and 160 characters, but is ' + description.length + ' characters)'
+       //description = description + ' (Should be between 60 and 160 characters, but is ' + description.length + ' characters)'
     } 
 
     let versions =  null;
@@ -121,7 +154,7 @@ role: ${roles.length > 0 ? roles?.join(', ') : '??? - select one or more: Leader
 level: ${levels.length > 0 ? levels?.join(', ') : '??? - select one or more: Beginner, Intermediate, Experienced'}
 last-substantial-update: ${today.getUTCFullYear() + "-" + ("0" + (today.getUTCMonth()+1)).slice(-2) + "-" + ("0" + today.getUTCDate()).slice(-2)}
 kt: ${jira.kt}
-thumbnail: ${jira.videoId ? jira.videoId : 'KT-' + jira.kt}.jpeg
+thumbnail: ${jira.videoId ? jira.videoId : 'kt-' + jira.kt}.jpeg
 ---
 
 # ${title || 'Missing title'}
