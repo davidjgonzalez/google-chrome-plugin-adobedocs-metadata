@@ -273,10 +273,11 @@ function getSection(sectionTitle, lists) {
         if (videoId && !isNaN(videoId)) {
   
               list += `
-              <sp-action-menu id="actionMenu_mpcVideos_${videoId}" placement="bottom-end">
+              <sp-action-menu id="actionMenu_mpcVideos_${videoId}">
                   <sp-icon-chevron-down size="xxs" slot="icon"></sp-icon-chevron-down>
   
                   <span slot="label">MPC @ ${videoId}</span>
+
                   <sp-menu-item href="https://publish.tv.adobe.com/search?q=${videoId}" target="mpcAdminConsole_${videoId}">
                       Open in MPC Admin console
                   </sp-menu-item>
@@ -302,6 +303,7 @@ function getSection(sectionTitle, lists) {
       } else {
         return list;
       }
+
   }
   
   
