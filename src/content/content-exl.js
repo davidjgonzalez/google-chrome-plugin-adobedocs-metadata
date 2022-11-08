@@ -32,6 +32,7 @@ function getMetadata() {
     exlId: getMeta("exl-id"),
     solutions: getMetas("solution"),
     subproducts: getMetas("sub-product"),
+    docType: getMeta("doc-type"),
     thumbnail: getMeta("thumbnail"),
     title: getElementText("title"),
     topics: getMetas("topic"),

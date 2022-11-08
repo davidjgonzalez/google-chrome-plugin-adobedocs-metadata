@@ -43,6 +43,9 @@ function getWarning(jira) {
     if (jira.description.length < 60 || jira.description.length > 160) {
         messages.push('Descriptions should be between 60 and 160 characters, but is ' + jira.description.length + ' characters');
     }
+    if (!jira.docType) {
+        messages.push('Content Type should be set on Jira issue to popular doc-type metadata.');
+    }
     if (!jira.videoId) {
         messages.push('Could not detect a linked MPC video on Jira.')
     }    
@@ -152,6 +155,7 @@ feature: ??? - select one or more from: https://adobe.ly/3JfnRW9
 topic: ??? - select 0 or more from: https://adobe.ly/3NRHfMp
 role: ${roles.length > 0 ? roles?.join(', ') : '??? - select one or more: Leader, Architect, Developer, Data Architect, Data Engineer, Admin, User'}
 level: ${levels.length > 0 ? levels?.join(', ') : '??? - select one or more: Beginner, Intermediate, Experienced'}
+doc-type: ${jira.docType}
 last-substantial-update: ${today.getUTCFullYear() + "-" + ("0" + (today.getUTCMonth()+1)).slice(-2) + "-" + ("0" + today.getUTCDate()).slice(-2)}
 kt: ${jira.kt}
 thumbnail: ${jira.videoId ? jira.videoId : 'kt-' + jira.kt}.jpeg

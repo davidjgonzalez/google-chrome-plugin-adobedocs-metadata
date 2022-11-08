@@ -2,11 +2,21 @@
 
 import "@spectrum-css/vars/dist/spectrum-global.css";
 import "@spectrum-css/vars/dist/spectrum-medium.css";
-import "@spectrum-css/vars/dist/spectrum-light.css";
+import "@spectrum-css/vars/dist/spectrum-lightest.css";
 import "@spectrum-css/page/dist/index-vars.css";
 import "@spectrum-css/button/dist/index-vars.css";
 import "@spectrum-css/textfield/dist/index-vars.css";
 import "@spectrum-css/fieldlabel/dist/index-vars.css";
+import "@spectrum-css/typography/dist/index-vars.css";
+
+import "@spectrum-web-components/theme/sp-theme.js";
+import "@spectrum-web-components/theme/theme-lightest.js";
+import "@spectrum-web-components/theme/scale-medium.js";
+import '@spectrum-web-components/icon/sp-icon.js';
+import '@spectrum-web-components/icons/sp-icons-medium.js';
+import "@spectrum-web-components/icons-workflow/icons/sp-icon-chevron-down.js";
+import '@spectrum-web-components/button/sp-button.js';
+
 
 import "./options.css";
 

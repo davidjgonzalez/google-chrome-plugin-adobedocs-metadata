@@ -5,7 +5,9 @@ import { parseJiraTitle } from '../utils';
 
 async function getMetadata(jiraJSON) {
 
-  const metadata = {
+   console.log("Jira JSON:", jiraJSON);
+
+   const metadata = {
     website: 'JIRA',
     type: jiraJSON.fields?.issuetype?.name || 'Story',
     currentDoc: {
@@ -84,7 +86,8 @@ async function parseJiraStoryJSON(json) {
         products: parseProducts(json),
         components: parseComponents(json),
         duration: parseDuration(json),
-        publishLink: parsePublishLink(json)
+        publishLink: parsePublishLink(json),
+        docType: parseDocType(json),
     }
 }
 
@@ -192,6 +195,10 @@ function parseLevels(json) {
 
 function parseProducts(json) {
     return json?.fields?.customfield_17100?.map(product => product.value);
+}
+
+function parseDocType(json) {
+    return json?.fields?.customfield_18101?.value;
 }
 
 function parseComponents(json) {
