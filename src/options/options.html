@@ -11,41 +11,48 @@
 
     <div class="options-wrapper">
       <h1 class="spectrum-Heading spectrum-Heading--L">
-        AdobeDocs metadata plug-in options
+        AdobeDocs metadata extension options
       </h1>
 
-      <section>
-        <label for="fileSystemContentRoot" class="spectrum-FieldLabel">
-          File system path to your cloned Git repos
-        </label>
+      <div id="saved" style="margin: 1rem 0 2rem 0; display: none;">
+        <div class="spectrum-Toast spectrum-Toast--positive" style="width: 100%;">
+          <div class="spectrum-Toast-body">
+            <div class="spectrum-Toast-content">Your changes have been saved!</div>
+          </div>
+        </div>
+      </div>
 
-        <div class="spectrum-Textfield">
-          <input
-            type="text"
-            placeholder="Enter the file system path to your cloned Git repos"
-            name="gcp-adobedocs-metadata__options__fs-content-root"
-            class="spectrum-Textfield-input"
-            id="gcp-adobedocs-metadata__options__fs-content-root"
-          />
+      <section>
+        <div style="margin-bottom: 2rem;">
+          <label for="gcp-adobedocs-metadata__options__fs-content-root" class="spectrum-FieldLabel spectrum-FieldLabel--sizeM">
+            File system path to your cloned Git repos
+          </label>
+
+          <div class="spectrum-Textfield">
+            <input
+              type="text"
+              placeholder="Enter the file system path to your cloned Git repos"
+              name="gcp-adobedocs-metadata__options__fs-content-root"
+              class="spectrum-Textfield-input"
+              id="gcp-adobedocs-metadata__options__fs-content-root"
+            />
+          </div>
         </div>
 
-        <div id="gcp-adobedocs-metadata__options__extra-styles-section">
-             <!-- Easter egg: Extra styles -->
+        <div>
+          <label for="analyticsApiKey" class="spectrum-FieldLabel spectrum-FieldLabel--sizeM">
+            Analytics API key
+          </label>
 
-            <br/>
-            <br/>
-
-            <label for="extraStyles" class="spectrum-FieldLabel">
-                Custom style pack   
-                <br/>
-                <br/>
-                <em>This (easter egg) feature applies custom CSS to the Experience League Web site itself, adjusting how its content is presented.</em>
-            </label>
-
-            <select id="gcp-adobedocs-metadata__options__extra-styles">
-                <option value="none">None (Default Experience League styles)</option>
-                <option value="pretty">Experimental v1</option>
-            </select>
+          <div class="spectrum-Textfield">
+            <input
+              type="password"
+              placeholder="Enter the web analytics API key"
+              name="gcp-adobedocs-metadata__options__analytics-api-key"
+              class="spectrum-Textfield-input"
+              id="gcp-adobedocs-metadata__options__analytics-api-key"
+            />
+          </div>
         </div>
 
         <!-- Submit -->

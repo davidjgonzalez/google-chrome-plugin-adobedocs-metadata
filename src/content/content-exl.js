@@ -2,13 +2,23 @@ import OPTIONS from "../constants";
 
 import './content.css';
 
+function getAnalyticsPageName() {
+  const solution = document.querySelector('meta[name="solution"]') !== null ? document.querySelector('meta[name="solution"]').content.split(',')[0].trim().toLowerCase() : `fb ${(((/^\/docs\/([^\/]+)\//).exec(location.pathname) || [])[1] || '').replace(/[-\d+\s+]/g, ' ').replace(/\s+/g, ' ').trim()}`;
+  const type = document.querySelector('meta[name="type"]') !== null ? document.querySelector('meta[name="type"]').content.split(',')[0].trim().toLowerCase() : '';
+  const title = document.querySelector('title').innerText.split('|')[0].trim();
+
+  return `xl:docs:${solution}:${type}:${title}`.toLowerCase();
+}
+
 function getMetadata() {
+
   const metadata = {
     website: 'EXPERIENCE LEAGUE',
     currentDoc: {
         host: window.location.host,
         path: window.location.pathname
     },
+    analyticsPageName: getAnalyticsPageName(),
     description: getMeta("description"),
     gitEdit: getMeta("git-edit"),
     gitRepo: getMeta("git-repo"),
@@ -88,7 +98,6 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   }
 });
 
-
 function getElementText(name, defaultValue) {
     let el = document.querySelector(name);
   
@@ -106,14 +115,14 @@ function getElementText(name, defaultValue) {
 /** Extra styles */
 
 
-chrome.storage.sync.get(OPTIONS.EXTRA_STYLES, function (optionsObj) {
+chrome.storage.local.get(OPTIONS.EXTRA_STYLES, function (optionsObj) {
     let optionsExtraStyles = optionsObj[OPTIONS.EXTRA_STYLES] || 'none';
 
     if (optionsExtraStyles && 
             optionsExtraStyles !== 'none' && 
             _isExLDocs()) {
         
-        var path = chrome.extension.getURL(`${optionsExtraStyles}.css`);
+        var path = chrome.runtime.getURL(`${optionsExtraStyles}.css`);
         document.body.setAttribute("id", optionsExtraStyles);
         document.head.innerHTML = `<link rel="stylesheet" type="text/css" media="print,screen" href="${path}"></link>` + document.head.innerHTML;    
     } 
@@ -130,4 +139,14 @@ chrome.storage.sync.get(OPTIONS.EXTRA_STYLES, function (optionsObj) {
 
 function _isExLDocs() {
     return window.location.hostname.indexOf('experienceleague.') === 0 && window.location.pathname.indexOf('/docs/') === 0;
+}
+
+function _injectScript(file, selector) {
+  setTimeout(() => {
+    var th = document.querySelector(selector);
+    var s = document.createElement('script');
+    s.setAttribute('type', 'text/javascript');
+    s.setAttribute('src', file);
+    th.appendChild(s);
+  }, 1000);
 }

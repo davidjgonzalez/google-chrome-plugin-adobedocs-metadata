@@ -1,6 +1,6 @@
 {
   "name": "google-chrome-adobedocs-metadata",
-  "version": "1.15.0",
+  "version": "1.16.0",
   "description": "Google Chrome extension for AdobeDocs content management",
   "main": "background.js",
   "dependencies": {
@@ -13,7 +13,7 @@
     "@spectrum-css/statuslight": "^5.0.1",
     "@spectrum-css/table": "^4.0.19",
     "@spectrum-css/textfield": "^3.2.4",
-    "@spectrum-css/toast": "^8.0.1",
+    "@spectrum-css/toast": "^8.0.10",
     "@spectrum-css/tokens": "^3.0.0",
     "@spectrum-css/typography": "^4.0.20",
     "@spectrum-css/vars": "^2.3.0",

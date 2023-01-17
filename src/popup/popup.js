@@ -49,8 +49,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     { text: "collect_adobedocs_metadata" },
     function (response) {
 
-        console.log("Content script scraped the following data for the extension to display:")
-        console.log(response);
+        console.log("Content script scraped the following data for the extension to display:", response);
         
         contentResponse = response;
 

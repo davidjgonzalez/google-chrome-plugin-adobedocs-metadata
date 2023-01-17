@@ -1,6 +1,6 @@
 {
   "name": "AdobeDocs metadata",
-  "version": "1.15.0",
+  "version": "1.16.0",
   "description": "AdobeDocs metadata extension!",
   "permissions": ["activeTab", "declarativeContent", "storage"],
   
@@ -15,7 +15,7 @@
   },
 
   "web_accessible_resources": [{
-    "resources": ["pretty.css"],
+    "resources": [],  
     "matches": [],
     "extension_ids": []
   }],

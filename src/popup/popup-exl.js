@@ -4,26 +4,28 @@ import { getResourcesTabHtml } from "./popup-common";
 
 import '@spectrum-web-components/status-light';
 
+const ANALYTICS_PROXY_URL = 'https://51837-exlanalyticsproxy.adobeioruntime.net/api/v1/web/dx-excshell-1/generic'
+//STAGE: const ANALYTICS_PROXY_URL = 'https://51837-exlanalyticsproxy-stage.adobeioruntime.net/api/v1/web/dx-excshell-1/generic';
+
 const Missing = {
     ERROR: 'error',
     NOTICE: 'notice',
     OK: 'ok'
 };
 
-export default function experienceLeaguePopup(response, callback) {
+export default async function experienceLeaguePopup(response, callback) {
 
-   chrome.storage.sync.get(OPTIONS.FS_CONTENT_ROOT, function (optionsObj) {
-
+  chrome.storage.local.get([OPTIONS.FS_CONTENT_ROOT, OPTIONS.ANALYTICS_API_KEY], async function (optionsObj) {
         let optionsContentRoot = _getOptionsContentFileSystemPath(optionsObj);
-        
-        let html = `
-                    
+
+        let html = `                    
             ${getStatus(response)}
 
             <sp-tabs selected="1">
                 <sp-tab data-tabs="1" label="General" value="1"></sp-tab>
                 <sp-tab data-tabs="2" label="Metadata" value="2"></sp-tab>
-                <sp-tab data-tabs="3" label="Resources" value="3"></sp-tab>
+                <sp-tab data-tabs="3" label="Analytics" value="3"></sp-tab>
+                <sp-tab data-tabs="4" label="Resources" value="4"></sp-tab>
             </sp-tabs>
 
             <div data-tab="1" class="tab-content">
@@ -80,16 +82,31 @@ export default function experienceLeaguePopup(response, callback) {
 
                     getDisplayRow(getMeta("Last substantial update", response.lastSubstantialUpdate || "Not set", null), "last-substantial-update"),
                     getDisplayRow(getMeta("Recommendations", response.recommendations, "Default (Catalog, Display)", null), "recommendations"),
+
+                    getDisplayRow(getMeta("Analytics Page ID", response.analyticsPageName, "None"), "N/A")
                 ])}
             </div>
 
-            <div data-tab="3" class="tab-content">
+            <div data-tab="3" class="tab-content" id="analyticsTabHtml">
+              <div class="loading">
+                <sp-progress-circle label="Loading analytics data..." indeterminate size="large"></sp-progress-circle>
+              </div>
+            </div>
+
+            <div data-tab="4" class="tab-content">
                 ${getResourcesTabHtml()}                           
             </div>
         `;
         
-        callback(html);
+        await callback(html);
 
+        // Handle async calls to get analytics data
+        let analyticsApiKey = optionsObj[OPTIONS.ANALYTICS_API_KEY];
+        if (analyticsApiKey) {
+          injectAnalyticsTabHtml(analyticsApiKey, response.analyticsPageName);
+        } else {
+          injectNoAnalyticsTabHtml();
+        }
     });
 }
 
@@ -106,7 +123,6 @@ function _getOptionsContentFileSystemPath(obj) {
   
     return "";
   }
-  
 
 function getSection(sectionTitle, lists) {
     let html = '';
@@ -126,7 +142,6 @@ function getSection(sectionTitle, lists) {
       return "";
     }
   }
-  
   
   function getTable(rows) {
       let html = '';
@@ -158,7 +173,6 @@ function getSection(sectionTitle, lists) {
         return '';
       }
   }
-  
   
   function getJira(kts) {
     if (!kts) {
@@ -306,9 +320,7 @@ function getSection(sectionTitle, lists) {
       } else {
         return list;
       }
-
   }
-  
   
   function getPageLinks(host, path) {
       const DOCS_PROD_DOMAIN = 'docs.adobe.com';
@@ -451,4 +463,81 @@ function getSection(sectionTitle, lists) {
 
     function isMissing(value) {
         return !value || value?.length === 0;
+    }
+
+
+    /** Analytics **/
+
+    async function injectAnalyticsTabHtml(analyticsApiKey, analyticsPageName) {
+
+      const response = await fetch(ANALYTICS_PROXY_URL, { 
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json;charset=utf-8',
+          },
+          body: JSON.stringify({ 
+            "pageId": analyticsPageName,
+            "apiKey": analyticsApiKey
+          })
+        }
+      );
+
+      let html = '';
+
+      if (response.status >= 500) {
+        html = `
+          <h2>Sorry!</h2>
+          <p>There was an error collecting analytics data. It's unlikely this has anything to do with you though.</p>`;
+      } else if (response.status >= 400 && response.status < 500) {
+        html = `
+          <h2>Sorry!</h2>
+          <p>You don't have access to analytics!</p>
+          <p>Please double check your API key is valid in the extension's options, and try again!</p>`;
+      } else if (response.status === 200) {
+        const data = await response.json()
+        
+        console.log("Analytics data collected for " + analyticsPageName, data);
+        
+        const rows = data.metrics.map(metric => {
+          return `
+            <tr class="spectrum-Table-row">
+              <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">${metric.text}</td>
+              <td class="spectrum-Table-cell" style="width: 100%">${metric.value}</td>
+            </tr>`;
+        }).join('');
+
+        html = `
+          <h4>Web analytics over the last ${data.scope.duration} for the page</h4>
+          <table class="spectrum-Table spectrum-Table--sizeS" style="width: 100%">
+            <thead class="spectrum-Table-head">
+              <tr>
+                <th class="spectrum-Table-headCell" aria-sort="descending" tabindex="0">
+                  Metric
+                </th>
+                <th class="spectrum-Table-headCell" aria-sort="none">
+                  Value
+                </th>
+              </tr>
+            </thead>
+            <tbody class="spectrum-Table-body">
+              ${rows}
+            </tbody>
+          </table>`;
+        }
+
+      document.getElementById("analyticsTabHtml").innerHTML = html;
+    }
+
+    function injectNoAnalyticsTabHtml() {
+      const html = `
+        <p style="margin-top: 2rem;">
+          Please provide a valid API key in this extensions options to access web analytics data.
+        </p>
+        <p>
+          If you do not have an API key, or your API key is no longer valid, please contact <a href="mailto:schnoorganization@adobe.com">schnoorganization@adobe.com</a></p>
+        </p>
+      `;
+
+      document.getElementById("analyticsTabHtml").innerHTML = html;
     }

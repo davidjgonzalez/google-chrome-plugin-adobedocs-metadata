@@ -11,8 +11,7 @@ module.exports = {
     popup: "./src/popup/popup.js",
     "content-exl": "./src/content/content-exl.js",
     "content-jira": "./src/content/content-jira.js",
-    background: "./src/background.js",
-    pretty: "./src/styles/pretty.js"
+    background: "./src/background.js"
   },
   output: {
     filename: "[name].js",
