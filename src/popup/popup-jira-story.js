@@ -157,8 +157,8 @@ role: ${roles.length > 0 ? roles?.join(', ') : '??? - select one or more: Leader
 level: ${levels.length > 0 ? levels?.join(', ') : '??? - select one or more: Beginner, Intermediate, Experienced'}
 doc-type: ${jira.docType}
 last-substantial-update: ${today.getUTCFullYear() + "-" + ("0" + (today.getUTCMonth()+1)).slice(-2) + "-" + ("0" + today.getUTCDate()).slice(-2)}
-kt: ${jira.kt}
-thumbnail: ${jira.videoId ? jira.videoId : 'kt-' + jira.kt}.jpeg
+jira: ${jira.jiraId}
+thumbnail: ${jira.videoId ? jira.videoId : jira.jiraId}.jpeg
 ---
 
 # ${title || 'Missing title'}

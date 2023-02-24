@@ -34,6 +34,7 @@ function getMetadata() {
     hideFromSearch: getMeta("hide") === "true",
     hideFromToc: getMeta("hidefromtoc") === "true",
     kt: getMetas("kt"),
+    jira: getMetas("jira"),
     level: getMeta("level"),
     products: getMetas("product"),
     role: getMetas("role"),

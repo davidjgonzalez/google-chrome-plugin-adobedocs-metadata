@@ -31,7 +31,7 @@ export default async function experienceLeaguePopup(response, callback) {
             <div data-tab="1" class="tab-content">
                 ${getSection("Quick links", [
                     getPageLinks(response.currentDoc.host, response.currentDoc.path),
-                    getJira(response.kt),
+                    getJira(response.jira, response.kt),
                     getCorpGitEdit(response.gitEdit),
                     getPublicGitEdit(response.gitEdit),
                     getVsCode(
@@ -174,30 +174,36 @@ function getSection(sectionTitle, lists) {
       }
   }
   
-  function getJira(kts) {
-    if (!kts) {
+  function getJira(jiras, kts) {
+    let jiraIds = [];
+
+    if (jiras && jiras?.length > 0) {
+      jiraIds = jiras;
+    } else if (kts && kts?.length > 0) {
+      jiraIds = kts.map(kt => `KT-${kt}`);
+    } else {
       return '';
     }
   
     let html = '';
     
-    for (let kt of kts) {
-      //html += `<sp-action-button href="https://jira.corp.adobe.com/browse/KT-${kt}" target="_blank">Jira @ KT-${kt}</sp-action-button>`
-      if (kt === 'None' || kt === 'none') {
+    for (let jiraId of jiraIds) {
+      //html += `<sp-action-button href="https://jira.corp.adobe.com/browse/${jiraId}" target="_blank">Jira @ ${jiraId}</sp-action-button>`
+      if (!jiraId || jiraId === 'None' || jiraId === 'none') {
           continue;
-  
       }
+
       html += `
-          <sp-action-menu id="actionMenu_jira_${kt}" placement="bottom-end">
+          <sp-action-menu id="actionMenu_jira_${jiraId}" placement="bottom-end">
               <sp-icon-chevron-down size="xxs" slot="icon"></sp-icon-chevron-down>
   
-              <span slot="label">Jira @ KT-${kt}</span>
+              <span slot="label">Jira @ ${jiraId}</span>
   
-              <sp-menu-item href="https://jira.corp.adobe.com/browse/KT-${kt}" target="jira_${kt}">
+              <sp-menu-item href="https://jira.corp.adobe.com/browse/${jiraId}" target="jira_${jiraId}">
                   Open in Jira
               </sp-menu-item>
-              <sp-menu-item data-copy-to-clipboard="KT-${kt}">
-                  Copy 'KT-${kt}' to clipboard
+              <sp-menu-item data-copy-to-clipboard="${jiraId}">
+                  Copy '${jiraId}' to clipboard
               </sp-menu-item>               
           </sp-action-menu>`;
       }
@@ -276,7 +282,7 @@ function getSection(sectionTitle, lists) {
       }
     
       for (const mpcVideoUrl of mpcVideoUrls) {
-        const videoIdRegex = /https:\/\/video.tv.adobe.com\/v\/(\d+)[\/?]+.*/gi;
+        const videoIdRegex = /https:\/\/video.tv.adobe.com\/v\/(\d+).*/gi;
     
         let videoId = null;  
         let match = videoIdRegex.exec(mpcVideoUrl);
