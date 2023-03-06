@@ -6,6 +6,7 @@ function getResourcesTabHtml() {
         <p class="spectrum-Heading spectrum-Heading--sizeXS spectrum-Heading--light">General</p>
 
         <ul>
+            <li><a href="https://adobe.ly/ExLquickstart" target="1-0">Experience League quick starts</a></li>
             <li><a href="https://experienceleague.adobe.com/docs/authoring-guide-exl/using/home.html" target="1-1">Authoring Guide for Adobe Writers docs</a></li>
             <li><a href="https://experienceleague.adobe.com/docs/authoring-guide-exl/using/authoring/features/metadata.html" target="1-2">Metadata and tagging docs</a></li>
         </ul>
@@ -27,7 +28,7 @@ function getResourcesTabHtml() {
         </ul>
 
         <hr/>
-
+    
         <p class="spectrum-Heading spectrum-Heading--sizeS spectrum-Heading--light">About this extension</em></p>
 
         <p>
