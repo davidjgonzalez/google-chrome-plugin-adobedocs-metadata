@@ -56,8 +56,10 @@ export default async function experienceLeaguePopup(response, callback) {
                     getDisplayButton(getMeta("Hide From TOC", response.hideFromToc ? "Yes" : "No",  "No")),
                   ])}      
                   
-                  ${getSection("Thumbnail", [getThumbnail(response.thumbnail)])}
+                  ${getSection("Thumbnails", [getThumbnail(response.thumbnail), 
+                      ...response.videos.map((video) => getVideoThumbnail(video))], "grid")}
 
+                  <div class="scroll-down"><sp-icon-arrow-down size="xxl"/></div>
             </div>
             
             <div data-tab="2" class="tab-content">
@@ -124,17 +126,19 @@ function _getOptionsContentFileSystemPath(obj) {
     return "";
   }
 
-function getSection(sectionTitle, lists) {
+function getSection(sectionTitle, lists, style) {
     let html = '';
   
     for (let i = 0; i < lists.length; i++) {
       html += lists[i];
     }
+
+    let cssClasses = style ? style : "";
   
     if (html) {
       return `<div>
         <p class="spectrum-Heading spectrum-Heading--L spectrum-Heading--light">${sectionTitle}</p>
-        <div>
+        <div class="${cssClasses}">
           ${html}
         </div>
       </div>`;
@@ -258,20 +262,40 @@ function getSection(sectionTitle, lists) {
   
   function getThumbnail(thumbnailId) {
     if (!thumbnailId) {
-      return '<div class="thumbnail thumbnail--missing">Thumbnail not set</div>';
+      return '<div class="thumbnail thumbnail--missing">Document thumbnail not set</div>';
     }
   
-    return `
-      <sp-action-button href="https://cdn.experienceleague.adobe.com/thumb/${thumbnailId}" target="thumbnail_${thumbnailId}">
-          ${thumbnailId}
-      </sp-action-button>
-      <br/>
-      <img src="https://cdn.experienceleague.adobe.com/thumb/${thumbnailId}" 
-          class="thumbnail thumbnail--image"/>
-      <div class="thumbnail thumbnail--missing-on-cdn">
-          ${thumbnailId} <span class="thumbnail--missing-on-cdn-message">missing on CDN</span>
+    return `<div>
+        <sp-action-button class="thumbnail--exists-on-cdn" href="https://cdn.experienceleague.adobe.com/thumb/${thumbnailId}" target="thumbnail_${thumbnailId}">
+            Open document thumbnail (${thumbnailId})
+        </sp-action-button>
+        <sp-action-button class="thumbnail--missing-on-cdn">
+          Document thumbnail not set
+        </sp-action-button>
+        <br/>
+        <img src="https://cdn.experienceleague.adobe.com/thumb/${thumbnailId}" 
+            class="thumbnail thumbnail--image thumbnail--exists-on-cdn"/>
+        <div class="thumbnail thumbnail--missing-on-cdn">
+            ${thumbnailId} <span class="thumbnail--missing-on-cdn-message">missing on CDN</span>
+        </div>
       </div>
       `;
+  }
+
+  function getVideoThumbnail(videoUrl) {
+    let videoId = getVideoId(videoUrl);
+
+    if (!videoId) {
+      return '';
+    }
+  
+    return `<div>
+        <sp-action-button href="https://video.tv.adobe.com/v/${videoId}?format=jpeg" target="thumbnail_${videoId}">
+            Open video ${videoId} thumbnail
+        </sp-action-button>
+        <br/>
+        <img src="https://video.tv.adobe.com/v/${videoId}?format=jpeg" class="thumbnail thumbnail--image"/>
+      </div>`;
   }
   
   function getVideosMultiControl(mpcVideoUrls) {
@@ -282,16 +306,7 @@ function getSection(sectionTitle, lists) {
       }
     
       for (const mpcVideoUrl of mpcVideoUrls) {
-        const videoIdRegex = /https:\/\/video.tv.adobe.com\/v\/(\d+).*/gi;
-    
-        let videoId = null;  
-        let match = videoIdRegex.exec(mpcVideoUrl);
-    
-        if (match && match.length === 2) {
-          videoId = match[1];
-        } else {
-          console.error("Could not get video id from: " + mpcVideoUrl);
-        }
+        let videoId = getVideoId(mpcVideoUrl);
     
         if (videoId && !isNaN(videoId)) {
   
@@ -312,7 +327,15 @@ function getSection(sectionTitle, lists) {
                   </sp-menu-item>  
                   <sp-menu-item data-copy-to-clipboard="<iframe width=&quot;1280&quot; height=&quot;720&quot; src=&quot;https://video.tv.adobe.com/v/${videoId}/?quality=12&amp;learn=on&quot; frameborder=&quot;0&quot; webkitallowfullscreen mozallowfullscreen allowfullscreen scrolling=&quot;no&quot;></iframe>">
                       Copy embed code to clipboard
-                  </sp-menu-item>               
+                  </sp-menu-item>                     
+                  <sp-menu-item href="https://video.tv.adobe.com/v/${videoId}?format=jpeg" target="mpcDirectThumbnail_${videoId}">
+                    Show thumbnail
+                  </sp-menu-item> 
+                  <sp-menu-item data-copy-to-clipboard="https://video.tv.adobe.com/v/${videoId}?format=jpeg">
+                      Copy thumbnail URL to clipboard
+                  </sp-menu-item>   
+                  
+
               </sp-action-menu>
               `;
   
@@ -374,9 +397,6 @@ function getSection(sectionTitle, lists) {
               <sp-menu-item href="https://${exlStageUrl}" target="_blank"">
                   Stage (experienceleague.corp.adobe.com)
               </sp-menu-item>
-              <sp-menu-item href="https://${docsStageUrl}" target="_blank"">
-                  Legacy stage (docs-stg.corp.adobe.com)
-              </sp-menu-item>                                     
           </sp-action-menu>`;
   }
   
@@ -427,6 +447,21 @@ function getSection(sectionTitle, lists) {
     }
   }
   
+  function getVideoId(videoUrl) {
+    const videoIdRegex = /https:\/\/video.tv.adobe.com\/v\/(\d+).*/gi;
+
+    let videoId = null;  
+    let match = videoIdRegex.exec(videoUrl);
+
+    if (match && match.length === 2) {
+      videoId = match[1];
+    } else {
+      console.error("Could not get video id from: " + videoUrl);
+    }
+    
+    return videoId;
+  }
+
   function getDisplayButton(data) {
     if (data.title && data.value) {
       return `<sp-action-button>${data.title}: ${data.value}</sp-action-button>`;

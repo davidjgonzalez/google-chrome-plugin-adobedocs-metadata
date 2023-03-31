@@ -11,6 +11,7 @@ import '@spectrum-web-components/icon/sp-icon.js';
 import '@spectrum-web-components/icons/sp-icons-medium.js';
 
 import "@spectrum-web-components/icons-workflow/icons/sp-icon-chevron-down.js";
+import "@spectrum-web-components/icons-workflow/icons/sp-icon-arrow-down.js";
 
 import '@spectrum-web-components/action-menu/sp-action-menu.js';
 import '@spectrum-web-components/button/sp-button.js';
@@ -27,7 +28,7 @@ import "@spectrum-css/vars/dist/spectrum-global.css";
 import "@spectrum-css/vars/dist/spectrum-medium.css";
 import "@spectrum-css/vars/dist/spectrum-lightest.css";
 import "@spectrum-css/page/dist/index-vars.css";
-import "@spectrum-css/alert/dist/index-vars.css";
+import "@spectrum-css/inlinealert/dist/index-vars.css";
 import "@spectrum-css/button/dist/index-vars.css";
 import "@spectrum-css/table/dist/index-vars.css";
 import "@spectrum-css/textfield/dist/index-vars.css";
@@ -85,8 +86,8 @@ function _injectHtml(html, elementId) {
 
     document.querySelectorAll('img.thumbnail--image').forEach((el) => {
         el.addEventListener('error', (e) => {
-            el.style.display = 'none';
-            document.querySelector('.thumbnail--missing-on-cdn').style.display = 'flex';
+            el.parentElement.querySelectorAll('.thumbnail--exists-on-cdn').forEach((el) => el.style.display = 'none' );
+            el.parentElement.querySelectorAll('.thumbnail--missing-on-cdn').forEach((el) => el.style.display = 'inline-flex' );
         });
     });
 
@@ -108,6 +109,14 @@ function _injectHtml(html, elementId) {
             document.querySelectorAll('[data-tab="' + el.getAttribute('data-tabs') + '"]').forEach((el) => {  el.style.display = 'block'; });
         });
     });
+
+    setTimeout(() => {
+        console.log('height', document.body.offsetHeight);
+        if (document.querySelector('[data-tab="1"]').offsetHeight > 600) {
+            const el = document.querySelector('.scroll-down');
+            if (el) { el.style.display = 'block'; }
+        }
+    }, 250);
 }
 
 function _copyToClipboard(text) {
@@ -115,8 +124,8 @@ function _copyToClipboard(text) {
         let copyEl = document.getElementById("copy-to-clipboard-input");
         copyEl.value = text;
         copyEl.select();
-        document.execCommand("copy");
+        copyEl.setSelectionRange(0, 99999);
+
+        navigator.clipboard.writeText(copyEl.value);
     }
 }
-
-
