@@ -37,11 +37,11 @@ export default function jiraStoryPopup(response, callback) {
 function getWarning(jira) {
     let messages = [];
     
-    if (jira.title.length > 59) {
-        messages.push('Titles should be no more than 60 characters, but is ' + jira.title.length + ' characters.');
+    if (!jira.title || jira.title?.length > 59) {
+        messages.push('Titles should be no more than 60 characters, but is ' + (jira.title?.length || 0) + ' characters.');
     }
-    if (jira.description.length < 60 || jira.description.length > 160) {
-        messages.push('Descriptions should be between 60 and 160 characters, but is ' + jira.description.length + ' characters');
+    if (!jira.description || jira.description?.length < 60 || jira.description?.length > 160) {
+        messages.push('Descriptions should be between 60 and 160 characters, but is ' + (jira.description?.length || 0) + ' characters');
     }
     if (!jira.docType) {
         messages.push('Content Type should be set on Jira issue to popular doc-type metadata.');
@@ -51,7 +51,6 @@ function getWarning(jira) {
     }    
 
     if (messages.length > 0) {
-
         return `<div class="spectrum-Toast spectrum-Toast--negative" style="width: 100%">
                     <div class="spectrum-Toast-body">
                         <div class="spectrum-Toast-content">
@@ -165,7 +164,7 @@ thumbnail: ${jira.videoId ? jira.videoId : jira.jiraId}.jpeg
 
 ${jira.description || 'Missing description'}
 
-${jira.videoId ? '>[!VIDEO](https://video.tv.adobe.com/v/' + jira.videoId + '/?quality=12&learn=on)\n' : ''}`;
+${jira.videoId ? '>[!VIDEO](https://video.tv.adobe.com/v/' + jira.videoId + '/?learn=on)\n' : ''}`;
 
     return md;
 }
