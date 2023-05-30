@@ -111,7 +111,6 @@ function _injectHtml(html, elementId) {
     });
 
     setTimeout(() => {
-        console.log('height', document.body.offsetHeight);
         if (document.querySelector('[data-tab="1"]').offsetHeight > 600) {
             const el = document.querySelector('.scroll-down');
             if (el) { el.style.display = 'block'; }

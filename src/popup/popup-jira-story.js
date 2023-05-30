@@ -20,6 +20,11 @@ export default function jiraStoryPopup(response, callback) {
                 Copy Markdown to clipboard
             </sp-button>  
 
+            ${response.jira.videoId ? 
+                `<sp-button variant="secondary" data-copy-to-clipboard="https://video.tv.adobe.com/v/${response.jira.videoId}?format=jpeg">
+                Copy MPC thumbnail URL to clipboard
+                </sp-button>` : ''}
+
             <br/>
             <br/>
 
@@ -168,5 +173,4 @@ ${jira.videoId ? '>[!VIDEO](https://video.tv.adobe.com/v/' + jira.videoId + '/?l
 
     return md;
 }
-
 

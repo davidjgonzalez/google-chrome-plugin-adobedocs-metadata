@@ -3,11 +3,27 @@ import OPTIONS from "../constants";
 import './content.css';
 
 function getAnalyticsPageName() {
-  const solution = document.querySelector('meta[name="solution"]') !== null ? document.querySelector('meta[name="solution"]').content.split(',')[0].trim().toLowerCase() : `fb ${(((/^\/docs\/([^\/]+)\//).exec(location.pathname) || [])[1] || '').replace(/[-\d+\s+]/g, ' ').replace(/\s+/g, ' ').trim()}`;
-  const type = document.querySelector('meta[name="type"]') !== null ? document.querySelector('meta[name="type"]').content.split(',')[0].trim().toLowerCase() : '';
-  const title = document.querySelector('title').innerText.split('|')[0].trim();
 
-  return `xl:docs:${solution}:${type}:${title}`.toLowerCase();
+  // https://git.corp.adobe.com/GP/website/blob/master/src/js/common/analytics.js
+
+  /*
+  const type = document.querySelector('meta[name="type"]') !== null ? document.querySelector('meta[name="type"]').content.split(',')[0].trim().toLowerCase() : '';
+  let solution = document.querySelector('meta[name="solution"]') !== null ? document.querySelector('meta[name="solution"]').content.split(',')[0].trim().toLowerCase() : `fb ${(((/^\/docs\/([^\/]+)\//).exec(location.pathname) || [])[1] || '').replace(/[-\d+\s+]/g, ' ').replace(/\s+/g, ' ').trim()}`;
+  let subsolution = document.querySelector('meta[name="sub-solution"]') !== null ? document.querySelector('meta[name="sub-solution"]').content.split(',')[0].trim().toLowerCase() : '';
+  let solutionversion = document.querySelector('meta[name="version"]') !== null ? document.querySelector('meta[name="version"]').content : '';
+  */
+
+  const type = document.querySelector('meta[name="type"]') !== null ? document.querySelector('meta[name="type"]').content.split(',')[0].trim().toLowerCase() : '';
+  let solution = document.querySelector('meta[name="solution"]') !== null ? document.querySelector('meta[name="solution"]').content.split(',')[0].trim().toLowerCase() : `fb ${(((/^\/docs\/([^\/]+)\//).exec(location.pathname) || [])[1] || '').replace(/[-\d+\s+]/g, ' ').replace(/\s+/g, ' ').trim()}`;
+  let subsolution = document.querySelector('meta[name="sub-solution"]') !== null ? document.querySelector('meta[name="sub-solution"]').content.split(',')[0].trim().toLowerCase() : '';
+  //let solutionversion = document.querySelector('meta[name="version"]') !== null ? document.querySelector('meta[name="version"]').content : '';
+
+  const title = document.querySelector('title').innerText.split('|')[0].trim();
+  
+  // Should look like: xl:docs:experience manager:tutorial:osgi services development basics"
+  const pageName = `xl:docs:${solution}:${type}:${subsolution ? subsolution + ':' : ''}${title}`.toLowerCase();
+
+  return pageName;
 }
 
 function getMetadata() {
