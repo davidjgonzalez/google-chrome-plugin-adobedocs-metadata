@@ -1,4 +1,5 @@
 import { getResourcesTabHtml } from "./popup-common";
+import moment from "moment";
 
 export default function jiraStoryPopup(response, callback) {
 
@@ -159,7 +160,9 @@ feature: ??? - select one or more from: https://adobe.ly/3JfnRW9
 topic: ??? - select 0 or more from: https://adobe.ly/3NRHfMp
 role: ${roles.length > 0 ? roles?.join(', ') : '??? - select one or more: Leader, Architect, Developer, Data Architect, Data Engineer, Admin, User'}
 level: ${levels.length > 0 ? levels?.join(', ') : '??? - select one or more: Beginner, Intermediate, Experienced'}
-doc-type: ${jira.docType}
+doc-type: ${jira.docType}${
+    jira.duration != null ? '\nduration: ' + convertToSeconds(jira.duration) : ''
+}
 last-substantial-update: ${today.getUTCFullYear() + "-" + ("0" + (today.getUTCMonth()+1)).slice(-2) + "-" + ("0" + today.getUTCDate()).slice(-2)}
 jira: ${jira.jiraId}
 thumbnail: ${jira.videoId ? jira.videoId : jira.jiraId}.jpeg
@@ -174,3 +177,12 @@ ${jira.videoId ? '>[!VIDEO](https://video.tv.adobe.com/v/' + jira.videoId + '/?l
     return md;
 }
 
+
+function convertToSeconds(time) {
+    var timeMoment = moment(time, "HH:mm:ss");
+    var hours = timeMoment.hours();
+    var minutes = timeMoment.minutes();
+    var seconds = timeMoment.seconds();
+
+    return hours * 3600 + minutes * 60 + seconds;
+}

@@ -52,6 +52,7 @@ function getMetadata() {
     kt: getMetas("kt"),
     jira: getMetas("jira"),
     level: getMeta("level"),
+    duration: getMeta("duration"), // in seconds
     products: getMetas("product"),
     role: getMetas("role"),
     articleId: getMeta("id"),

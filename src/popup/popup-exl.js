@@ -76,11 +76,13 @@ export default async function experienceLeaguePopup(response, callback) {
                     getDisplayRow(getMeta("Role", response.role, "Missing", Missing.ERROR), "role"),
                     getDisplayRow(getMeta("Level", response.level, "Missing", Missing.ERROR), "level"),
 
+
                     getDisplayRow(getMetas("Topic(s)", response.topics, "Missing", Missing.ERROR), "topic"),
                     getDisplayRow(getMetas("Feature(s)", response.features, "None"), "feature"),
                   
                     getDisplayRow(getMetas("Sub-product(s)", response.subproducts, "Missing", Missing.ERROR), "sub-product"),
                     getDisplayRow(getMeta("Doc-type", response.docType, "Missing", Missing.ERROR), "doc-type"),
+                    getDisplayRow(getMeta("Duration", (response.duration ? response.duration + " seconds" : null), "Missing", Missing.NOTICE), "duration"),
 
                     getDisplayRow(getMeta("Last substantial update", response.lastSubstantialUpdate || "Not set", null), "last-substantial-update"),
                     getDisplayRow(getMeta("Recommendations", response.recommendations, "Default (Catalog, Display)", null), "recommendations"),
