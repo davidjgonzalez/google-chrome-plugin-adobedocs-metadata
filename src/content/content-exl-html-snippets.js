@@ -22,7 +22,7 @@ function cardsHtml(cards) {
         <div class="card-image">
           <figure class="image x-is-16by9">
             <a href="${card.link}" title="${card.title}" tabindex="-1">
-              <img class="is-bordered-r-small" src="${card.img.src}" alt="${card.img.getAttribute("alt") || card.title}">
+              <img class="is-bordered-r-small" src="${modifyUrl(card.img.src)}" alt="${card.img.getAttribute("alt") || card.title}">
             </a>
           </figure>
         </div>
@@ -59,13 +59,9 @@ function cardsHtml(cards) {
 function getCtaLabel(card) {
     let found = Object.keys(LABELS).find(key => {
         var regex = new RegExp(key);
-        if (regex.test(card.img.src)) {
-            console.log("REGEX MATCHED");
-            return true;
-        }
+        return regex.test(card.img.src);
     });
 
-    console.log("FOUND", found);
 
     return found ? LABELS[found] : LABELS["fallback-label"];
 }
@@ -88,6 +84,10 @@ document.querySelectorAll('[data-id="body"] table tbody').forEach((table) => {
           .replace(/^<br\s*\/?>|<br\s*\/?>$/gi, "")
       };
       card.ctaLabel = getCtaLabel(card);
+      if (card.link) {
+        card.link = modifyLink(card.link);
+      }
+      
       cards.push(card);
     }
   });
@@ -100,3 +100,22 @@ document.querySelectorAll('[data-id="body"] table tbody').forEach((table) => {
   console.log(cardsHtml(cards));
   console.groupEnd("-".repeat(10) + " End cards HTML for copy/paste " + "-".repeat(10));
 });
+
+function modifyUrl(url) {
+  if (!url) return url;
+
+  url = url.replace('https://experienceleague.corp.adobe.com', 'https://experienceleague.adobe.com');
+  return url;
+}
+
+function modifyLink(link) {
+  if (!link) return link;
+
+  // Check if card.link starts with '/' and ends with '?lang=en'
+  if (link.startsWith('/') && link.endsWith('?lang=en')) {
+      // Prefix with 'https://experienceleague.adobe.com' and remove '?lang=en'
+      link = 'https://experienceleague.adobe.com' + link.slice(0, -8);
+  }
+
+  return modifyUrl(link);
+}
