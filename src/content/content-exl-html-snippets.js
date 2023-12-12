@@ -9,15 +9,13 @@ const PREVIEW = true;
 
 
 
-
 /** DO NOT CHANGE ANYTHING BELOW THIS LINE! **/
 
 function cardsHtml(cards) {
   let cardHtml = `<div class="columns is-multiline">`;
 
   cards.forEach((card, index) => {
-    cardHtml += `
-        <div class="column is-half-tablet is-half-desktop is-one-third-widescreen" aria-label="${
+    cardHtml += `<div class="column is-half-tablet is-half-desktop is-one-third-widescreen" aria-label="${
           card.title
         }" tabIndex="${index}">
         <div class="card" style="height: 100%; display: flex; flex-direction: column; height: 100%;">
@@ -49,8 +47,7 @@ function cardsHtml(cards) {
             </a>
           </div>
         </div>
-      </div>
-        `;
+      </div>`;
   });
 
   cardHtml += `</div>`;
