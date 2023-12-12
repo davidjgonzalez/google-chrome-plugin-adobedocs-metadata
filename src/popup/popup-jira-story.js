@@ -18,18 +18,23 @@ export default function jiraStoryPopup(response, callback) {
             ${getWarning(response.jira)}
 
             <sp-button data-copy-to-clipboard="popup-jira-story__markdown">
-                Copy Markdown to clipboard
+                Copy markdown
             </sp-button>  
+
+            <sp-button variant="secondary" data-copy-to-clipboard="popup-jira-story__card-html">
+                Copy card HTML
+            </sp-button> 
 
             ${response.jira.videoId ? 
                 `<sp-button variant="secondary" data-copy-to-clipboard="https://video.tv.adobe.com/v/${response.jira.videoId}?format=jpeg">
-                Copy MPC thumbnail URL to clipboard
+                Copy MPC thumbnail URL
                 </sp-button>` : ''}
 
             <br/>
             <br/>
 
             <textarea id="popup-jira-story__markdown" class="markdown" readonly>${markdown}</textarea>
+            <textarea id="popup-jira-story__card-html" class="card hidden" readonly>${getCard(response.jira)}</textarea>
         </div>
 
         <div data-tab="2" class="tab-content">
@@ -175,6 +180,45 @@ ${jira.description || 'Missing description'}
 ${jira.videoId ? '>[!VIDEO](https://video.tv.adobe.com/v/' + jira.videoId + '/?learn=on)\n' : ''}`;
 
     return md;
+}
+
+
+function getCard(jira) {
+
+    const title = jira.title;
+    const description = jira.description;
+    const imgSrc = jira.videoId ? `https://video.tv.adobe.com/v/${jira.videoId}/?format=jpeg` : `https://cdn.experienceleague.adobe.com/thumbs/${jira.jiraId}.jpeg`;
+    const link = "#ENTER THE LINK TO THE MD FILE";
+    const ctaLabel = jira.videoId  ? "Watch the video" : "Learn more";
+
+   return `
+<div class="column is-half-tablet is-half-desktop is-one-third-widescreen" aria-label="${
+        title
+    }" tabIndex="-1">
+    <div class="card" style="height: 100%; display: flex; flex-direction: column; height: 100%;">
+        <div class="card-image">
+        <figure class="image x-is-16by9">
+            <a href="${link}" title="${title}" tabindex="-1">
+            <img class="is-bordered-r-small" src="${imgSrc}" alt="${title}">
+            </a>
+        </figure>
+        </div>
+        <div class="card-content is-padded-small" style="display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between;">
+            <div class="top-card-content">
+                <p class="headline is-size-6 has-text-weight-bold">
+                    <a href="${link}" title="${title}">${title}</a>
+                </p>
+                <p class="is-size-6">${description}</p>
+            </div>
+            <a href="${link}" class="spectrum-Button spectrum-Button--outline spectrum-Button--primary spectrum-Button--sizeM" style="align-self: flex-start; margin-top: 1rem;">
+            <span class="spectrum-Button-label has-no-wrap has-text-weight-bold">${
+                ctaLabel
+            }</span>
+            </a>
+        </div>
+    </div>
+</div>
+    `;
 }
 
 
