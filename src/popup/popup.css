@@ -44,6 +44,19 @@ sp-action-button, sp-action-menu {
     margin-bottom: 0.5rem;
 }
 
+.status {
+    display: flex;
+}
+.status div:first-child {
+    padding-right: 1rem;
+    border-right: solid 1px #ccc;
+    display: none;
+}
+
+.status div:last-child {
+    padding-left: 1rem;
+}
+
 .thumbnail {
     max-height: 146px;
     box-sizing: border-box;

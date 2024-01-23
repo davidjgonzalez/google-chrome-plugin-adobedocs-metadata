@@ -1,8 +1,7 @@
-import moment from 'moment';
+import moment, { duration } from 'moment';
+import humanizeDuration from 'humanize-duration';
 import OPTIONS from "../constants";
 import { getResourcesTabHtml } from "./popup-common";
-
-import '@spectrum-web-components/status-light';
 
 const ANALYTICS_PROXY_URL = 'https://51837-exlanalyticsproxy.adobeioruntime.net/api/v1/web/dx-excshell-1/generic'
 //STAGE: const ANALYTICS_PROXY_URL = 'https://51837-exlanalyticsproxy-stage.adobeioruntime.net/api/v1/web/dx-excshell-1/generic';
@@ -19,7 +18,10 @@ export default async function experienceLeaguePopup(response, callback) {
         let optionsContentRoot = _getOptionsContentFileSystemPath(optionsObj);
 
         let html = `                    
-            ${getStatus(response)}
+            <div class="status">
+              <div id="duration-status"></div>
+              <div>${getStatus(response)}</div>
+            </div>
 
             <sp-tabs selected="1">
                 <sp-tab data-tabs="1" label="General" value="1"></sp-tab>
@@ -82,7 +84,7 @@ export default async function experienceLeaguePopup(response, callback) {
                   
                     getDisplayRow(getMetas("Sub-product(s)", response.subproducts, "Missing", Missing.ERROR), "sub-product"),
                     getDisplayRow(getMeta("Doc-type", response.docType, "Missing", Missing.ERROR), "doc-type"),
-                    getDisplayRow(getMeta("Duration", (response.duration ? response.duration + " seconds" : null), "Missing", Missing.NOTICE), "duration"),
+                    getDisplayRow(getMeta("Duration", (response.duration ? `${response.duration} seconds (${humanizeDuration(response.duration * 1000)})` : null), "Missing", Missing.NOTICE), "duration"),
 
                     getDisplayRow(getMeta("Last substantial update", response.lastSubstantialUpdate || "Not set", null), "last-substantial-update"),
                     getDisplayRow(getMeta("Recommendations", response.recommendations, "Default (Catalog, Display)", null), "recommendations"),
@@ -107,7 +109,7 @@ export default async function experienceLeaguePopup(response, callback) {
         // Handle async calls to get analytics data
         let analyticsApiKey = optionsObj[OPTIONS.ANALYTICS_API_KEY];
         if (analyticsApiKey) {
-          injectAnalyticsTabHtml(analyticsApiKey, response.analyticsPageName);
+          injectAnalyticsTabHtml(analyticsApiKey, response.analyticsPageName, response.duration);
         } else {
           injectNoAnalyticsTabHtml();
         }
@@ -490,9 +492,9 @@ function getSection(sectionTitle, lists, style) {
   
     function getStatus(data) {
         if (isAnyMissing([data.exlId, data.products, data.title, data.description, data.cloud, data.solutions, data.role, data.level])) { 
-            return `<div class="status"><sp-status-light size="M" variant="negative">Fix metadata</sp-status-light></div>`;
+            return `<sp-status-light size="M" variant="negative">Fix metadata</sp-status-light>`;
         } else {
-            return `<div class="status"><sp-status-light size="M" variant="positive">Metadata good</sp-status-light></div>`;
+            return `<sp-status-light size="M" variant="positive">Metadata good</sp-status-light>`;
         }
     }
 
@@ -511,7 +513,7 @@ function getSection(sectionTitle, lists, style) {
 
     /** Analytics **/
 
-    async function injectAnalyticsTabHtml(analyticsApiKey, analyticsPageName) {
+    async function injectAnalyticsTabHtml(analyticsApiKey, analyticsPageName, duration) {
 
       const response = await fetch(ANALYTICS_PROXY_URL, { 
           method: 'POST',
@@ -539,9 +541,9 @@ function getSection(sectionTitle, lists, style) {
           <p>Please double check your API key is valid in the extension's options, and try again!</p>`;
       } else if (response.status === 200) {
         const data = await response.json()
-        
-        console.log("Analytics data collected for " + analyticsPageName, data);
-        
+
+        console.log("Analytics API data:", data); 
+
         const rows = data.metrics.map(metric => {
           return `
             <tr class="spectrum-Table-row">
@@ -550,8 +552,36 @@ function getSection(sectionTitle, lists, style) {
             </tr>`;
         }).join('');
 
+
+        let effectiveStatusHtml = '';
+        window.data = data.metrics;
+        const avgDuration = data.metrics.filter(m => m.text === 'Avg time on page').map(m => m.raw)[0];
+
+        if (duration && avgDuration) {
+          const percentDuration =  Math.floor((avgDuration/duration) * 100);
+
+          let variant = 'positive';
+          let color = '#017a4e';    
+          if (percentDuration < 70) {
+            variant = 'negative';
+            color = '#d31411';
+          } else if (percentDuration < 80) {
+            variant = 'notice';
+            color = '#e57000';
+          }
+
+          effectiveStatusHtml = `<sp-badge style="width: 100%; background-color: ${color}" size="M" static="black">          
+            Users engage with this page for <strong>${percentDuration}%</strong> of the expected time, spending <strong>${humanizeDuration(avgDuration * 1000)}</strong> out of the <strong>expected ${humanizeDuration(duration * 1000)}</strong> on average.
+          </sp-badge>`;
+
+          let el = document.getElementById("duration-status");
+          el.innerHTML = `<sp-status-light size="M" variant="${variant}">${percentDuration}% engagement</sp-status-light>`;
+          el.style.display = 'flex';
+        }
+    
         html = `
           <h4>Web analytics over the last ${data.scope.duration} for the page</h4>
+
           <table class="spectrum-Table spectrum-Table--sizeS" style="width: 100%">
             <thead class="spectrum-Table-head">
               <tr>
@@ -566,7 +596,11 @@ function getSection(sectionTitle, lists, style) {
             <tbody class="spectrum-Table-body">
               ${rows}
             </tbody>
-          </table>`;
+          </table>
+          
+          <br/><br/>
+
+          ${effectiveStatusHtml}`;
         }
 
       document.getElementById("analyticsTabHtml").innerHTML = html;

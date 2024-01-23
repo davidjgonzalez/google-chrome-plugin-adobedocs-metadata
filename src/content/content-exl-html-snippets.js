@@ -15,39 +15,32 @@ function cardsHtml(cards) {
   let cardHtml = `<div class="columns is-multiline">`;
 
   cards.forEach((card, index) => {
-    cardHtml += `<div class="column is-half-tablet is-half-desktop is-one-third-widescreen" aria-label="${
-          card.title
-        }" tabIndex="${index}">
-        <div class="card" style="height: 100%; display: flex; flex-direction: column; height: 100%;">
-        <div class="card-image">
-          <figure class="image x-is-16by9">
-            <a href="${card.link}" title="${card.title}" tabindex="-1">
-              <img class="is-bordered-r-small" src="${modifyUrl(card.img.src)}" alt="${card.img.getAttribute("alt") || card.title}">
-            </a>
-          </figure>
-        </div>
-        <div class="card-content is-padded-small" style="display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between;">
-            <div class="top-card-content">
-                ${
-                  1 === 2 && card.subtitle
-                    ? `<span style="font-style: italic;" class="is-size-6">${card.subtitle}</span>`
-                    : ""
-                }
-                <p class="headline is-size-6 has-text-weight-bold">
-                    <a href="${card.link}" title="${card.title}">${card.title}</a>
-                </p>
-                <p class="is-size-6">${card.body}</p>
-            </div>
-            <a href="${
-              card.link
-            }" class="spectrum-Button spectrum-Button--outline spectrum-Button--primary spectrum-Button--sizeM" style="align-self: flex-start; margin-top: 1rem;">
-              <span class="spectrum-Button-label has-no-wrap has-text-weight-bold">${
-                card.ctaLabel
-              }</span>
-            </a>
-          </div>
-        </div>
-      </div>`;
+    cardHtml += `<div class="column is-half-tablet is-half-desktop is-one-third-widescreen" aria-label="${card.title}" tabIndex="${index}">
+  <div class="card" style="height: 100%; display: flex; flex-direction: column; height: 100%;">
+    <div class="card-image">
+      <figure class="image x-is-16by9">
+        <a href="${card.link}" title="${card.title}" tabindex="-1">
+          <img class="is-bordered-r-small" src="${modifyUrl(card.img.src)}" alt="${card.img.getAttribute("alt") || card.title}">
+        </a>
+      </figure>
+    </div>
+    <div class="card-content is-padded-small" style="display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between;">
+      <div class="top-card-content">
+          <p class="headline is-size-6 has-text-weight-bold">
+              <a href="${card.link}" title="${card.title}">${card.title}</a>
+          </p>
+          <p class="is-size-6">${card.body}</p>
+      </div>
+      <a href="${
+        card.link
+      }" class="spectrum-Button spectrum-Button--outline spectrum-Button--primary spectrum-Button--sizeM" style="align-self: flex-start; margin-top: 1rem;">
+        <span class="spectrum-Button-label has-no-wrap has-text-weight-bold">${
+          card.ctaLabel
+        }</span>
+      </a>
+    </div>
+  </div>
+</div>`;
   });
 
   cardHtml += `</div>`;

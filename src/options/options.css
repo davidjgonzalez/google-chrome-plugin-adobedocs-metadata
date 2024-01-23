@@ -31,3 +31,9 @@
 #gcp-adobedocs-metadata__options__extra-styles-section select option {
     color: #999;
 }
+
+
+.spectrum-Textfield {
+    border: solid 1px #ccc !important;
+    border-radius: 3px;
+}
