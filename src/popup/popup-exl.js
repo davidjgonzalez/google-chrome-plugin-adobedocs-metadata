@@ -12,6 +12,20 @@ const Missing = {
     OK: 'ok'
 };
 
+const shortHumanizeDuration = {
+  spacer: "",
+  conjunction: " ",
+  serialComma: false,
+  language: "shortEn",
+  languages: {
+    shortEn: {
+      h: () => "h",
+      m: () => "m",
+      s: () => "s",
+    },
+  },
+};
+
 export default async function experienceLeaguePopup(response, callback) {
 
   chrome.storage.local.get([OPTIONS.FS_CONTENT_ROOT, OPTIONS.ANALYTICS_API_KEY], async function (optionsObj) {
@@ -19,8 +33,10 @@ export default async function experienceLeaguePopup(response, callback) {
 
         let html = `                    
             <div class="status">
-              <div id="duration-status"></div>
-              <div>${getStatus(response)}</div>
+              ${response.duration > 0 ?
+                 `<div class="efficiency efficiency-loading" id="efficiency-status"><sp-progress-bar aria-label="Loading analytics" indeterminate></sp-progress-bar></div>` 
+                 : ''}
+              <div class="metadata">${getStatus(response)}</div>
             </div>
 
             <sp-tabs selected="1">
@@ -70,6 +86,7 @@ export default async function experienceLeaguePopup(response, callback) {
                     getDisplayRow(getMeta("Description", response.description, "Missing", Missing.ERROR), "description"),
                     getDisplayRow(getMeta("ExL ID", response.exlId, "Missing", Missing.ERROR), "N/A"),
                     getDisplayRow(getMeta("Article ID", response.articleId, "Missing", Missing.ERROR), "N/A"),
+                    getDisplayRow(getMeta("Duration", (response.duration ? `${response.duration} seconds (${humanizeDuration(response.duration * 1000)})` : null), "Missing", Missing.NOTICE), "duration"),
                     getDisplayRow(getMeta("Cloud", response.cloud, "Missing", Missing.ERROR), "cloud"),
                     getDisplayRow(getMetas("Product(s)", response.products, "Missing", Missing.ERROR), "product"),
                     getDisplayRow(getMetas("Solution(s)", response.solutions, "Missing", Missing.ERROR), "solution"),
@@ -78,13 +95,11 @@ export default async function experienceLeaguePopup(response, callback) {
                     getDisplayRow(getMeta("Role", response.role, "Missing", Missing.ERROR), "role"),
                     getDisplayRow(getMeta("Level", response.level, "Missing", Missing.ERROR), "level"),
 
-
                     getDisplayRow(getMetas("Topic(s)", response.topics, "Missing", Missing.ERROR), "topic"),
                     getDisplayRow(getMetas("Feature(s)", response.features, "None"), "feature"),
                   
                     getDisplayRow(getMetas("Sub-product(s)", response.subproducts, "Missing", Missing.ERROR), "sub-product"),
                     getDisplayRow(getMeta("Doc-type", response.docType, "Missing", Missing.ERROR), "doc-type"),
-                    getDisplayRow(getMeta("Duration", (response.duration ? `${response.duration} seconds (${humanizeDuration(response.duration * 1000)})` : null), "Missing", Missing.NOTICE), "duration"),
 
                     getDisplayRow(getMeta("Last substantial update", response.lastSubstantialUpdate || "Not set", null), "last-substantial-update"),
                     getDisplayRow(getMeta("Recommendations", response.recommendations, "Default (Catalog, Display)", null), "recommendations"),
@@ -101,7 +116,7 @@ export default async function experienceLeaguePopup(response, callback) {
 
             <div data-tab="4" class="tab-content">
                 ${getResourcesTabHtml()}                           
-            </div>
+            </div>  
         `;
         
         await callback(html);
@@ -140,7 +155,7 @@ function getSection(sectionTitle, lists, style) {
     let cssClasses = style ? style : "";
   
     if (html) {
-      return `<div>
+      return `<div class="section">
         <p class="spectrum-Heading spectrum-Heading--L spectrum-Heading--light">${sectionTitle}</p>
         <div class="${cssClasses}">
           ${html}
@@ -544,6 +559,7 @@ function getSection(sectionTitle, lists, style) {
 
         console.log("Analytics API data:", data); 
 
+        // Draw analytics tab table
         const rows = data.metrics.map(metric => {
           return `
             <tr class="spectrum-Table-row">
@@ -552,32 +568,8 @@ function getSection(sectionTitle, lists, style) {
             </tr>`;
         }).join('');
 
-
-        let effectiveStatusHtml = '';
-        window.data = data.metrics;
-        const avgDuration = data.metrics.filter(m => m.text === 'Avg time on page').map(m => m.raw)[0];
-
-        if (duration && avgDuration) {
-          const percentDuration =  Math.floor((avgDuration/duration) * 100);
-
-          let variant = 'positive';
-          let color = '#017a4e';    
-          if (percentDuration < 70) {
-            variant = 'negative';
-            color = '#d31411';
-          } else if (percentDuration < 80) {
-            variant = 'notice';
-            color = '#e57000';
-          }
-
-          effectiveStatusHtml = `<sp-badge style="width: 100%; background-color: ${color}" size="M" static="black">          
-            Users engage with this page for <strong>${percentDuration}%</strong> of the expected time, spending <strong>${humanizeDuration(avgDuration * 1000)}</strong> out of the <strong>expected ${humanizeDuration(duration * 1000)}</strong> on average.
-          </sp-badge>`;
-
-          let el = document.getElementById("duration-status");
-          el.innerHTML = `<sp-status-light size="M" variant="${variant}">${percentDuration}% engagement</sp-status-light>`;
-          el.style.display = 'flex';
-        }
+        // Process the engagement status
+        let engagementStatusHtml = processEngagementStatus(data);
     
         html = `
           <h4>Web analytics over the last ${data.scope.duration} for the page</h4>
@@ -600,10 +592,72 @@ function getSection(sectionTitle, lists, style) {
           
           <br/><br/>
 
-          ${effectiveStatusHtml}`;
-        }
+          ${engagementStatusHtml}`;
+      }
 
       document.getElementById("analyticsTabHtml").innerHTML = html;
+
+      function processEngagementStatus(data) {
+        let effectiveStatusHtml = '';
+        const avgDuration = data.metrics.filter(m => m.text === 'Avg time on page').map(m => m.raw)[0];
+
+        let el = document.getElementById("efficiency-status");
+
+        if (duration && duration > 0 && avgDuration && avgDuration > 0) {
+          const percentDuration = Math.floor((avgDuration / duration) * 100);
+
+          let variant = 'positive';
+          let color = '#017a4e';
+          if (percentDuration < 70) {
+            variant = 'negative';
+            color = '#d31411';
+          } else if (percentDuration < 80) {
+            variant = 'notice';
+            color = '#e57000';
+          }
+
+          effectiveStatusHtml = `<sp-badge style="width: 100%; background-color: ${color}" size="M" static="black">          
+            Users engage with this page for <strong>${percentDuration}%</strong> of the expected time, 
+            spending <strong>${humanizeDuration(avgDuration * 1000)}</strong> out of the <strong>expected ${humanizeDuration(duration * 1000)}</strong> on average, 
+            for ${avgDuration - duration <= 0 ? 'under engagement by' : 'over engagement by'} of <strong>${humanizeDuration(Math.abs(duration - avgDuration) * 1000)}</strong>.
+          </sp-badge>`;
+
+          el.innerHTML = `
+            <sp-status-light size="M" variant="${variant}" data-tooltip="testing 123">${percentDuration}% engagement</sp-status-light>
+            <div class="efficiency-tooltip-wrapper">
+              <span class="spectrum-Tooltip spectrum-Tooltip--bottom is-open">
+                <span class="spectrum-Tooltip-label">
+
+                  <table class="efficiency-tooltip-table">
+                    <tbody>
+                      <tr class="avg-duration">
+                        <td>Average engagement</td>
+                        <td class="value">${humanizeDuration(avgDuration * 1000, shortHumanizeDuration)}</td>
+                      </tr>
+                      <tr class="expected-duration">
+                        <td>Expected engagement</td>
+                        <td class="value">${humanizeDuration(duration * 1000, shortHumanizeDuration)}</td>
+                      </tr>
+                      <tr class="duration-difference">
+                        <td>${avgDuration - duration <= 0 ? 'Under engaged by' : 'Over engaged by'}</td>
+                        <td class="value">${humanizeDuration(Math.abs(avgDuration - duration) * 1000, shortHumanizeDuration)}</td>                    
+                      </tr>
+                    </tbody>
+                  </table>
+            
+                </span>
+                <span class="spectrum-Tooltip-tip"></span>
+              </span>
+            </div>
+          `;
+          el.classList.remove('efficiency-loading');
+          el.classList.add('efficiency-loaded');
+
+        } else {
+          document.getElementById("efficiency-status")?.remove();
+        }
+        return effectiveStatusHtml;
+      }
     }
 
     function injectNoAnalyticsTabHtml() {

@@ -23,11 +23,11 @@ import '@spectrum-web-components/tabs/sp-tabs.js';
 import '@spectrum-web-components/tabs/sp-tab.js';
 import '@spectrum-web-components/status-light/sp-status-light.js';
 import '@spectrum-web-components/progress-circle/sp-progress-circle.js';
+import '@spectrum-web-components/progress-bar/sp-progress-bar.js';
 import '@spectrum-web-components/badge/sp-badge.js';
+import '@spectrum-web-components/tooltip/sp-tooltip.js';
 
-import "@spectrum-css/vars/dist/spectrum-global.css";
-import "@spectrum-css/vars/dist/spectrum-medium.css";
-import "@spectrum-css/vars/dist/spectrum-lightest.css";
+import "@spectrum-css/tokens/dist/index.css";
 import "@spectrum-css/page/dist/index-vars.css";
 import "@spectrum-css/inlinealert/dist/index-vars.css";
 import "@spectrum-css/button/dist/index-vars.css";
@@ -36,6 +36,7 @@ import "@spectrum-css/textfield/dist/index-vars.css";
 import "@spectrum-css/fieldlabel/dist/index-vars.css";
 import "@spectrum-css/typography/dist/index-vars.css";
 import "@spectrum-css/toast/dist/index-vars.css";
+import "@spectrum-css/tooltip/dist/index-vars.css";
 
 import "./popup.css";
 

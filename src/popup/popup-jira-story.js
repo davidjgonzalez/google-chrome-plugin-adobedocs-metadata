@@ -62,8 +62,8 @@ function getWarning(jira) {
     }    
 
     if (messages.length > 0) {
-        return `<div class="spectrum-Toast spectrum-Toast--negative" style="width: 100%">
-                    <div class="spectrum-Toast-body">
+        return `<div class="spectrum-Toast spectrum-Toast--negative" style="max-inline-size: 100%; width: 100%;">
+                    <div class="spectrum-Toast-body" style="padding: 0">
                         <div class="spectrum-Toast-content">
                             <ul>
                             ${messages.map((message) => {
