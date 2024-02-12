@@ -8,6 +8,10 @@ a {
     text-decoration: underline;
 }
 
+img { 
+    width: 100%;
+}
+
 a:hover {
     color: black;
     text-decoration: underline;
@@ -252,4 +256,11 @@ hr {
     40% {transform: translateY(-30px);} 
     60% {transform: translateY(-15px);} 
  } 
-
+ .video-analytics-details {
+    margin-bottom: 2rem; 
+ }
+ 
+.video-analytics-details img.thumbnail {
+    all: unset;
+    width: 150px;
+}

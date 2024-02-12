@@ -1,10 +1,10 @@
-import moment, { duration } from 'moment';
+import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
 import OPTIONS from "../constants";
+import { getVideoId } from "../utils";
 import { getResourcesTabHtml } from "./popup-common";
+import { injectAnalyticsTabHtml, injectNoAnalyticsTabHtml } from "./popup-exl-analytics";
 
-const ANALYTICS_PROXY_URL = 'https://51837-exlanalyticsproxy.adobeioruntime.net/api/v1/web/dx-excshell-1/generic'
-//STAGE: const ANALYTICS_PROXY_URL = 'https://51837-exlanalyticsproxy-stage.adobeioruntime.net/api/v1/web/dx-excshell-1/generic';
 
 const Missing = {
     ERROR: 'error',
@@ -12,7 +12,7 @@ const Missing = {
     OK: 'ok'
 };
 
-const shortHumanizeDuration = {
+export const shortHumanizeDuration = {
   spacer: "",
   conjunction: " ",
   serialComma: false,
@@ -25,6 +25,9 @@ const shortHumanizeDuration = {
     },
   },
 };
+
+
+
 
 export default async function experienceLeaguePopup(response, callback) {
 
@@ -124,7 +127,7 @@ export default async function experienceLeaguePopup(response, callback) {
         // Handle async calls to get analytics data
         let analyticsApiKey = optionsObj[OPTIONS.ANALYTICS_API_KEY];
         if (analyticsApiKey) {
-          injectAnalyticsTabHtml(analyticsApiKey, response.analyticsPageName, response.duration);
+          injectAnalyticsTabHtml(analyticsApiKey, response);
         } else {
           injectNoAnalyticsTabHtml();
         }
@@ -466,20 +469,6 @@ function getSection(sectionTitle, lists, style) {
     }
   }
   
-  function getVideoId(videoUrl) {
-    const videoIdRegex = /https:\/\/video.tv.adobe.com\/v\/(\d+).*/gi;
-
-    let videoId = null;  
-    let match = videoIdRegex.exec(videoUrl);
-
-    if (match && match.length === 2) {
-      videoId = match[1];
-    } else {
-      console.error("Could not get video id from: " + videoUrl);
-    }
-    
-    return videoId;
-  }
 
   function getDisplayButton(data) {
     if (data.title && data.value) {
@@ -525,150 +514,3 @@ function getSection(sectionTitle, lists, style) {
         return !value || value?.length === 0;
     }
 
-
-    /** Analytics **/
-
-    async function injectAnalyticsTabHtml(analyticsApiKey, analyticsPageName, duration) {
-
-      const response = await fetch(ANALYTICS_PROXY_URL, { 
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json;charset=utf-8',
-          },
-          body: JSON.stringify({ 
-            "pageId": analyticsPageName,
-            "apiKey": analyticsApiKey
-          })
-        }
-      );
-
-      let html = '';
-
-      if (response.status >= 500) {
-        html = `
-          <h2>Sorry!</h2>
-          <p>There was an error collecting analytics data. It's unlikely this has anything to do with you though.</p>`;
-      } else if (response.status >= 400 && response.status < 500) {
-        html = `
-          <h2>Sorry!</h2>
-          <p>You don't have access to analytics!</p>
-          <p>Please double check your API key is valid in the extension's options, and try again!</p>`;
-      } else if (response.status === 200) {
-        const data = await response.json()
-
-        console.log("Analytics API data:", data); 
-
-        // Draw analytics tab table
-        const rows = data.metrics.map(metric => {
-          return `
-            <tr class="spectrum-Table-row">
-              <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">${metric.text}</td>
-              <td class="spectrum-Table-cell" style="width: 100%">${metric.value}</td>
-            </tr>`;
-        }).join('');
-
-        // Process the engagement status
-        let engagementStatusHtml = processEngagementStatus(data);
-    
-        html = `
-          <h4>Web analytics over the last ${data.scope.duration} for the page</h4>
-
-          <table class="spectrum-Table spectrum-Table--sizeS" style="width: 100%">
-            <thead class="spectrum-Table-head">
-              <tr>
-                <th class="spectrum-Table-headCell" aria-sort="descending" tabindex="0">
-                  Metric
-                </th>
-                <th class="spectrum-Table-headCell" aria-sort="none">
-                  Value
-                </th>
-              </tr>
-            </thead>
-            <tbody class="spectrum-Table-body">
-              ${rows}
-            </tbody>
-          </table>
-          
-          <br/><br/>
-
-          ${engagementStatusHtml}`;
-      }
-
-      document.getElementById("analyticsTabHtml").innerHTML = html;
-
-      function processEngagementStatus(data) {
-        let effectiveStatusHtml = '';
-        const avgDuration = data.metrics.filter(m => m.text === 'Avg time on page').map(m => m.raw)[0];
-
-        let el = document.getElementById("efficiency-status");
-
-        if (duration && duration > 0 && avgDuration && avgDuration > 0) {
-          const percentDuration = Math.floor((avgDuration / duration) * 100);
-
-          let variant = 'positive';
-          let color = '#017a4e';
-          if (percentDuration < 70) {
-            variant = 'negative';
-            color = '#d31411';
-          } else if (percentDuration < 80) {
-            variant = 'notice';
-            color = '#e57000';
-          }
-
-          effectiveStatusHtml = `<sp-badge style="width: 100%; background-color: ${color}" size="M" static="black">          
-            Users engage with this page for <strong>${percentDuration}%</strong> of the expected time, 
-            spending <strong>${humanizeDuration(avgDuration * 1000)}</strong> out of the <strong>expected ${humanizeDuration(duration * 1000)}</strong> on average, 
-            for ${avgDuration - duration <= 0 ? 'under engagement by' : 'over engagement by'} of <strong>${humanizeDuration(Math.abs(duration - avgDuration) * 1000)}</strong>.
-          </sp-badge>`;
-
-          el.innerHTML = `
-            <sp-status-light size="M" variant="${variant}" data-tooltip="testing 123">${percentDuration}% engagement</sp-status-light>
-            <div class="efficiency-tooltip-wrapper">
-              <span class="spectrum-Tooltip spectrum-Tooltip--bottom is-open">
-                <span class="spectrum-Tooltip-label">
-
-                  <table class="efficiency-tooltip-table">
-                    <tbody>
-                      <tr class="avg-duration">
-                        <td>Average engagement</td>
-                        <td class="value">${humanizeDuration(avgDuration * 1000, shortHumanizeDuration)}</td>
-                      </tr>
-                      <tr class="expected-duration">
-                        <td>Expected engagement</td>
-                        <td class="value">${humanizeDuration(duration * 1000, shortHumanizeDuration)}</td>
-                      </tr>
-                      <tr class="duration-difference">
-                        <td>${avgDuration - duration <= 0 ? 'Under engaged by' : 'Over engaged by'}</td>
-                        <td class="value">${humanizeDuration(Math.abs(avgDuration - duration) * 1000, shortHumanizeDuration)}</td>                    
-                      </tr>
-                    </tbody>
-                  </table>
-            
-                </span>
-                <span class="spectrum-Tooltip-tip"></span>
-              </span>
-            </div>
-          `;
-          el.classList.remove('efficiency-loading');
-          el.classList.add('efficiency-loaded');
-
-        } else {
-          document.getElementById("efficiency-status")?.remove();
-        }
-        return effectiveStatusHtml;
-      }
-    }
-
-    function injectNoAnalyticsTabHtml() {
-      const html = `
-        <p style="margin-top: 2rem;">
-          Please provide a valid API key in this extensions options to access web analytics data.
-        </p>
-        <p>
-          If you do not have an API key, or your API key is no longer valid, please contact <a href="mailto:schnoorganization@adobe.com">schnoorganization@adobe.com</a></p>
-        </p>
-      `;
-
-      document.getElementById("analyticsTabHtml").innerHTML = html;
-    }
