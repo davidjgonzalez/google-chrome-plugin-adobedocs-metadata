@@ -99,4 +99,25 @@ async function getMpcVideoData(videos) {
   return data;
 }
 
-export { parseJiraTitle, getVideoId, iso8601DurationToSeconds, getMpcVideoData };
+
+function splitArray(arr) {
+  // Calculate the split index
+  const middleIndex = Math.ceil(arr.length / 2);
+
+  // Use slice to create the two arrays
+  const firstHalf = arr.slice(0, middleIndex);
+  const secondHalf = arr.slice(middleIndex);
+
+  return [firstHalf, secondHalf];
+}
+
+function getRaw(data, key) {
+  return data.find((item) => item.id === key)?.raw;
+}
+
+function getValue(data, key) {
+  return data.find((item) => item.id === key)?.value;
+}
+
+
+export { parseJiraTitle, getVideoId, iso8601DurationToSeconds, getMpcVideoData, splitArray, getRaw, getValue};

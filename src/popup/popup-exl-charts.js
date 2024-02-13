@@ -1,12 +1,14 @@
 import Chart from "chart.js/auto";
 import "chartjs-adapter-date-fns";
 import annotationPlugin from "chartjs-plugin-annotation";
+import { getRaw } from "../utils";
 
 Chart.register(annotationPlugin);
 
-export function createFalloffChart(ctx, videoLength, analyticsData) {
-  const totalVideoPlays = get(analyticsData, "videoPlays") || 0;
-  const avgTimeSpent = get(analyticsData, "avgTimeSpent") || 0;
+export function createFalloffChart(ctx, analyticsData) {
+  const totalVideoPlays = getRaw(analyticsData, "videoPlays") || 0;
+  const avgTimeSpent = getRaw(analyticsData, "avgTimeSpent") || 0;
+  const videoLength = getRaw(analyticsData, "videoDuration") || 0;
 
   const data = [
     {
@@ -40,13 +42,23 @@ export function createFalloffChart(ctx, videoLength, analyticsData) {
           cubicInterpolationMode: "monotone",
           data: data,
           fill: true,
-          borderColor: "red",
+          borderColor: "#1474e6",
           tension: 0.4,
         },
       ],
     },
 
-    options: {      
+    options: {  
+      elements: {
+        point: {
+            radius: 6,
+            borderWidth: 2,
+            hoverRadius: 8,
+            hoverBorderWidth: 2,
+            hitRadius: 10,
+            backgroundColor: "#1474e6",
+        }
+      },
       scales: {
         x: {
           // Configure your x-axis as needed, e.g., type might be 'linear', 'time', etc.
@@ -91,17 +103,15 @@ export function createFalloffChart(ctx, videoLength, analyticsData) {
           },
         },
       },
-      plugins: {  legend: {
+      plugins: {  
+        legend: {
             display: false
         },
         tooltip: {
+            padding: 20,
             callbacks: {
                 title: function(context) {
-                    console.log('context', context);
-
-                    let title = `${Math.round((context[0].raw.y / totalVideoPlays) * 100)}% of plays made it to ${formatDuration(context[0].label)}`;
-
-                    return title;
+                    return `${Math.round((context[0].raw.y / totalVideoPlays) * 100)}% of plays made it to ${formatDuration(context[0].label)}`;
                 }
             }
         },
@@ -111,7 +121,7 @@ export function createFalloffChart(ctx, videoLength, analyticsData) {
               type: "line",
               value: avgTimeSpent,
               scaleID: "x",
-              borderColor: "#333",
+              borderColor: "#27c6c1",
               borderWidth: 3,
               label: {
                 content: `Avg. time ( ${formatDuration(avgTimeSpent)} )`,
@@ -148,3 +158,16 @@ function formatDuration(seconds) {
       .padStart(2, "0")}:${remainingSeconds.toString().padStart(2, "0")}`;
   }
 }
+
+
+export function initCharts(document, videoIds, analyticsData) {
+    videoIds.forEach((videoId) => {
+  
+      createFalloffChart(
+        document
+          .getElementById(`video-falloff-chart-${videoId}`)
+          .getContext("2d"),
+        analyticsData.videos[videoId]
+      );
+    });
+  }

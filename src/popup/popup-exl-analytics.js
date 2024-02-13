@@ -1,14 +1,12 @@
-import { iso8601DurationToSeconds } from "../utils";
-import { createFalloffChart } from "./popup-exl-charts";
+import { initCharts } from "./popup-exl-charts";
 import humanizeDuration from "humanize-duration";
 import { shortHumanizeDuration } from "./popup-exl";
-import { getMpcVideoData, getVideoId } from "../utils";
+import { getVideoId, splitArray, getRaw, getValue } from "../utils";
 
 // Production
-//const ANALYTICS_PROXY_URL = 'https://51837-exlanalyticsproxy.adobeioruntime.net/api/v1/web/dx-excshell-1/generic'
+const ANALYTICS_PROXY_URL = 'https://51837-exlanalyticsproxy.adobeioruntime.net/api/v1/web/dx-excshell-1/generic'
 // Stage
-const ANALYTICS_PROXY_URL =
-  "https://51837-exlanalyticsproxy-stage.adobeioruntime.net/api/v1/web/dx-excshell-1/generic";
+//const ANALYTICS_PROXY_URL = "https://51837-exlanalyticsproxy-stage.adobeioruntime.net/api/v1/web/dx-excshell-1/generic";
 
 export async function injectAnalyticsTabHtml(analyticsApiKey, exlData) {
   const analyticsPageName = exlData.analyticsPageName;
@@ -51,46 +49,47 @@ export async function injectAnalyticsTabHtml(analyticsApiKey, exlData) {
 
     console.log("Analytics API data:", analyticsData);
 
-    const mpcVideoData = await getMpcVideoData(videos);
+    if (exlData.duration) {
+      const videosDuration =
+        Object.values(analyticsData.videos).reduce(
+          (acc, video) => acc + getRaw(video, "videoDuration"),
+          0
+        ) || 0;
+      /* 
+      const videosAvgTimeSpent =
+        Object.values(analyticsData.videos).reduce(
+          (acc, video) => acc + getRaw(video, "avgTimeSpent"),
+          0
+        ) || 0;
 
-    analyticsData.page.push({
+      analyticsData.page.push({
+        text: "Avg video play time",
+        value: humanizeDuration(videosAvgTimeSpent * 1000),
+        raw: videosAvgTimeSpent,
+      });
+      */
+      analyticsData.page.push({
         text: "Expected time on page",
-        value: humanizeDuration(exlData.duration * 1000, shortHumanizeDuration),
+        value: humanizeDuration(exlData.duration * 1000),
         raw: exlData.duration,
-    });
+      });
 
-    // Draw analytics tab table
-    const rows = analyticsData.page
-      .map((pageMetric, index) => {
-        let html = "";
+      analyticsData.page.push({
+        text: "Expected text time",
+        value: humanizeDuration((exlData.duration - videosDuration) * 1000),
+        raw: exlData.duration - videosDuration,
+      });
 
-        if (index % 2 == 0) {
-          html += `<tr class="spectrum-Table-row">`;
-        }
-
-        html += `
-            <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">${pageMetric.text}</td>
-            <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">${pageMetric.value}</td>`;
-
-        if (
-          index === analyticsData.page.length - 1 &&
-          analyticsData.page.length % 2 === 1
-        ) {
-          html += `
-            <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap"></td>
-            <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%"></td>`;
-        }
-
-        if (index % 2 == 1) {
-          html += `</tr>`;
-        }
-
-        return html;
-      })
-      .join("");
+      analyticsData.page.push({
+        text: "Expected video time",
+        value: humanizeDuration(videosDuration * 1000),
+        raw: videosDuration,
+      });
+    }
 
     // Process the engagement status
     let engagementStatusHtml = processEngagementStatus(exlData, analyticsData);
+    let tablesData = splitArray(analyticsData.page);
 
     html = `
         <br/>
@@ -100,32 +99,41 @@ export async function injectAnalyticsTabHtml(analyticsApiKey, exlData) {
           analyticsData.scope.duration
         } for the page</h4>
 
-        <table class="spectrum-Table spectrum-Table--sizeS" style="width: 100%">
-          <thead class="spectrum-Table-head">
-            <tr>
-              ${`<th class="spectrum-Table-headCell" aria-sort="none" style="white-space: nowrap">
-                Page metric
-              </th>
-              <th class="spectrum-Table-headCell" aria-sort="none" style="white-space: nowrap">
-                Value
-              </th>`.repeat(2)}
-          </tr>
-          </thead>
-          <tbody class="spectrum-Table-body">
-            ${rows}
-          </tbody>
-        </table>
-                
-        <br/>
-        <hr/>
-        <br/>
+        <div class="tables-2">
+            ${tablesData
+              .map((tableDatum) => {
+                return `<table class="spectrum-Table spectrum-Table--sizeS" style="width: 100%">
+                <thead class="spectrum-Table-head">
+                    <tr>
+                    <th class="spectrum-Table-headCell" aria-sort="none" style="white-space: nowrap">
+                        Page metric
+                    </th>
+                    <th class="spectrum-Table-headCell" aria-sort="none" style="white-space: nowrap">
+                        Value
+                    </th>
+                </tr>
+                </thead>
+                <tbody class="spectrum-Table-body">
+                    ${tableDatum
+                      .map((pageMetric) => {
+                        return `<tr class="spectrum-Table-row">
+                          <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">${pageMetric.text}</td>
+                          <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">${pageMetric.value}</td>
+                        </tr>`;
+                      })
+                      .join("")}
+                </tbody>
+            </table>`;
+              })
+              .join("")}
+        </div>
         
-       ${getChartPlaceholderHtml(videoIds, analyticsData, mpcVideoData)}
+       ${getVideoAnalyticsHtml(videoIds, analyticsData)}
         `;
 
     document.getElementById("analyticsTabHtml").innerHTML = html;
 
-    initCharts(videoIds, mpcVideoData, analyticsData);
+    initCharts(document, videoIds, analyticsData);
   }
 }
 
@@ -142,29 +150,15 @@ export function injectNoAnalyticsTabHtml() {
   document.getElementById("analyticsTabHtml").innerHTML = html;
 }
 
-function getChartPlaceholderHtml(videoIds, analyticsData, mpcVideoData) {
+function getVideoAnalyticsHtml(videoIds, analyticsData) {
   return videoIds
     .map((videoId) => {
-      const mpcData = mpcVideoData.find((datum) => datum.videoId == videoId);
-      const videoName = mpcData?.jsonLinkedData?.name;
-
-      const videoAnalyticsData = analyticsData.videos[videoId];
-      const pageViews =
-        analyticsData.page.find((v) => v.id === "pageViews")?.raw || 0;
-      const avgTimeSpentWatchingVideo = humanizeDuration(
-        videoAnalyticsData.find((v) => v.id === "avgTimeSpent")?.raw * 1000
-      );
-      const numberOfPlays = videoAnalyticsData.find(
-        (v) => v.id === "videoPlays"
-      )?.value;
-
       return `
         <div class="video-analytics-chart">
             ${getVideoDetailsTableHtml(
               videoId,
               analyticsData.page,
-              analyticsData.videos[videoId],
-              mpcData
+              analyticsData.videos[videoId]
             )}
 
             <div class="chart">
@@ -174,26 +168,6 @@ function getChartPlaceholderHtml(videoIds, analyticsData, mpcVideoData) {
         `;
     })
     .join("");
-}
-
-function initCharts(videoIds, mpcVideoData, analyticsData) {
-  videoIds.forEach((videoId) => {
-    const mpcVideoDatum = mpcVideoData.find(
-      (datum) => datum.videoId == videoId
-    );
-
-    const videoLength = iso8601DurationToSeconds(
-      mpcVideoDatum?.jsonLinkedData?.duration
-    );
-
-    createFalloffChart(
-      document
-        .getElementById(`video-falloff-chart-${videoId}`)
-        .getContext("2d"),
-      videoLength,
-      analyticsData.videos[videoId]
-    );
-  });
 }
 
 function processEngagementStatus(exlData, analyticsData) {
@@ -292,53 +266,120 @@ function getVideoDetailsTableHtml(
   videoId,
   pageAnalyticsData,
   videoAnalyticsData,
-  mpcVideoData
 ) {
-  const videoName = mpcVideoData.jsonLinkedData.name || "Unknown video name";
-  const pageViews =
-    pageAnalyticsData.find((v) => v.id === "pageViews")?.raw || 0;
-  const avgTimeSpentWatchingVideo =
-    videoAnalyticsData.find((v) => v.id === "avgTimeSpent")?.raw || 0;
+  const pageViews = getRaw(pageAnalyticsData, "pageViews") || 0;
 
-  const numberOfPlays = videoAnalyticsData.find(
-    (v) => v.id === "videoPlays"
-  )?.value;
-
-  const videoLength = iso8601DurationToSeconds(
-    mpcVideoData?.jsonLinkedData?.duration
-  );
+  const videoName = getValue(videoAnalyticsData, "videoName");
+  const videoLength = getRaw(videoAnalyticsData, "videoDuration");
+  const avgTimeSpentWatchingVideo = getRaw(videoAnalyticsData, "avgTimeSpent") || 0;
+  const numberOfPlays = getRaw(videoAnalyticsData, "videoPlays") || 0;
+  const finishedPlays = Math.round(getRaw(videoAnalyticsData, "playback100") || 0) * numberOfPlays;
 
   return `
-    <h4>Video analytics for ${videoName} ( ID: ${videoId} )</h4>
-    <table class="video-analytics-details spectrum-Table spectrum-Table--sizeS" style="width: 100%">
-            <thead class="spectrum-Table-head">
-                <tr>
-                    <th class="spectrum-Table-headCell" aria-sort="none" ></th>
-                ${`<th class="spectrum-Table-headCell" aria-sort="none" style="white-space: nowrap">
-                    Video metric
-                </th>
-                <th class="spectrum-Table-headCell" aria-sort="none" style="white-space: nowrap; width: 50%;">
-                    Value
-                </th>`.repeat(2)}
-            </tr>
+    <h4 class="video-analytics-title">Video analytics for <u>${videoName}</u></h4>
+
+    <div class="tables-3">
+        <!-- Thumbnail table -->
+        <table spectrum-Table spectrum-Table--sizeS" style="width: 100%">
+            <tbody class="spectrum-Table-body">
+                <tr class="spectrum-Table-row">
+                    <td class="spectrum-Table-cell">
+                        <img class="thumbnail" src="https://video.tv.adobe.com/v/${videoId}?format=jpeg" alt="${videoName}" />
+                        <div class="thumbnail-id">Id: ${videoId}</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Table 1 -->
+        <table class="spectrum-Table spectrum-Table--sizeS" style="width: 100%">
+                <thead class="spectrum-Table-head">
+                    <tr>
+                        <th class="spectrum-Table-headCell" aria-sort="none" style="white-space: nowrap">
+                        Video metric
+                    </th>
+                    <th class="spectrum-Table-headCell" aria-sort="none" style="white-space: nowrap; width: 50%;">
+                        Value
+                    </th>
+                </tr>
             </thead>
             <tbody class="spectrum-Table-body">
                 <tr class="spectrum-Table-row">
-                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" rowspan="5">
-                        <br/>
-                        <img class="thumbnail" src="https://video.tv.adobe.com/v/${videoId}?format=jpeg" alt="${videoName}" />
+                    <!-- Page views without plays -->
+                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">Page views w/ plays</td>
+                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">
+                        ${numberOfPlays}
+                        <span class="slash">/</span>
+                        ${100 - Math.round((numberOfPlays / pageViews) * 100)}%
                     </td>
+                </tr>
 
-                    <!-- Video plays -->
-                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">Video plays</td>
-                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">${numberOfPlays}</td>
-
+                <tr class="spectrum-Table-row">
                     <!-- Page views without plays -->
                     <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">Page views w/out plays</td>
-                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">${
-                      pageViews - numberOfPlays
-                    }</td>
+                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">
+                    ${pageViews - numberOfPlays}
+                    <span class="slash">/</span>
+                    ${Math.round((numberOfPlays / pageViews) * 100)}%
+                    </td>
                 </tr>
+
+                <tr class="spectrum-Table-row">
+                    <!-- Avg. played time -->
+                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">Avg play time</td>
+                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">
+                        ${humanizeDuration(
+                          Math.round(avgTimeSpentWatchingVideo * 1000),
+                          shortHumanizeDuration
+                        )}
+                        <span class="slash">/</span> 
+                        ${Math.round(
+                          (avgTimeSpentWatchingVideo / videoLength) * 100
+                        )}%
+                    </td>                 
+                </tr>
+                <tr class="spectrum-Table-row">
+                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">Avg unplayed time</td>
+                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">
+                    ${humanizeDuration(
+                      videoLength * 1000 -
+                        Math.round(avgTimeSpentWatchingVideo * 1000),
+                      shortHumanizeDuration
+                    )}
+                    <span class="slash">/</span> 
+                    ${
+                      100 -
+                      Math.round(
+                        (avgTimeSpentWatchingVideo / videoLength) * 100
+                      )
+                    }%
+                    </td>
+                </tr>
+
+                <!-- Start vs Finish -->
+                <tr class="spectrum-Table-row">
+                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">% finished</td>
+                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">                
+                    ${Math.round((finishedPlays / numberOfPlays) * 100)}%
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+
+        <!-- Table 2 -->
+        <table class="spectrum-Table spectrum-Table--sizeS" style="width: 100%">
+            <thead class="spectrum-Table-head">
+                <tr>
+                    <th class="spectrum-Table-headCell" aria-sort="none" style="white-space: nowrap">
+                        Video metric
+                    </th>
+                    <th class="spectrum-Table-headCell" aria-sort="none" style="white-space: nowrap; width: 50%;">
+                        Value
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="spectrum-Table-body">
 
                 <tr class="spectrum-Table-row">
                     <!-- Video length -->
@@ -347,51 +388,22 @@ function getVideoDetailsTableHtml(
                         ${humanizeDuration(
                           Math.round(videoLength * 1000),
                           shortHumanizeDuration
-                        )}</td>
-                    
-                        <!-- Page vs Plays -->
-                        <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: wrap">% page views w/ plays</td>
-                        <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">${Math.round(
-                          (numberOfPlays / pageViews) * 100
-                        )}%</td>
-                    </tr>
-
+                        )}
+                    </td>  
+                </tr>
+                
                 <tr class="spectrum-Table-row">
-                    <!-- Avg play time -->
-                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">Avg. play time</td>
-                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">
-                        ${humanizeDuration(
-                          Math.round(avgTimeSpentWatchingVideo * 1000),
-                          shortHumanizeDuration
-                        )}</td>
-
-                    <!-- Avg. unwatched time -->
-                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">Avg. unplayed time</td>
-                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">
-                    ${humanizeDuration(
-                        (videoLength * 1000) - Math.round(avgTimeSpentWatchingVideo * 1000),
-                        shortHumanizeDuration
-                      )}
-                    </td>
+                    <!-- Video starts -->
+                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">Video starts</td>
+                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">${numberOfPlays}</td>
                 </tr>
 
-
                 <tr class="spectrum-Table-row">
-                <!-- Avg % played -->
-                <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">Avg. % played</td>
-                <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">
-                    ${Math.round(
-                      (avgTimeSpentWatchingVideo / videoLength) * 100
-                    )}%</td>
-
-                <!-- Non-video duration -->
-                <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">Avg. % unplayed</td>
-                <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">
-                ${100 - Math.round(
-                    (avgTimeSpentWatchingVideo / videoLength) * 100
-                  )}%
-                </td>
-            </tr>
+                    <!-- Video finish -->
+                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">Video finishes</td>
+                    <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">${finishedPlays}</td>
+                </tr>
             </tbody>
-            </table>`;
+        </table>
+    </div>`;
 }
