@@ -270,10 +270,10 @@ function getVideoDetailsTableHtml(
   const pageViews = getRaw(pageAnalyticsData, "pageViews") || 0;
 
   const videoName = getValue(videoAnalyticsData, "videoName");
-  const videoLength = getRaw(videoAnalyticsData, "videoDuration");
+  const videoLength = getRaw(videoAnalyticsData, "videoDuration") || 0;
   const avgTimeSpentWatchingVideo = getRaw(videoAnalyticsData, "avgTimeSpent") || 0;
   const numberOfPlays = getRaw(videoAnalyticsData, "videoPlays") || 0;
-  const finishedPlays = Math.round(getRaw(videoAnalyticsData, "playback100") || 0) * numberOfPlays;
+  const finishedPlays = Math.round((getRaw(videoAnalyticsData, "playback100") || 0) * numberOfPlays);
 
   return `
     <h4 class="video-analytics-title">Video analytics for <u>${videoName}</u></h4>
