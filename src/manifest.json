@@ -1,6 +1,6 @@
 {
   "name": "AdobeDocs metadata",
-  "version": "1.26.1",
+  "version": "1.27.0",
   "description": "AdobeDocs metadata extension!",
   "permissions": ["activeTab", "declarativeContent", "storage"],
   
@@ -23,8 +23,12 @@
   "content_scripts": [{
     "matches": [
       "*://experienceleague.adobe.com/docs/*",
+      "*://experienceleague.corp.adobe.com/docs/*",
       "*://experienceleague.adobe.com/landing/experience-manager/*",
-      "*://experienceleague.corp.adobe.com/docs/*"
+      "*://experienceleague.adobe.com/*/docs/*",
+      "*://experienceleague.corp.adobe.com/*/docs/*",
+      "*://eds-dev.experienceleague.adobe.com/*/docs/*",
+      "*://eds-stage.experienceleague.adobe.com/*/docs/*"
       ],
     "js": ["content-exl.js"],
     "css": ["content-exl.css"]

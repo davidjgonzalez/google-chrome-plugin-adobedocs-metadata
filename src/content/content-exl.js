@@ -13,12 +13,12 @@ function getAnalyticsPageName() {
   let solutionversion = document.querySelector('meta[name="version"]') !== null ? document.querySelector('meta[name="version"]').content : '';
   */
 
-  const type = document.querySelector('meta[name="type"]') !== null ? document.querySelector('meta[name="type"]').content.split(',')[0].trim().toLowerCase() : '';
-  let solution = document.querySelector('meta[name="solution"]') !== null ? document.querySelector('meta[name="solution"]').content.split(',')[0].trim().toLowerCase() : `fb ${(((/^\/docs\/([^\/]+)\//).exec(location.pathname) || [])[1] || '').replace(/[-\d+\s+]/g, ' ').replace(/\s+/g, ' ').trim()}`;
-  let subsolution = document.querySelector('meta[name="sub-solution"]') !== null ? document.querySelector('meta[name="sub-solution"]').content.split(',')[0].trim().toLowerCase() : '';
+  const type = document.head.querySelector('meta[name="type"]') !== null ? document.head.querySelector('meta[name="type"]').content.split(',')[0].trim().toLowerCase() : '';
+  let solution = document.head.querySelector('meta[name="solution"]') !== null ? document.head.querySelector('meta[name="solution"]').content.split(',')[0].trim().toLowerCase() : `fb ${(((/^\/docs\/([^\/]+)\//).exec(location.pathname) || [])[1] || '').replace(/[-\d+\s+]/g, ' ').replace(/\s+/g, ' ').trim()}`;
+  let subsolution = document.head.querySelector('meta[name="sub-solution"]') !== null ? document.head.querySelector('meta[name="sub-solution"]').content.split(',')[0].trim().toLowerCase() : '';
   //let solutionversion = document.querySelector('meta[name="version"]') !== null ? document.querySelector('meta[name="version"]').content : '';
 
-  const title = document.querySelector('title').innerText.split('|')[0].trim();
+  const title = document.head.querySelector('meta[name="english-title"]')?.content || document.head.querySelector('title').innerText.split('|')[0].trim();
   
   // Should look like: xl:docs:experience manager:tutorial:osgi services development basics"
   const pageName = `xl:docs:${solution}:${type}:${subsolution ? subsolution + ':' : ''}${title}`.toLowerCase();
@@ -34,6 +34,7 @@ function getMetadata() {
         host: window.location.host,
         path: window.location.pathname
     },
+    language: document.documentElement.lang || 'en',
     analyticsPageName: getAnalyticsPageName(),
     description: getMeta("description"),
     gitEdit: getMeta("git-edit"),
@@ -96,15 +97,15 @@ function getMetas(name, defaultValues) {
 }
 
 function getMpcVideos() {
-  let vidoesUrls = [];
-  let videoElements = document.querySelectorAll("iframe[embedded-video]");
-
-  for (let i = 0; i < videoElements.length; i++) {
-    let videoElement = videoElements[i];
-    vidoesUrls.push(videoElement.getAttribute("src"));
+  let results = [];
+  let videoElements = [...document.querySelectorAll("iframe[embedded-video], iframe[src^='https://video.tv.adobe.com/v/']")] || [];
+  if (videoElements) {
+    results = videoElements.map((videoElement) => videoElement.getAttribute("src"));
+  } else {
+    videoElements = [...document.querySelectorAll("a[href^='https://video.tv.adobe.com/v/']")] || [];
+    results = videoElements.map((videoElement) => videoElement.getAttribute("href"));
   }
-
-  return vidoesUrls;
+  return results;
 }
 
 // Listen for messages
@@ -132,31 +133,8 @@ function getElementText(name, defaultValue) {
 
 /** Extra styles */
 
-
-chrome.storage.local.get(OPTIONS.EXTRA_STYLES, function (optionsObj) {
-    let optionsExtraStyles = optionsObj[OPTIONS.EXTRA_STYLES] || 'none';
-
-    if (optionsExtraStyles && 
-            optionsExtraStyles !== 'none' && 
-            _isExLDocs()) {
-        
-        var path = chrome.runtime.getURL(`${optionsExtraStyles}.css`);
-        document.body.setAttribute("id", optionsExtraStyles);
-        document.head.innerHTML = `<link rel="stylesheet" type="text/css" media="print,screen" href="${path}"></link>` + document.head.innerHTML;    
-    } 
-
-    if (_isExLDocs()) {
-        var appEl = document.getElementById("app");
-        appEl.style.display = 'block';
-
-        var footerEl = document.getElementById("footer");
-        footerEl.style.display = 'block';
-    }
-});
-
-
 function _isExLDocs() {
-    return window.location.hostname.indexOf('experienceleague.') === 0 && window.location.pathname.indexOf('/docs/') === 0;
+    return window.location.hostname.indexOf('experienceleague.') === 0 && window.location.pathname.indexOf('/docs/') >= 0;
 }
 
 function _injectScript(file, selector) {
