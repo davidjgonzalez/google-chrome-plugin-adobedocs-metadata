@@ -8,7 +8,7 @@ const ANALYTICS_PROXY_URL = 'https://51837-exlanalyticsproxy.adobeioruntime.net/
 // Stage
 //const ANALYTICS_PROXY_URL = "https://51837-exlanalyticsproxy-stage.adobeioruntime.net/api/v1/web/dx-excshell-1/generic";
 
-export async function injectAnalyticsTabHtml(analyticsApiKey, exlData) {
+export async function injectAnalyticsTabHtml(analyticsApiKey, analyticsRange, exlData) {
   const analyticsPageName = exlData.analyticsPageName;
   const videos = exlData.videos;
   const videoIds = videos.map((video) => getVideoId(video));
@@ -23,6 +23,7 @@ export async function injectAnalyticsTabHtml(analyticsApiKey, exlData) {
       pageId: analyticsPageName,
       apiKey: analyticsApiKey,
       videoIds: videoIds.join("|"),
+      analyticsRange: analyticsRange
     }),
   });
 
@@ -96,7 +97,7 @@ export async function injectAnalyticsTabHtml(analyticsApiKey, exlData) {
         ${engagementStatusHtml}
 
         <h4>Web analytics over the last ${
-          analyticsData.scope.duration
+          analyticsRange
         } for the page</h4>
 
         <div class="tables-2">
@@ -304,8 +305,8 @@ function getVideoDetailsTableHtml(
                 </tr>
             </thead>
             <tbody class="spectrum-Table-body">
+                <!--
                 <tr class="spectrum-Table-row">
-                    <!-- Page views without plays -->
                     <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">Page views w/ plays</td>
                     <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">
                         ${numberOfPlays}
@@ -315,7 +316,6 @@ function getVideoDetailsTableHtml(
                 </tr>
 
                 <tr class="spectrum-Table-row">
-                    <!-- Page views without plays -->
                     <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="white-space: nowrap">Page views w/out plays</td>
                     <td class="spectrum-Table-cell spectrum-Table-cell--divider" style="width: 50%">
                     ${pageViews - numberOfPlays}
@@ -323,6 +323,7 @@ function getVideoDetailsTableHtml(
                     ${Math.round((numberOfPlays / pageViews) * 100)}%
                     </td>
                 </tr>
+                -->
 
                 <tr class="spectrum-Table-row">
                     <!-- Avg. played time -->

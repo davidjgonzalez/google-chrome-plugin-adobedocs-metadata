@@ -27,11 +27,9 @@ export const shortHumanizeDuration = {
 };
 
 
-
-
 export default async function experienceLeaguePopup(response, callback) {
 
-  chrome.storage.local.get([OPTIONS.FS_CONTENT_ROOT, OPTIONS.ANALYTICS_API_KEY], async function (optionsObj) {
+  chrome.storage.local.get([OPTIONS.FS_CONTENT_ROOT, OPTIONS.ANALYTICS_API_KEY, OPTIONS.ANALYTICS_DAY_RANGE], async function (optionsObj) {
         let optionsContentRoot = _getOptionsContentFileSystemPath(optionsObj);
 
         let html = `                    
@@ -126,8 +124,9 @@ export default async function experienceLeaguePopup(response, callback) {
 
         // Handle async calls to get analytics data
         let analyticsApiKey = optionsObj[OPTIONS.ANALYTICS_API_KEY];
+        let optionsAnalyticsRange = _getOptionsAnalyticsRange(optionsObj);
         if (analyticsApiKey) {
-          injectAnalyticsTabHtml(analyticsApiKey, response);
+          injectAnalyticsTabHtml(analyticsApiKey, optionsAnalyticsRange, response);
         } else {
           injectNoAnalyticsTabHtml();
         }
@@ -146,6 +145,17 @@ function _getOptionsContentFileSystemPath(obj) {
     }
   
     return "";
+  }
+
+  function _getOptionsAnalyticsRange(obj) {
+    let value = obj[OPTIONS.ANALYTICS_DAY_RANGE];
+
+    if (value && Number.isInteger(value)) {
+      return value;
+    } else {
+      console.log("Defaulting to 30 days for analytics range");
+      return 30;
+    }
   }
 
 function getSection(sectionTitle, lists, style) {
