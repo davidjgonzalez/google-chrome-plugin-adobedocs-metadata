@@ -247,12 +247,17 @@ function getSection(sectionTitle, lists, style) {
     return html;
   }
   
-  function getDateTime(title, lastUpdated) {
-    if (!lastUpdated) {
+  function getDateTime(title, dateTimeStr) {
+    if (!dateTimeStr) {
       return '';
     }
   
-    let m = moment(lastUpdated);
+    let m = moment.utc(dateTimeStr, 'ddd MMM DD YYYY HH:mm:ss [GMT]Z');
+
+    // If the first format doesn't match, try the second format (e.g., "2024-09-23")
+    if (!m.isValid()) {
+        m = moment(dateTimeStr, "YYYY-MM-DD", true);
+    }
   
     return { 
         title: title,

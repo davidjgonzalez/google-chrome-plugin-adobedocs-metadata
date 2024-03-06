@@ -14,3 +14,24 @@ chrome.runtime.onInstalled.addListener(function () {
     ]);
   });
 });
+
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  if (request.action === "getBetaCodes") {
+      chrome.storage.local.get(["gcp-adobedocs-metadata__options__beta"], function(result) {
+          if (chrome.runtime.lastError) {
+              sendResponse({error: chrome.runtime.lastError.message});
+              return;
+          }
+
+          const codes = result["gcp-adobedocs-metadata__options__beta"].split(",").map((code) => code.trim()) || [];
+          sendResponse({
+            id: "beta",
+            value: codes
+          });
+      });
+      return true; // indicates that the response will be sent asynchronously
+  }
+});
+
+console.log("Background script loaded");

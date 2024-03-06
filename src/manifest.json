@@ -1,6 +1,6 @@
 {
   "name": "AdobeDocs metadata",
-  "version": "1.27.0",
+  "version": "1.28.1",
   "description": "AdobeDocs metadata extension!",
   "permissions": ["activeTab", "declarativeContent", "storage"],
   
@@ -15,9 +15,8 @@
   },
 
   "web_accessible_resources": [{
-    "resources": [],  
-    "matches": [],
-    "extension_ids": []
+    "resources": ["/extra/*"],
+    "matches": ["<all_urls>"]
   }],
 
   "content_scripts": [{
@@ -27,8 +26,8 @@
       "*://experienceleague.adobe.com/landing/experience-manager/*",
       "*://experienceleague.adobe.com/*/docs/*",
       "*://experienceleague.corp.adobe.com/*/docs/*",
-      "*://eds-dev.experienceleague.adobe.com/*/docs/*",
-      "*://eds-stage.experienceleague.adobe.com/*/docs/*"
+      "*://eds-dev.experienceleague.adobe.com/*",
+      "*://eds-stage.experienceleague.adobe.com/*"
       ],
     "js": ["content-exl.js"],
     "css": ["content-exl.css"]
@@ -49,7 +48,7 @@
   "manifest_version": 3,
 
   "commands": {
-    "_execute_page_action": {
+    "chrome_action": {
       "description": "Open AdobeDocs Metadata",
       "suggested_key": {
         "mac": "Ctrl+K",

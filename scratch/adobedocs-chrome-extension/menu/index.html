@@ -1,0 +1,182 @@
+<style>
+  header {
+    height: auto !important;
+  }
+  
+  :root {
+    --adce-primary-background-color: #333;
+    --adce-primary-color: white;
+    --acde-secondary-background-color: #444;
+    --acde-secondary-color: white;
+  }
+
+  #adce {
+    background-color: var(--adce-primary-background-color);
+    background-image: linear-gradient(to top, black, var(--adce-primary-background-color));
+
+    color: var(--adce-primary-color);
+    position: relative;
+    width: 100vw;
+    margin-left: -50vw;
+    left: 50%;
+  }
+  
+  .acde-nav {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    /* main max-width */
+    max-width: 1700px;
+    /* Header max-width */
+    max-width: 1440px;
+    box-sizing: border-box;
+    justify-content: space-between;
+    padding: 0;
+    margin: 0 auto;
+  }
+
+  .acde-context {
+    font-size: 20px;
+    font-weight: bold;
+    white-space: nowrap;
+    width: 100%;
+    display: block;
+  }
+
+  .acde-context select {
+    padding: 0 0.5rem 0 0;
+    margin: 0rem 1rem;
+    font-size: 1.1rem;
+    border-width: 0;
+    background-color: transparent;
+    color: var(--adce-primary-color);
+    font-weight: bold;
+  }
+
+  ul.acde-content-types {
+    padding: 0;
+    margin: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  ul.acde-content-types li {
+    margin: 0;
+
+    color: white;
+    background-color: transparent;
+    cursor: pointer;
+    padding: .9rem 1rem;
+  }
+
+  .acde-content-types li.active,
+  .acde-content-types li:hover {
+    color: var(--acde-secondary-color);
+    background-color: var(--acde-secondary-background-color);
+  }
+
+  .acde-menu {
+    display: none;
+    position: absolute;
+    background-color: var(--acde-secondary-background-color);
+    color: var(--adce-secondary-color);
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    padding: 2rem 3rem 3rem 3rem;
+    left: 0;
+    right: 0;
+    box-sizing: border-box;
+    top: 100%;
+    z-index: 1;
+  }
+
+  .acde-menu .title {
+    display: block;
+    margin: 0 0 1rem 0;
+    padding-bottom: 1rem;
+    font-size: 1.65rem;
+    color: var(--adce-secondary-color);
+    border-bottom: solid 1px #444;
+  }
+
+  .acde-menu .content {
+    /* Creates a multi-column layout */
+    column-width: 250px; /* Adjust based on your content's average width */
+    column-gap: 3rem; /* Space between columns */
+    column-rule: 1px solid var(--adce-primary-background-color); /* Column divider */
+    max-height: 500px; /* Maximum height of the DL before it wraps */
+    overflow: hidden; /* Ensures content doesn't overflow the DL's bounds */
+  }
+
+  .acde-menu .content a {
+    color: white;
+    text-decoration: none;
+  }
+
+  .acde-menu .content a:hover {
+    text-decoration: underline;
+  }
+
+  .acde-menu .content dl {
+    /* Prevents DTs and DDs from being split across columns */
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 3rem;
+    margin-top: 0;
+  }
+
+  .acde-menu .content dt,
+  .acde-menu .content dt a {
+    font-weight: bold;
+  }
+
+  .acde-menu .content dt a:hover::after {
+    content: " ›";
+  }
+
+  .acde-menu .content dd {
+    font-weight: normal;
+    font-size: 0.9rem;
+    margin: 0.5rem 0rem 0.5rem 0.5rem;
+  }
+
+
+  .acde-menu .content dd a {
+    line-height: .8rem;
+  }
+
+</style>
+
+<div id="adce" data-js-acde>
+  <nav class="acde-nav">
+    <div class="acde-context">
+      <select data-js-acde-context="products">
+        <option value="">Select an Adobe application</option>
+        <option value="analytics" data-js-acde-url="/en/docs/analytics">Analytics</option>
+        <option value="experience-manager" data-js-acde-url="/en/docs/experience-manager">Experience Manager</option>
+        <!--
+        <option value="campaign">Campaign</option>
+        <option value="target">Target</option>
+        -->
+      </select>
+      <select data-js-acde-context="versions" style="display: none"></select>
+      <select data-js-acde-context="subProducts" style="display: none"></select>
+    </div>
+
+    <ul class="acde-content-types" data-js-acde-content-types="">
+      <li>Documentation</li>
+      <li>Learn</li>
+      <li>Developers</li>
+      <li>Community</li>
+    </ul>
+
+    <div data-js-acde-menu class="acde-menu"></div>
+  </nav>
+</div>
