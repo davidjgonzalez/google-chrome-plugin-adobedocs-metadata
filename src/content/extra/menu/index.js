@@ -1,11 +1,5 @@
 (function () {
   const pluginId = "adobedocs-chrome-extension-menu";
-  /*
-    const plugin =
-    document
-      .querySelector("[data-adobedocs-plugin-root]")
-      .getAttribute("data-adobedocs-plugin-root") + "menu";
-    */
 
   const MENU_HOST =
     "https://dxenablementbeta.blob.core.windows.net/adobedocs-chrome-extension/menu";
@@ -160,7 +154,7 @@
     );
 
     if (el) {
-      el.value = value;
+      el.value = value || "";
     }
   }
 
@@ -185,12 +179,6 @@
 
     loadContext();
 
-    console.log(
-      "First menu context",
-      context.product,
-      context.version,
-      context.subProduct
-    );
     setSelectContext("products", context.product);
 
     if (!context.product) {
@@ -238,12 +226,6 @@
 
     loadContext();
 
-    console.log(
-      "Menu context after injecting dropdowns",
-      context.product,
-      context.version,
-      context.subProduct
-    );
 
     async function getMenu(contentType) {
       let path = `${context.product}`;
