@@ -7,53 +7,57 @@
       .getAttribute("data-adobedocs-plugin-root") + "menu";
     */
 
-  const plugin =
+  const MENU_HOST =
     "https://dxenablementbeta.blob.core.windows.net/adobedocs-chrome-extension/menu";
 
   function setLocalStorage() {
-    let c = {
-      product: getContext().product?.value,
-      version: getContext().version?.value,
-      subProduct: getContext().subProduct?.value,
-    };
-
     let data = {
-      current: c.product,
+      current: context.product,
     };
 
-    data[c.product] = {
-      version: c.version,
-      subProduct: c.subProduct,
+    data[context.product] = {
+      version: context.version,
+      subProduct: context.subProduct,
     };
 
-    let context = {
-      ...JSON.parse(localStorage.getItem(pluginId)),
-      ...data,
-    };
-
-    localStorage.setItem(pluginId, JSON.stringify(context));
+    localStorage.setItem(
+      pluginId,
+      JSON.stringify({
+        ...JSON.parse(localStorage.getItem(pluginId)),
+        ...data,
+      })
+    );
   }
 
-  function loadContext() {
-    let derivedContext = false;
+  const context = {
+    product: null,
+    version: null,
+    subProduct: null,
+  };
 
+  function loadContext() {
     const path = window.location.pathname;
 
-    let context = {
+    const pageContext = {
       product: null,
       version: null,
       subProduct: null,
     };
 
     if (path.includes("experience-manager")) {
-      derivedContext = true;
       // Defaults
-      context.product = "experience-manager";
+      pageContext.product = "experience-manager";
       context.version = "cloud-service";
       context.subProduct = "foundation";
 
       if (path.includes("experience-manager-65")) {
-        context.version = "6-5";
+        pageContext.version = "6-5";
+      } else if (
+        ["/experience-manager-cloud-service", "/experience-manager-assets-essentials"].some((subPath) =>
+          path.includes(subPath)
+        )
+      ) {
+        pageContext.version = "cloud-service";
       }
 
       if (
@@ -61,7 +65,7 @@
           path.includes(subPath)
         )
       ) {
-        context.subProduct = "sites";
+        pageContext.subProduct = "sites";
       } else if (
         [
           "/assets/",
@@ -71,42 +75,58 @@
           "/experience-manager-brand-portal/",
         ].some((subPath) => path.includes(subPath))
       ) {
-        context.subProduct = "assets";
+        pageContext.subProduct = "assets";
       } else if (
         ["/forms/", "/getting-started-with-aem-headless/"].some((subPath) =>
           path.includes(subPath)
         )
       ) {
-        context.subProduct = "forms";
+        pageContext.subProduct = "forms";
       } else if (
         ["/headless/", "/getting-started-with-aem-headless/"].some((subPath) =>
           path.includes(subPath)
         )
       ) {
-        context.subProduct = "headless";
+        pageContext.subProduct = "headless";
+      } else if (
+        ["/release-notes/", "/implementing/"].some((subPath) =>
+          path.includes(subPath)
+        )
+      ) {
+        // fallback to local context
+      } else {
+        pageContext.subProduct = "foundation";
       }
     } else if (path.includes("analytics")) {
-      derivedContext = true;
-
-      // Defaults
-      context.product = "analytics";
+      pageContext.product = "analytics";
     }
 
-    if (!derivedContext) {
-      // Get from local storage
-      const obj = JSON.parse(localStorage.getItem(pluginId)) || {};
+    const localContext = JSON.parse(localStorage.getItem(pluginId)) || {};
 
-      if (obj?.current) {
-        context.product = obj.current;
-      }
+    if (!pageContext.product) {
+      // If cannot figure out he product from the page context, then set to the last known product
+      context.product = localContext.current || context.subProduct;
+    } else {
+      context.product = pageContext.product || context.subProduct;
+    }
 
-      context = { ...context, ...obj[context.product] } || {};
+    if (context.product === localContext.current && !pageContext.version) {
+      // If the product is the same as the last known product, and there is no version derived from the page context, then use the last set
+      context.version = localContext[context.product].version || context.version;
+    } else {
+      context.version = pageContext.version || context.version;
+    }
+
+    if (context.product === localContext.current && !pageContext.subProduct) {
+      context.subProduct = localContext[context.product].subProduct || context.subProduct;
+    } else {
+      context.subProduct = pageContext.subProduct || context.subProduct;
     }
 
     if (context.product) {
-      document.querySelector('select[data-js-acde-context="products"]').value =
-        context.product;
-      // Remove select an app option
+      setSelectContext("products", context.product);
+
+      // Remove "Select an app" option
       document
         .querySelectorAll('select[data-js-acde-context="products"] option')
         .forEach((el) => {
@@ -116,16 +136,8 @@
         });
     }
 
-    if (context.version) {
-      document.querySelector('select[data-js-acde-context="versions"]').value =
-        context.version;
-    }
-
-    if (context.subProduct) {
-      document.querySelector(
-        'select[data-js-acde-context="subProducts"]'
-      ).value = context.subProduct;
-    }
+    setSelectContext("versions", context.version);
+    setSelectContext("subProducts", context.subProduct);
   }
 
   function getContext() {
@@ -140,6 +152,16 @@
         'select[data-js-acde-context="subProducts"]'
       ),
     };
+  }
+
+  function setSelectContext(contextName, value) {
+    const el = document.querySelector(
+      `select[data-js-acde-context="${contextName}"]`
+    );
+
+    if (el) {
+      el.value = value;
+    }
   }
 
   function showContext(aspect, html) {
@@ -158,39 +180,53 @@
     }
   }
 
-  loadContext();
-
   (async () => {
     let response;
 
+    loadContext();
+
+    console.log(
+      "First menu context",
+      context.product,
+      context.version,
+      context.subProduct
+    );
+    setSelectContext("products", context.product);
+
+    if (!context.product) {
+      document.querySelector(`[data-js-acde-content-types]`).style.visibility =
+        "hidden";
+    } else {
+      document.querySelector(`[data-js-acde-content-types]`).style.display =
+        "visible";
+    }
+
     try {
-      response = await fetch(
-        `${plugin}/${getContext().product?.value}/versions.html`
-      );
+      response = await fetch(`${MENU_HOST}/${context.product}/versions.html`);
 
       if (response.ok) {
         showContext("versions", await response.text());
+        setSelectContext("versions", context.product);
 
         response = await fetch(
-          `${plugin}/${getContext().product?.value}/${
-            getContext().version?.value
-          }/sub-products.html`
+          `${MENU_HOST}/${context.product}/${context.version}/sub-products.html`
         );
 
         response.ok
           ? showContext("subProducts", await response.text())
           : hideContext("subProducts");
+        setSelectContext("subProducts", context.subProducts);
 
         getContext().version.addEventListener("change", async () => {
           response = await fetch(
-            `${plugin}/${getContext().product?.value}/${
-              getContext().version?.value
-            }/sub-products.html`
+            `${MENU_HOST}/${context.product}/${context.version}/sub-products.html`
           );
 
           response.ok
             ? showContext("subProducts", await response.text())
             : hideContext("subProducts");
+
+          setSelectContext("subProducts", context.subProducts);
         });
       } else {
         hideContext("versions");
@@ -202,15 +238,22 @@
 
     loadContext();
 
+    console.log(
+      "Menu context after injecting dropdowns",
+      context.product,
+      context.version,
+      context.subProduct
+    );
+
     async function getMenu(contentType) {
-      let path = `${getContext().product?.value}`;
+      let path = `${context.product}`;
 
       if (getContext().version?.value) {
-        path += "/" + getContext().version?.value;
+        path += "/" + context.version;
       }
 
       if (getContext().subProduct?.value) {
-        path += "/" + getContext().subProduct?.value;
+        path += "/" + context.subProduct;
       }
 
       if (contentType) {
@@ -219,13 +262,18 @@
 
       path += ".html";
 
-      const response = await fetch(`${plugin}/${path}`);
+      const response = await fetch(`${MENU_HOST}/${path}`);
       document.querySelector(`[data-js-acde-menu]`).innerHTML = response.ok
         ? await response.text()
         : `<h3 class="title">Menu not yet defined :(</h3>
-          <div class="content">
+          <div class="content">          
             The product menu feature is in beta, and not defined at this time.
+            <br/>
             If you would like to contribute a menu, please contact dgonzale@adobe.com on Slack.
+            <br/>
+            Please remember this menu is NOT part of Experience League, but rather injected only for you via the AdobeDocs Chrome extension.
+            <br/>
+            To remove this menu, goto the AdobeDocs Chrome extension options and remove the beta code "menu".
           </div>
         `;
     }
@@ -258,6 +306,7 @@
       });
 
     getContext().product.addEventListener("change", (event) => {
+      context.product = event.target.value;
       setLocalStorage();
       const url = event.target
         .querySelector(`option[value="${event.target.value}"]`)
@@ -268,6 +317,7 @@
     });
 
     getContext().version.addEventListener("change", (event) => {
+      context.version = event.target.value;
       setLocalStorage();
       const url = event.target
         .querySelector(`option[value="${event.target.value}"]`)
@@ -278,6 +328,8 @@
     });
 
     getContext().subProduct.addEventListener("change", (event) => {
+      context.subProduct = event.target.value;
+
       setLocalStorage();
 
       const url = event.target

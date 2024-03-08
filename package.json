@@ -1,6 +1,6 @@
 {
   "name": "google-chrome-adobedocs-metadata",
-  "version": "1.28.1",
+  "version": "1.28.2",
   "description": "Google Chrome extension for AdobeDocs content management",
   "main": "background.js",
   "dependencies": {
@@ -62,7 +62,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "webpack --watch",
     "build": "webpack",
-    "zip": "webpack && zip -r -j plugin.zip dist/*"
+    "zip": "rm plugin*.zip && rm -rf dist && webpack &&  zip -r plugin.zip dist/*"
   },
   "repository": {
     "type": "git",
