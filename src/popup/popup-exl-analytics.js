@@ -3,6 +3,8 @@ import humanizeDuration from "humanize-duration";
 import { shortHumanizeDuration } from "./popup-exl";
 import { getVideoId, splitArray, getRaw, getValue } from "../utils";
 
+/* corezsL65FKhZpL5GaAdEDp */
+
 // Production
 const ANALYTICS_PROXY_URL = 'https://51837-exlanalyticsproxy.adobeioruntime.net/api/v1/web/dx-excshell-1/generic'
 // Stage
@@ -96,9 +98,9 @@ export async function injectAnalyticsTabHtml(analyticsApiKey, analyticsRange, ex
         <br/>
         ${engagementStatusHtml}
 
-        <h4>Web analytics over the last ${
+        <h3>Web analytics over the last ${
           analyticsRange
-        } for the page</h4>
+        } days for the page</h3>
 
         <div class="tables-2">
             ${tablesData
