@@ -22,8 +22,8 @@ async function addMenu() {
   let html = await htmlResponse.text();
 
   document.body
-    .querySelector(".header.block")
-    .insertAdjacentHTML("beforeend", html);
+    .querySelector("header")
+    .insertAdjacentHTML("afterend", html);
 
   _injectScript(`${PLUGIN_HOST}extra/menu/index.js`, "body");
 }

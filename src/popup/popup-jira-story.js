@@ -169,8 +169,9 @@ doc-type: ${jira.docType}${
     jira.duration != null ? '\nduration: ' + convertToSeconds(jira.duration) : ''
 }
 last-substantial-update: ${today.getUTCFullYear() + "-" + ("0" + (today.getUTCMonth()+1)).slice(-2) + "-" + ("0" + today.getUTCDate()).slice(-2)}
-jira: ${jira.jiraId}
-thumbnail: ${jira.videoId ? jira.videoId : jira.jiraId}.jpeg
+jira: ${jira.jiraId}${
+jira.videoId ? '' : `thumbnail: ${jira.videoId ? jira.videoId : jira.jiraId}.jpeg`
+}
 ---
 
 # ${title || 'Missing title'}

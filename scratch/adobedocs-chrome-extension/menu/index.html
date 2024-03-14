@@ -1,8 +1,5 @@
 <style>
-  header {
-    height: auto !important;
-  }
-  
+
   :root {
     --adce-primary-background-color: #333;
     --adce-primary-color: white;
@@ -15,10 +12,13 @@
     background-image: linear-gradient(to top, black, var(--adce-primary-background-color));
 
     color: var(--adce-primary-color);
-    position: relative;
     width: 100vw;
     margin-left: -50vw;
     left: 50%;
+    
+    position: sticky;
+    top: 0;
+    z-index: 1000; 
   }
   
   .acde-nav {
@@ -42,12 +42,13 @@
     white-space: nowrap;
     width: 100%;
     display: block;
+    margin-left: 2.1rem;
   }
 
   .acde-context select {
     padding: 0 0.5rem 0 0;
     margin: 0rem 1rem;
-    font-size: 1.1rem;
+    font-size: .9rem;
     border-width: 0;
     background-color: transparent;
     color: var(--adce-primary-color);
@@ -73,7 +74,7 @@
     color: white;
     background-color: transparent;
     cursor: pointer;
-    padding: .9rem 1rem;
+    padding: .8rem 1rem;
   }
 
   .acde-content-types li.active,
@@ -150,6 +151,13 @@
 
   .acde-menu .content dd a {
     line-height: .8rem;
+  }
+
+
+  @media screen and (max-width: 1024px) {
+    .acde-context {
+      margin-left: 0;
+    }  
   }
 
 </style>
