@@ -43,9 +43,11 @@ import "./popup.css";
 import experienceLeaguePopup from "./popup-exl.js";
 import jiraStoryPopup from "./popup-jira-story";
 import jiraCoursePopup from "./popup-jira-course";
+import { getExlMetadata } from "./popup-exl-eds";
 
 let contentResponse;
 
+/*
 chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
   chrome.tabs.sendMessage(
     tabs[0].id,
@@ -81,6 +83,56 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       }
     }
   );
+});
+
+*/
+
+chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+  (async function () {
+
+    const website = new URL(tabs[0].url).hostname || '';
+
+    if (website.indexOf("experienceleague.adobe.com") > -1) {
+      experienceLeaguePopup(
+        await getExlMetadata(tabs[0].url),
+        _injectHtml
+      );
+    } else if (website.indexOf("jira.corp.adobe.com") > -1) {
+      chrome.tabs.sendMessage(
+        tabs[0].id,
+        { text: "collect_adobedocs_metadata" },
+        function (response) {
+          console.log(
+            "Content script scraped the following data for the extension to display:",
+            response
+          );
+
+          contentResponse = response;
+
+          if (!response) {
+            document.getElementById("error-alert").style.display = "block";
+
+            let head = document.getElementsByTagName("head")[0];
+            let metaRefresh = document.createElement("meta");
+            metaRefresh.setAttribute("http-equiv", "refresh");
+            metaRefresh.setAttribute("content", "2");
+            head.appendChild(metaRefresh);
+
+            return;
+          } else if (response.website === "JIRA" && response.type === "Story") {
+            jiraStoryPopup(response, _injectHtml);
+          } else if (
+            response.website === "JIRA" &&
+            response.type === "Initiative"
+          ) {
+            jiraCoursePopup(response, _injectHtml);
+          }
+        }
+      );
+    } else {
+      console.warn("Unsupported web page:", tabs[0]);
+    }
+  })();
 });
 
 function _injectHtml(html, elementId) {
