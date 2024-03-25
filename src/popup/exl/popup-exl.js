@@ -1,10 +1,10 @@
 import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
-import OPTIONS from "../constants";
-import { getVideoId } from "../utils";
-import { getResourcesTabHtml } from "./popup-common";
+import OPTIONS from "../../constants";
+import { getVideoId } from "../../utils";
+import { getResourcesTabHtml } from "../popup-common";
 import { injectAnalyticsTabHtml, injectNoAnalyticsTabHtml } from "./popup-exl-analytics";
-
+import { getDurations } from "./popup-exl-duration";  
 
 const Missing = {
     ERROR: 'error',
@@ -26,15 +26,19 @@ export const shortHumanizeDuration = {
   },
 };
 
-
 export default async function experienceLeaguePopup(response, callback) {
 
-  chrome.storage.local.get([OPTIONS.FS_CONTENT_ROOT, OPTIONS.ANALYTICS_API_KEY, OPTIONS.ANALYTICS_DAY_RANGE], async function (optionsObj) {
+  chrome.storage.local.get([OPTIONS.FS_CONTENT_ROOT, OPTIONS.ANALYTICS_API_KEY, OPTIONS.ANALYTICS_DAY_RANGE, OPTIONS.BETA], async function (optionsObj) {
+        let beta = (optionsObj[OPTIONS.BETA] || "").split(",").map((s) => s.trim()?.toLowerCase());
         let optionsContentRoot = _getOptionsContentFileSystemPath(optionsObj);
+ 
+        console.log('ExL response:', response);
+
+        const durations = beta.includes("durations") ?  await getDurations(response.html, response.videoIds) : { total: 0 };
 
         let html = `                    
             <div class="status">
-              ${response.duration > 0 ?
+              ${durations?.total > 0 ?
                  `<div class="efficiency efficiency-loading" id="efficiency-status"><sp-progress-bar aria-label="Loading analytics" indeterminate></sp-progress-bar></div>` 
                  : ''}
               <div class="metadata">${getStatus(response)}</div>
@@ -126,7 +130,7 @@ export default async function experienceLeaguePopup(response, callback) {
         let analyticsApiKey = optionsObj[OPTIONS.ANALYTICS_API_KEY];
         let optionsAnalyticsRange = _getOptionsAnalyticsRange(optionsObj);
         if (analyticsApiKey) {
-          injectAnalyticsTabHtml(analyticsApiKey, optionsAnalyticsRange, response);
+          injectAnalyticsTabHtml(analyticsApiKey, optionsAnalyticsRange, response, durations);
         } else {
           injectNoAnalyticsTabHtml();
         }

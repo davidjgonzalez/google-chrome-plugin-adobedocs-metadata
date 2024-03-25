@@ -1,7 +1,7 @@
 import { initCharts } from "./popup-exl-charts";
-import humanizeDuration from "humanize-duration";
+import humanizeDuration from "humanize-duration"; // input in milliseconds
 import { shortHumanizeDuration } from "./popup-exl";
-import { getVideoId, splitArray, getRaw, getValue } from "../utils";
+import { getVideoId, splitArray, getRaw, getValue } from "../../utils";
 
 /* corezsL65FKhZpL5GaAdEDp */
 
@@ -10,10 +10,12 @@ const ANALYTICS_PROXY_URL = 'https://51837-exlanalyticsproxy.adobeioruntime.net/
 // Stage
 //const ANALYTICS_PROXY_URL = "https://51837-exlanalyticsproxy-stage.adobeioruntime.net/api/v1/web/dx-excshell-1/generic";
 
-export async function injectAnalyticsTabHtml(analyticsApiKey, analyticsRange, exlData) {
+export async function injectAnalyticsTabHtml(analyticsApiKey, analyticsRange, exlData, durations) {
   const analyticsPageName = exlData.analyticsPageName;
   const videos = exlData.videos;
   const videoIds = videos.map((video) => getVideoId(video));
+
+  console.log("Durations", durations);
 
   const analyticsResponse = await fetch(ANALYTICS_PROXY_URL, {
     method: "POST",
@@ -50,48 +52,56 @@ export async function injectAnalyticsTabHtml(analyticsApiKey, analyticsRange, ex
   } else if (analyticsResponse.status === 200) {
     const analyticsData = await analyticsResponse.json();
 
+    /* Change the value from AppBuilder into a shortHumanized value */
+    const avgTimeOnPageIndex = analyticsData.page.findIndex(
+      (obj) => obj.id === "avgTimeOnPage"
+    );
+    analyticsData.page[avgTimeOnPageIndex].value = humanizeDuration(analyticsData.page[avgTimeOnPageIndex].raw * 1000, shortHumanizeDuration);
+
     console.log("Analytics API data:", analyticsData);
 
-    if (exlData.duration) {
-      const videosDuration =
-        Object.values(analyticsData.videos).reduce(
-          (acc, video) => acc + getRaw(video, "videoDuration"),
-          0
-        ) || 0;
-      /* 
-      const videosAvgTimeSpent =
-        Object.values(analyticsData.videos).reduce(
-          (acc, video) => acc + getRaw(video, "avgTimeSpent"),
-          0
-        ) || 0;
-
-      analyticsData.page.push({
-        text: "Avg video play time",
-        value: humanizeDuration(videosAvgTimeSpent * 1000),
-        raw: videosAvgTimeSpent,
-      });
-      */
+    if (durations?.total) {
+      
       analyticsData.page.push({
         text: "Expected time on page",
-        value: humanizeDuration(exlData.duration * 1000),
-        raw: exlData.duration,
+        value: humanizeDuration(durations.total * 1000, shortHumanizeDuration),
+        raw: durations.total,
       });
+      /*
+      analyticsData.page.push({
+        text: "Expected reading time<br/>(text + code)",
+        value: humanizeDuration((durations.text.text) * 1000, shortHumanizeDuration),
+        raw: durations.text.text,
+      });
+      */
 
       analyticsData.page.push({
         text: "Expected text time",
-        value: humanizeDuration((exlData.duration - videosDuration) * 1000),
-        raw: exlData.duration - videosDuration,
+        value: humanizeDuration((durations.text.text) * 1000, shortHumanizeDuration),
+        raw: durations.text.text,
+      });
+
+      analyticsData.page.push({
+        text: "Expected image time",
+        value: humanizeDuration((durations.text.images) * 1000, shortHumanizeDuration),
+        raw: durations.text.images,
+      });
+
+      analyticsData.page.push({
+        text: "Expected code time",
+        value: humanizeDuration((durations.text.code) * 1000, shortHumanizeDuration),
+        raw: durations.text.code,
       });
 
       analyticsData.page.push({
         text: "Expected video time",
-        value: humanizeDuration(videosDuration * 1000),
-        raw: videosDuration,
+        value: humanizeDuration(durations.videos.total * 1000, shortHumanizeDuration),
+        raw: durations.videos.total,
       });
     }
 
     // Process the engagement status
-    let engagementStatusHtml = processEngagementStatus(exlData, analyticsData);
+    let engagementStatusHtml = processEngagementStatus(durations, analyticsData);
     let tablesData = splitArray(analyticsData.page);
 
     html = `
@@ -173,9 +183,9 @@ function getVideoAnalyticsHtml(videoIds, analyticsData) {
     .join("");
 }
 
-function processEngagementStatus(exlData, analyticsData) {
+function processEngagementStatus(durations, analyticsData) {
   let effectiveStatusHtml = "";
-  const expectedDuration = exlData.duration;
+  const expectedDuration = durations.total;
   const avgDuration = analyticsData.metrics
     .filter((m) => m.text === "Avg time on page")
     .map((m) => m.raw)[0];

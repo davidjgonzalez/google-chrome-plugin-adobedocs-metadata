@@ -40,10 +40,11 @@ import "@spectrum-css/tooltip/dist/index-vars.css";
 
 import "./popup.css";
 
-import experienceLeaguePopup from "./popup-exl.js";
+import experienceLeaguePopup from "./exl/popup-exl.js";
+import { getExlMetadata } from "./exl/popup-exl-eds";
+
 import jiraStoryPopup from "./popup-jira-story";
 import jiraCoursePopup from "./popup-jira-course";
-import { getExlMetadata } from "./popup-exl-eds";
 
 let contentResponse;
 

@@ -47,14 +47,19 @@
       if (path.includes("experience-manager-65")) {
         pageContext.version = "6-5";
       } else if (
-        ["/experience-manager-cloud-service", "/experience-manager-assets-essentials"].some((subPath) =>
-          path.includes(subPath)
-        )
+        [
+          "/experience-manager-cloud-service",
+          "/experience-manager-assets-essentials",
+        ].some((subPath) => path.includes(subPath))
       ) {
         pageContext.version = "cloud-service";
-      }
-
-      if (
+      } else if (
+        ["/headless/", "/getting-started-with-aem-headless/", "graphql"].some(
+          (subPath) => path.includes(subPath)
+        )
+      ) {
+        pageContext.subProduct = "headless";
+      } else if (
         ["/sites/", "/universal-editor/"].some((subPath) =>
           path.includes(subPath)
         )
@@ -70,18 +75,8 @@
         ].some((subPath) => path.includes(subPath))
       ) {
         pageContext.subProduct = "assets";
-      } else if (
-        ["/forms/", "/getting-started-with-aem-headless/"].some((subPath) =>
-          path.includes(subPath)
-        )
-      ) {
+      } else if (["/forms/"].some((subPath) => path.includes(subPath))) {
         pageContext.subProduct = "forms";
-      } else if (
-        ["/headless/", "/getting-started-with-aem-headless/"].some((subPath) =>
-          path.includes(subPath)
-        )
-      ) {
-        pageContext.subProduct = "headless";
       } else if (
         ["/release-notes/", "/implementing/"].some((subPath) =>
           path.includes(subPath)
@@ -89,6 +84,7 @@
       ) {
         // fallback to local context
       } else {
+        // fallback to local context
         pageContext.subProduct = "foundation";
       }
     } else if (path.includes("analytics")) {
@@ -106,13 +102,15 @@
 
     if (context.product === localContext.current && !pageContext.version) {
       // If the product is the same as the last known product, and there is no version derived from the page context, then use the last set
-      context.version = localContext[context.product].version || context.version;
+      context.version =
+        localContext[context.product].version || context.version;
     } else {
       context.version = pageContext.version || context.version;
     }
 
     if (context.product === localContext.current && !pageContext.subProduct) {
-      context.subProduct = localContext[context.product].subProduct || context.subProduct;
+      context.subProduct =
+        localContext[context.product].subProduct || context.subProduct;
     } else {
       context.subProduct = pageContext.subProduct || context.subProduct;
     }
@@ -225,7 +223,6 @@
     }
 
     loadContext();
-
 
     async function getMenu(contentType) {
       let path = `${context.product}`;

@@ -6,7 +6,6 @@ export async function getExlMetadata(url) {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
 
-  console.log('doc', doc);
   const metadata = {
     website: "EXPERIENCE LEAGUE",
     currentDoc: {
@@ -23,7 +22,7 @@ export async function getExlMetadata(url) {
     buildDate: getMeta(doc, "build-date"),
     publishUrl: getMeta(doc, "publish-url"),
     videos: getMpcVideos(doc),
-
+    videoIds: getMpcVideoIds(doc),
     cloud: getMeta(doc, "cloud"),
     description: getMetas(doc, "description"),
     features: getMetas(doc, "feature"),
@@ -47,13 +46,13 @@ export async function getExlMetadata(url) {
     type: getMeta(doc, "type"),
     versions: getMetas(doc, "version"),
     recommendations: getMetas(doc, "recommendations"),
+    html: html,
   };
 
   return metadata;
 }
 
 function getMeta(doc, name, defaultValue) {
-  console.log(doc, name, defaultValue);
   let el = doc.querySelector("meta[name='" + name + "']");
 
   if (el) {
@@ -83,6 +82,19 @@ function getMpcVideos(doc) {
   return videoElements.map((videoElement) => videoElement.getAttribute("href")) || [];
 }
 
+function getMpcVideoIds(doc) {
+  let videoUrls = getMpcVideos(doc);
+
+  return videoUrls.map((url) => {
+    const regex = /https:\/\/video\.tv\.adobe\.com\/v\/(\d+)[^\)]*/g;
+
+    const match = regex.exec(url);
+    if (match) {
+      return match[1];
+    }
+  });
+}
+
 function getElementText(doc, name, defaultValue) {
   let el = doc.querySelector(name);
 
@@ -95,7 +107,6 @@ function getElementText(doc, name, defaultValue) {
 
   return defaultValue ? defaultValue : null;
 }
-
 
 
 function getAnalyticsPageName(doc) {

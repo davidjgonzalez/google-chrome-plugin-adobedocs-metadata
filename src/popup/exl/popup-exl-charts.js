@@ -1,7 +1,7 @@
 import Chart from "chart.js/auto";
 import "chartjs-adapter-date-fns";
 import annotationPlugin from "chartjs-plugin-annotation";
-import { getRaw } from "../utils";
+import { getRaw } from "../../utils";
 
 Chart.register(annotationPlugin);
 
