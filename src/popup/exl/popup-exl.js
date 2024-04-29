@@ -1,6 +1,6 @@
 import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
-import OPTIONS from "../../constants";
+import { OPTIONS } from "../../constants";
 import { getVideoId } from "../../utils";
 import { getResourcesTabHtml } from "../popup-common";
 import { injectAnalyticsTabHtml, injectNoAnalyticsTabHtml } from "./popup-exl-analytics";

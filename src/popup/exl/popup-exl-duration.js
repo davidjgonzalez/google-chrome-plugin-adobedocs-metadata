@@ -1,11 +1,10 @@
 // Keep in sync w Duration script and popup-exl.js -> getResourcesHTML tab.
 
-// regular reading speed is 200-300 wpm
-const AVG_WORDS_PER_MINUTE = 275;
-// words in a code block is 300-400 wpm
-const AVG_CODE_WORDS_PER_MINUTE = 375;
-// Each image takes 5 seconds to look at
-const AVG_IMAGE_TIME_IN_S = 5;
+import { DURATIONS } from "../../constants.js";
+
+const AVG_WORDS_PER_MINUTE = DURATIONS.AVG_WORDS_PER_MINUTE;
+const AVG_CODE_WORDS_PER_MINUTE = DURATIONS.AVG_CODE_WORDS_PER_MINUTE;
+const AVG_IMAGE_TIME_IN_S = DURATIONS.AVG_IMAGE_TIME_IN_S;
 
 import readingTime from "reading-time/lib/reading-time";
 

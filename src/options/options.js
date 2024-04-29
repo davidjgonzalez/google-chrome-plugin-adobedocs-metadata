@@ -18,7 +18,7 @@ import '@spectrum-web-components/icons/sp-icons-medium.js';
 import "@spectrum-web-components/icons-workflow/icons/sp-icon-chevron-down.js";
 import '@spectrum-web-components/button/sp-button.js';
 
-import OPTIONS from "../constants";
+import { OPTIONS } from "../constants";
 
 const HTML_IDS = {
   SAVE_BUTTON: 'gcp-adobedocs-metadata__options__save-button',

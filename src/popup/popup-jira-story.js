@@ -166,12 +166,11 @@ topic: ??? - select 0 or more from: https://adobe.ly/3NRHfMp
 role: ${roles.length > 0 ? roles?.join(', ') : '??? - select one or more: Leader, Architect, Developer, Data Architect, Data Engineer, Admin, User'}
 level: ${levels.length > 0 ? levels?.join(', ') : '??? - select one or more: Beginner, Intermediate, Experienced'}
 doc-type: ${jira.docType}${
-    jira.duration != null ? '\nduration: ' + convertToSeconds(jira.duration) : ''
+    jira.duration != null ? `\nduration: ${convertToSeconds(jira.duration)}` : ''
 }
 last-substantial-update: ${today.getUTCFullYear() + "-" + ("0" + (today.getUTCMonth()+1)).slice(-2) + "-" + ("0" + today.getUTCDate()).slice(-2)}
 jira: ${jira.jiraId}${
-jira.videoId ? '' : `thumbnail: ${jira.videoId ? jira.videoId : jira.jiraId}.jpeg`
-}
+    jira.videoId ? '' : `\nthumbnail: ${jira.videoId ? jira.videoId : jira.jiraId}.jpeg`}
 ---
 
 # ${title || 'Missing title'}
@@ -179,10 +178,8 @@ jira.videoId ? '' : `thumbnail: ${jira.videoId ? jira.videoId : jira.jiraId}.jpe
 ${jira.description || 'Missing description'}
 
 ${jira.videoId ? '>[!VIDEO](https://video.tv.adobe.com/v/' + jira.videoId + '/?learn=on)\n' : ''}`;
-
     return md;
 }
-
 
 function getCard(jira) {
 

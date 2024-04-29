@@ -1,4 +1,5 @@
 
+import { DURATIONS } from "../constants.js";
 
 function getResourcesTabHtml() {
     return `
@@ -47,10 +48,10 @@ function getResourcesTabHtml() {
             Expected durations on Experience League pages are computed by:
 
             <ul>
-                <li>Text is estimated at 275 words per minute.</li>
-                <li>Text expected time estimates each image on page takes 5 seconds to look at.</li>
+                <li>Text is estimated at ${DURATIONS.AVG_WORDS_PER_MINUTE} words per minute.</li>
+                <li>Text expected time estimates each image on page takes ${DURATIONS.AVG_IMAGE_TIME_IN_S} seconds to look at.</li>
                 <li>Text expected time does not include transcript or article metadata.</li>
-                <li>Code blocks are estimated at 500 words per minute (2 x text's words per minute).</li>
+                <li>Code blocks are estimated at ${DURATIONS.AVG_CODE_WORDS_PER_MINUTE} words per minute.</li>
                 <li>Video duration us determined by length of video(s) on page.</li>
             </ul>
         </p>
