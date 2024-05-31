@@ -6,9 +6,9 @@ import { getVideoId, splitArray, getRaw, getValue } from "../../utils";
 /* corezsL65FKhZpL5GaAdEDp */
 
 // Production
-const ANALYTICS_PROXY_URL = 'https://51837-exlanalyticsproxy.adobeioruntime.net/api/v1/web/dx-excshell-1/generic'
+const ANALYTICS_PROXY_URL = 'https://14257-exlanalytics.adobeioruntime.net/api/v1/web/dx-excshell-1/generic '
 // Stage
-//const ANALYTICS_PROXY_URL = "https://51837-exlanalyticsproxy-stage.adobeioruntime.net/api/v1/web/dx-excshell-1/generic";
+//const ANALYTICS_PROXY_URL = "https://14257-exlanalytics-stage.adobeioruntime.net/api/v1/web/dx-excshell-1/generic ";
 
 export async function injectAnalyticsTabHtml(analyticsApiKey, analyticsRange, exlData, durations) {
   const analyticsPageName = exlData.analyticsPageName;
@@ -105,6 +105,9 @@ export async function injectAnalyticsTabHtml(analyticsApiKey, analyticsRange, ex
     let tablesData = splitArray(analyticsData.page);
 
     html = `
+
+        ${getAnalyticsMigrationHtml(analyticsRange)}
+
         <br/>
         ${engagementStatusHtml}
 
@@ -419,4 +422,22 @@ function getVideoDetailsTableHtml(
             </tbody>
         </table>
     </div>`;
+}
+
+
+function getAnalyticsMigrationHtml(duration = 30) {
+    const today = new Date();
+    const baseDate = new Date(2024, 5, 1); // May 31, 2024; Date of AA switch-over
+    const targetDate = new Date(baseDate);
+    targetDate.setDate(baseDate.getDate() + duration);
+
+    let html = '';
+
+    if (today < targetDate) {
+      html = `<br/><sp-badge style="width: 100%; background-color: #e57000" size="M" static="black">          
+        Web page analytics may be incomplete or skewed due to the reset and migration of Experience League analytics to a new report suite on June 1, 2024.
+      </sp-badge><br/>`;
+    }
+
+    return html;
 }
