@@ -11,6 +11,7 @@ export async function getExlMetadata(url) {
     currentDoc: {
       host: new URL(url).hostname,
       path: new URL(url).pathname,
+      url: new URL(url).href,
     },
     language: doc.documentElement.lang || "en",
     analyticsPageName: getAnalyticsPageName(doc),

@@ -1,9 +1,10 @@
 import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
 import { OPTIONS } from "../../constants";
-import { getVideoId } from "../../utils";
+import { delegateEvent, getVideoId } from "../../utils";
 import { getResourcesTabHtml } from "../popup-common";
 import { injectAnalyticsTabHtml, injectNoAnalyticsTabHtml } from "./popup-exl-analytics";
+import { getPlaylistTabHtml } from "./popup-exl-playlist";
 import { getDurations } from "./popup-exl-duration";  
 
 const Missing = {
@@ -31,6 +32,7 @@ export default async function experienceLeaguePopup(response, callback) {
   chrome.storage.local.get([OPTIONS.FS_CONTENT_ROOT, OPTIONS.ANALYTICS_API_KEY, OPTIONS.ANALYTICS_DAY_RANGE, OPTIONS.BETA], async function (optionsObj) {
         let beta = (optionsObj[OPTIONS.BETA] || "").split(",").map((s) => s.trim()?.toLowerCase());
         let optionsContentRoot = _getOptionsContentFileSystemPath(optionsObj);
+        let selectedTab = localStorage.getItem("selectedTab") || "1";
  
         console.log('ExL response:', response);
 
@@ -44,11 +46,12 @@ export default async function experienceLeaguePopup(response, callback) {
               <div class="metadata">${getStatus(response)}</div>
             </div>
 
-            <sp-tabs selected="1">
+            <sp-tabs selected="${selectedTab}">
                 <sp-tab data-tabs="1" label="General" value="1"></sp-tab>
                 <sp-tab data-tabs="2" label="Metadata" value="2"></sp-tab>
                 <sp-tab data-tabs="3" label="Analytics" value="3"></sp-tab>
-                <sp-tab data-tabs="4" label="Resources" value="4"></sp-tab>
+                <sp-tab data-tabs="4" label="Playlist" value="4"></sp-tab>
+                <sp-tab data-tabs="5" label="Resources" value="5"></sp-tab>
             </sp-tabs>
 
             <div data-tab="1" class="tab-content">
@@ -120,11 +123,38 @@ export default async function experienceLeaguePopup(response, callback) {
             </div>
 
             <div data-tab="4" class="tab-content">
+             ${getPlaylistTabHtml({
+                title: response.title,
+                url: response.currentDoc.url,
+             })}
+
+            </div> 
+
+            <div data-tab="5" class="tab-content">
                 ${getResourcesTabHtml()}                           
             </div>  
         `;
         
         await callback(html);
+
+
+        /* Handle selected tabs */
+        document.querySelectorAll("[data-tab]").forEach((el) => {
+          el.style.display = "none";
+        });
+        document
+          .querySelectorAll('[data-tab="' + selectedTab + '"]')
+          .forEach((el) => {
+            el.style.display = "block";
+          });
+
+        delegateEvent("body", "click", "[data-tabs]", (event) => {
+          const tab = event.target.getAttribute("data-tabs");
+          event.target.selected = tab;
+          localStorage.setItem("selectedTab", tab);
+        });
+
+
 
         // Handle async calls to get analytics data
         let analyticsApiKey = optionsObj[OPTIONS.ANALYTICS_API_KEY];
@@ -532,4 +562,6 @@ function getSection(sectionTitle, lists, style) {
     function isMissing(value) {
         return !value || value?.length === 0;
     }
+
+
 

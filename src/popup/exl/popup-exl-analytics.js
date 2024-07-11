@@ -3,8 +3,6 @@ import humanizeDuration from "humanize-duration"; // input in milliseconds
 import { shortHumanizeDuration } from "./popup-exl";
 import { getVideoId, splitArray, getRaw, getValue } from "../../utils";
 
-/* corezsL65FKhZpL5GaAdEDp */
-
 // Production
 const ANALYTICS_PROXY_URL = 'https://14257-exlanalytics.adobeioruntime.net/api/v1/web/dx-excshell-1/generic '
 // Stage

@@ -119,5 +119,15 @@ function getValue(data, key) {
   return data.find((item) => item.id === key)?.value;
 }
 
+function delegateEvent(parentSelector, eventType, selector, callback) {
+  document.querySelector(parentSelector).addEventListener(eventType, function(event) {
+      const targetElement = event.target.closest(selector);
 
-export { parseJiraTitle, getVideoId, iso8601DurationToSeconds, getMpcVideoData, splitArray, getRaw, getValue};
+      if (targetElement && this.contains(targetElement)) {
+          callback.call(targetElement, event);
+      }
+  });
+}
+
+
+export { parseJiraTitle, getVideoId, iso8601DurationToSeconds, getMpcVideoData, splitArray, getRaw, getValue, delegateEvent};

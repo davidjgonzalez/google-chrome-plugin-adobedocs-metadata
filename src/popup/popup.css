@@ -293,3 +293,36 @@ hr {
 .slash { 
     margin: 0 0.5rem;
 }
+
+.playlist {
+    display: block;
+    margin: 1rem .5rem;
+    padding-left: 0;
+
+}
+
+
+.playlist-empty {
+    display: block;
+    margin: 1rem .5rem 2rem .5rem;
+    padding-left: 0;
+    color: #999;
+}
+
+.playlist .playlist-item {
+    display: grid;
+    grid-template-columns: 1fr 2rem 2rem 2rem;
+    gap: 1rem;
+    margin-bottom: .5rem;
+    border-bottom: solid 1px #ccc;
+    padding-bottom: .5rem;
+}
+
+.playlist .playlist-item a {
+    overflow: ellipsis;
+    text-decoration: none;
+}
+
+.playlist .playlist-item a:hover {
+    text-decoration: underline;
+}
