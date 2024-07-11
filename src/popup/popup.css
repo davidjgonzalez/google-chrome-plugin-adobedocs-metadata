@@ -173,11 +173,11 @@ sp-action-button, sp-action-menu {
 
 textarea.markdown {
     width: 100%;
-    height: 20rem;
+    height: 23rem;
 }
 
 #popup-jira-story__markdown {
-    height: 26rem;
+    height: 23rem;
 }
 
 textarea.community-post {
