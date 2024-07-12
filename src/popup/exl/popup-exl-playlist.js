@@ -210,7 +210,8 @@ solution: ADD SOLUTIONS
 role: ADD ROLES
 level: ADD LEVELS
 feature: ADD FEATURES
----    
+---
+
 `;
 
   items.forEach((item) => {
