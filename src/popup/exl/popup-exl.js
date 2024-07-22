@@ -125,6 +125,7 @@ export default async function experienceLeaguePopup(response, callback) {
             <div data-tab="4" class="tab-content">
              ${getPlaylistTabHtml({
                 title: response.title,
+                metadata: response,
                 url: response.currentDoc.url,
              })}
 

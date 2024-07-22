@@ -8,7 +8,7 @@ let PAGE = {
 
 /* HTML */
 
-function getPlaylistTabHtml({ title, url }) {
+function getPlaylistTabHtml({ title, metadata, url }) {
   PAGE.title = title;
   PAGE.url = url;
 
@@ -28,7 +28,7 @@ function getPlaylistTabHtml({ title, url }) {
     </ul>
 
     <div data-playlist-add-wrapper>
-        ${getPlaylistAddButtonHtml(PAGE, loadPlaylist())}
+        ${getPlaylistAddButtonHtml(PAGE, metadata.videos || [], loadPlaylist())}
     </div>`;
 }
 
@@ -48,7 +48,7 @@ function getPlaylistItemsHtml() {
   }
 }
 
-function getPlaylistAddButtonHtml(page, playlist = null) {
+function getPlaylistAddButtonHtml(page, videos = [], playlist = null) {
   if (playlist === null) {
     playlist = getPlaylist();
   }
@@ -56,8 +56,19 @@ function getPlaylistAddButtonHtml(page, playlist = null) {
   let html = `<sp-action-button disabled>Page already in playlist</sp-action-button>`;
 
   if (playlist.find((item) => item.url === PAGE.url) === undefined) {
-    html = `<sp-action-button data-playlist-item-title="${PAGE.title}" data-playlist-item-url="${PAGE.url}" data-playlist-add>Add this page to playlist</sp-action-button>`;
-  }
+    if (videos.length < 1) {
+      html = `<sp-action-button disabled>Page does not have a video</sp-action-button>`;
+    } else if (videos.length > 1) {
+      html = `<sp-action-button data-playlist-item-title="${PAGE.title}" data-playlist-item-url="${PAGE.url}" data-playlist-add>Add this page to playlist</sp-action-button>
+      <br/>
+      <div class="spectrum-Badge spectrum-Badge--sizeS spectrum-Badge--orange">
+        <span class="spectrum-Badge-label">This page has ${videos.length} videos, only the first is used in a playlist.</span>
+      </div>`;
+
+    } else { 
+      html = `<sp-action-button data-playlist-item-title="${PAGE.title}" data-playlist-item-url="${PAGE.url}" data-playlist-add>Add this page to playlist</sp-action-button>`;
+    }
+  } 
 
   return html;
 }
@@ -204,12 +215,13 @@ function generateMarkdown() {
   }
 
   let markdown = `---
-title: ADD PLAYLIST TITLE
-description: ADD PLAYLIST DESCRIPTION
-solution: ADD SOLUTIONS
-role: ADD ROLES
-level: ADD LEVELS
-feature: ADD FEATURES
+title: Call to action, title case, 60 characters max
+description: Call to action, title case, 150 characters max
+solution: Add solutions: https://git.corp.adobe.com/AdobeDocs/exl-config/blob/master/metadata-values/solution.yml
+role: Admin, Architect, Data Architect, Data Engineer, Developer, Leader, User
+level: Beginner, Experienced, Intermediate
+feature: ??? - select one or more from: https://adobe.ly/3JfnRW9
+topic: ??? - select 0 or more from: https://adobe.ly/3NRHfMp
 ---
 
 `;

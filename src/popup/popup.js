@@ -37,6 +37,7 @@ import "@spectrum-css/fieldlabel/dist/index-vars.css";
 import "@spectrum-css/typography/dist/index-vars.css";
 import "@spectrum-css/toast/dist/index-vars.css";
 import "@spectrum-css/tooltip/dist/index-vars.css";
+import "@spectrum-css/badge/dist/index-vars.css";
 
 import "./popup.css";
 
