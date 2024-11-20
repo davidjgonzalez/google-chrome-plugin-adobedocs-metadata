@@ -21,8 +21,8 @@ export default function jiraStoryPopup(response, callback) {
                 Copy markdown
             </sp-button>  
 
-            <sp-button variant="secondary" data-copy-to-clipboard="popup-jira-story__card-html">
-                Copy card HTML
+            <sp-button variant="secondary" variant="secondary" href="https://81368-exlmpcvideoupload.adobeio-static.net/?load=${new Date().getTime()}#/update/${response.jira.jiraId}"target="_blank">
+                Add video to Jira
             </sp-button> 
 
             ${response.jira.videoId ? 
@@ -177,7 +177,7 @@ jira: ${jira.jiraId}${
 
 ${jira.description || 'Missing description'}
 
-${jira.videoId ? '>[!VIDEO](https://video.tv.adobe.com/v/' + jira.videoId + '/?learn=on)\n' : ''}`;
+${jira.videoId ? '>[!VIDEO](https://video.tv.adobe.com/v/' + jira.videoId + '/?learn=on&enablevpops)\n' : ''}`;
     return md;
 }
 

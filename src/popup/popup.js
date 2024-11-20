@@ -45,7 +45,6 @@ import experienceLeaguePopup from "./exl/popup-exl.js";
 import { getExlMetadata } from "./exl/popup-exl-eds";
 
 import jiraStoryPopup from "./popup-jira-story";
-import jiraCoursePopup from "./popup-jira-course";
 
 let contentResponse;
 
@@ -77,12 +76,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         experienceLeaguePopup(response, _injectHtml);
       } else if (response.website === "JIRA" && response.type === "Story") {
         jiraStoryPopup(response, _injectHtml);
-      } else if (
-        response.website === "JIRA" &&
-        response.type === "Initiative"
-      ) {
-        jiraCoursePopup(response, _injectHtml);
-      }
+      } 
     }
   );
 });
@@ -123,12 +117,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
             return;
           } else if (response.website === "JIRA" && response.type === "Story") {
             jiraStoryPopup(response, _injectHtml);
-          } else if (
-            response.website === "JIRA" &&
-            response.type === "Initiative"
-          ) {
-            jiraCoursePopup(response, _injectHtml);
-          }
+          } 
         }
       );
     } else {

@@ -220,6 +220,7 @@ description: Call to action, title case, 150 characters max
 solution: Add solutions: https://git.corp.adobe.com/AdobeDocs/exl-config/blob/master/metadata-values/solution.yml
 role: Admin, Architect, Data Architect, Data Engineer, Developer, Leader, User
 level: Beginner, Experienced, Intermediate
+feature-set: ??? - select one or more based on the feature value
 feature: ??? - select one or more from: https://adobe.ly/3JfnRW9
 topic: ??? - select 0 or more from: https://adobe.ly/3NRHfMp
 ---
