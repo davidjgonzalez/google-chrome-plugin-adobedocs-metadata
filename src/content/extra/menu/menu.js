@@ -68,7 +68,8 @@ chrome.runtime.sendMessage({action: "getBetaCodes"}, function(response) {
     } else {
         beta = response.value;
         hasExtensionData = true;
-        tryMenu();    }
+        tryMenu();    
+      }
 });
 
 
