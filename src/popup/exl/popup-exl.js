@@ -391,13 +391,13 @@ function getSection(sectionTitle, lists, style) {
                   <sp-menu-item href="https://publish.tv.adobe.com/search?q=${videoId}" target="mpcAdminConsole_${videoId}">
                       Open in MPC Admin console
                   </sp-menu-item>
-                  <sp-menu-item href="https://video.tv.adobe.com/v/${videoId}/?learn=on" target="mpcDirectVideo_${videoId}">
+                  <sp-menu-item href="https://video.tv.adobe.com/v/${videoId}/?learn=on&enablevpops " target="mpcDirectVideo_${videoId}">
                       Direct video link
                   </sp-menu-item>
                   <sp-menu-item data-copy-to-clipboard="${videoId}">
                       Copy '${videoId}' to clipboard
                   </sp-menu-item>  
-                  <sp-menu-item data-copy-to-clipboard="<iframe width=&quot;1280&quot; height=&quot;720&quot; src=&quot;https://video.tv.adobe.com/v/${videoId}/?learn=on&quot; frameborder=&quot;0&quot; webkitallowfullscreen mozallowfullscreen allowfullscreen scrolling=&quot;no&quot;></iframe>">
+                  <sp-menu-item data-copy-to-clipboard="<iframe width=&quot;1280&quot; height=&quot;720&quot; src=&quot;https://video.tv.adobe.com/v/${videoId}/?learn=on&enablevpops&quot; frameborder=&quot;0&quot; webkitallowfullscreen mozallowfullscreen allowfullscreen scrolling=&quot;no&quot;></iframe>">
                       Copy embed code to clipboard
                   </sp-menu-item>                     
                   <sp-menu-item href="https://video.tv.adobe.com/v/${videoId}?format=jpeg" target="mpcDirectThumbnail_${videoId}">

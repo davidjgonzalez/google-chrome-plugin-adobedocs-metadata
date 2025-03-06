@@ -281,6 +281,14 @@ function getVideoDetailsTableHtml(
   pageAnalyticsData,
   videoAnalyticsData,
 ) {
+
+  if (!videoAnalyticsData) { 
+    return `
+      <h4 class="video-analytics-title">Could not find video analytics</u></h4>
+      <p>Either the video is too new to have analytics, or there are no views.</p>
+    `; 
+  }
+
   const pageViews = getRaw(pageAnalyticsData, "pageViews") || 0;
 
   const videoName = getValue(videoAnalyticsData, "videoName");

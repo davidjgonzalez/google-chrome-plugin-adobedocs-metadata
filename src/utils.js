@@ -112,11 +112,11 @@ function splitArray(arr) {
 }
 
 function getRaw(data, key) {
-  return data.find((item) => item.id === key)?.raw;
+  return data?.find((item) => item.id === key)?.raw;
 }
 
 function getValue(data, key) {
-  return data.find((item) => item.id === key)?.value;
+  return data?.find((item) => item.id === key)?.value;
 }
 
 function delegateEvent(parentSelector, eventType, selector, callback) {
