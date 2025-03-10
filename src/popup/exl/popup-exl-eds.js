@@ -25,7 +25,6 @@ export async function getExlMetadata(url) {
     videos: getMpcVideos(doc),
     videoIds: getMpcVideoIds(doc),
     cloud: getMeta(doc, "cloud"),
-    description: getMetas(doc, "description"),
     features: getMetas(doc, "feature"),
     hideFromSearch: getMeta(doc, "hide") === "true",
     hideFromToc: getMeta(doc, "hidefromtoc") === "true",
