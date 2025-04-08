@@ -127,6 +127,7 @@ function getAnalyticsPageName(doc) {
           .trim()
           .toLowerCase()
       : "";
+
   let solution =
   doc.head.querySelector('meta[name="solution"]') !== null
       ? doc.head
@@ -138,7 +139,8 @@ function getAnalyticsPageName(doc) {
           .replace(/[-\d+\s+]/g, " ")
           .replace(/\s+/g, " ")
           .trim()}`;
-  let subsolution =
+  
+          let subsolution =
     doc.head.querySelector('meta[name="sub-solution"]') !== null
       ? doc.head
           .querySelector('meta[name="sub-solution"]')
@@ -149,13 +151,45 @@ function getAnalyticsPageName(doc) {
   //let solutionversion = doc.querySelector('meta[name="version"]') !== null ? doc.querySelector('meta[name="version"]').content : '';
 
   const title =
-    doc.head.querySelector('meta[name="english-title"]')?.content ||
+    doc.head.querySelector('meta[name="english-title"]')?.getAttribute("content") ||
     doc.head.querySelector("title").innerText.split("|")[0].trim();
 
+  const url = doc.head.querySelector('meta[property="og:url"]')?.getAttribute("content") || "";
+  const urlPath = new URL(url).pathname;
+  const siteSections = urlPath.split("/");
+  const siteSection = siteSections[2] || "";
+
+    // xl:learn:acrobat sign:playlist:get started with acrobat sign for administrators
+    // "xl:learn:browse:data collection";
   // Should look like: xl:docs:experience manager:tutorial:osgi services development basics"
-  const pageName = `xl:docs:${solution}:${type}:${
-    subsolution ? subsolution + ":" : ""
-  }${title}`.toLowerCase();
+  // "xl:learn:experience manager cloud manager:perspective:aem cloud manager onboarding playbook"
+  let pageName;
+  
+  if (type === 'playlist') {
+    // Playlust page
+    pageName = `xl:learn:${solution}:${type}:${subsolution ? subsolution + ":" : ""}${title}`;
+
+  } else if (type === 'perspective') {
+    // Perspectives page
+    pageName = `xl:learn:${solution}:${type}:${subsolution ? subsolution + ":" : ""}${title}`;
+
+  } else if (siteSection === 'docs' && siteSections.length > 3) {
+    // Docs page
+    
+    pageName = `xl:docs:${solution}:${type}:${subsolution ? subsolution + ":" : ""}${title}`;
+  
+  } else if (siteSection === 'browse') {
+    // Browse page
+
+    pageName = `xl:learn:browse:${title}`;
+
+  } else {
+
+    pageName = `xl:learn:${title}`;
+
+  }
+
+  pageName = pageName.toLowerCase();
 
   return pageName;
 }
