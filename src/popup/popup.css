@@ -326,3 +326,7 @@ hr {
 .playlist .playlist-item a:hover {
     text-decoration: underline;
 }
+
+#metadata table tbody tr td:hover {
+    cursor: copy;
+}
