@@ -182,7 +182,7 @@ function _injectHtml(html, elementId) {
 function _copyToClipboard(text) {
   if (text) {
     let copyEl = document.getElementById("copy-to-clipboard-input");
-    copyEl.value = text;
+    copyEl.value = decodeURIComponent(text);
     copyEl.select();
     copyEl.setSelectionRange(0, 99999);
 

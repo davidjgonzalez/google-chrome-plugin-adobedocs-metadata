@@ -1,9 +1,11 @@
 import { getResourcesTabHtml } from "./popup-common";
+import { getVideoTranscript } from "./utils";
 import moment from "moment";
 
-export default function jiraStoryPopup(response, callback) {
+export default async function jiraStoryPopup(response, callback) {
 
     let markdown = getMarkdown(response.jira);
+    let videoTranscript = response.jira.videoId ? await getVideoTranscript(response.jira.videoId) : ''
 
     let html = `
         <sp-tabs selected="1">
@@ -29,6 +31,11 @@ export default function jiraStoryPopup(response, callback) {
                 `<sp-button variant="secondary" data-copy-to-clipboard="https://video.tv.adobe.com/v/${response.jira.videoId}?format=jpeg">
                 Copy MPC thumbnail URL
                 </sp-button>` : ''}
+
+            ${response.jira.videoId ? 
+                `<sp-button variant="secondary" data-copy-to-clipboard="${encodeURIComponent(videoTranscript)}">
+                Copy video transcript
+                </sp-button>` : ''}                
 
             <br/>
             <br/>
@@ -218,7 +225,6 @@ function getCard(jira) {
 </div>
     `;
 }
-
 
 function convertToSeconds(time) {
     var timeMoment = moment(time, "HH:mm:ss");

@@ -6,6 +6,7 @@ import { getResourcesTabHtml } from "../popup-common";
 import { injectAnalyticsTabHtml, injectNoAnalyticsTabHtml } from "./popup-exl-analytics";
 import { getPlaylistTabHtml } from "./popup-exl-playlist";
 import { getDurations } from "./popup-exl-duration";  
+import { getVideoTranscript } from '../utils';
 
 const Missing = {
     ERROR: 'error',
@@ -36,7 +37,7 @@ export default async function experienceLeaguePopup(response, callback) {
  
         console.log('ExL response:', response);
 
-        const durations = beta.includes("durations") ?  await getDurations(response.html, response.videoIds) : { total: 0 };
+        const durations = beta.includes("durations") ? await getDurations(response.html, response.videoIds) : { total: 0 };
 
         let html = `                    
             <div class="status">
@@ -68,7 +69,7 @@ export default async function experienceLeaguePopup(response, callback) {
                 ])}
 
                 ${getSection("Videos", [
-                    getVideosMultiControl(response.videos)
+                    await getVideosMultiControl(response.videos)
                 ])}
 
                 ${getSection("Doc details", [
@@ -370,7 +371,7 @@ function getSection(sectionTitle, lists, style) {
       </div>`;
   }
   
-  function getVideosMultiControl(mpcVideoUrls) {
+  async function getVideosMultiControl(mpcVideoUrls) {
       let list = "";
     
       if (!mpcVideoUrls) {
@@ -379,6 +380,8 @@ function getSection(sectionTitle, lists, style) {
     
       for (const mpcVideoUrl of mpcVideoUrls) {
         let videoId = getVideoId(mpcVideoUrl);
+
+        let videoTranscript = await getVideoTranscript(videoId);
     
         if (videoId && !isNaN(videoId)) {
   
@@ -406,8 +409,9 @@ function getSection(sectionTitle, lists, style) {
                   <sp-menu-item data-copy-to-clipboard="https://video.tv.adobe.com/v/${videoId}?format=jpeg">
                       Copy thumbnail URL to clipboard
                   </sp-menu-item>   
-                  
-
+                  <sp-menu-item data-copy-to-clipboard="${encodeURIComponent(videoTranscript)}">
+                      Copy transcript to clipboard
+                  </sp-menu-item>                   
               </sp-action-menu>
               `;
   
