@@ -111,11 +111,13 @@ function getMarkdown(jira) {
 
             versions.push(...jira.versions?.map(version => { 
                 if (version === 'AEM CS') {
-                    return 'Cloud Service';
+                    return 'Experience Manager as a Cloud Service';
+                } else if (version == '6.5 LTS') {
+                    return 'Experience Manager 6.5 LTS';
                 } else if (version == '6.5') {
-                    return '6.5';
+                    return 'Experience Manager 6.5';
                 } else if (version === '6.4') {
-                    return '6.4';
+                    return 'Experience Manager 6.4';
                 }
             }));
         } 
@@ -125,11 +127,11 @@ function getMarkdown(jira) {
 
             versions.push(...jira.components?.map(component => { 
                 if (component === 'AV V8') {
-                    return 'v8';
+                    return 'Campaign v8';
                 } else if (component == 'ACC') {
-                    return 'Classic v7';
+                    return 'Campaign Classic v7';
                 } else if (component === 'ACS') {
-                    return 'Standard';
+                    return 'Campaign Standard';
                 }
             }));
         }
