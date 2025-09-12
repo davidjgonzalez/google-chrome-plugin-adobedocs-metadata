@@ -3,7 +3,6 @@
   "version": "1.36.0",
   "description": "AdobeDocs metadata extension!",
   "permissions": ["activeTab", "declarativeContent", "storage"],
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtVQrRoYtDFsFwXKUvjmOb6nVa+8kkVf99mDZdFjIODrH5o0uPlvDX4sLt8fSL9w/5uPnXcqzOxh2OIHMbAF3FhsnfUVJwzHoEEJZtiNT8tUHate7Hwx6Tsj2uCvbYWZWtvur+i6gsw06YSJn2pu5/Addk/DUiVe+GH9dMJXF7j34HstXzbg8aWl/dFHWWaAoXVClGbm74Ok0nIrPoSiKhpJhD2bUpPKXoIejhLyiQXLDKT8xjVU6gDAAcci/0fd/1ZrkJTSK0+Ci7NcDIynOVbb5IkqAXIOsLXTVYT3kaMRLih9U+bmuIOuGW5RqnhQTjvimuCefdZtQwgjw47cn0QIDAQAB",
   "background": {
     "service_worker": "background.js"
   },
