@@ -4,7 +4,7 @@ import { OPTIONS } from "../../constants";
 import { delegateEvent, getVideoId } from "../../utils";
 import { getResourcesTabHtml } from "../popup-common";
 import { injectAnalyticsTabHtml, injectNoAnalyticsTabHtml } from "./popup-exl-analytics";
-import { getPlaylistTabHtml } from "./popup-exl-playlist";
+import { getToolsTabHtml } from "./popup-exl-tools";
 import { getDurations } from "./popup-exl-duration";  
 import { getVideoTranscript } from '../utils';
 
@@ -30,7 +30,7 @@ export const shortHumanizeDuration = {
 
 export default async function experienceLeaguePopup(response, callback) {
 
-  chrome.storage.local.get([OPTIONS.FS_CONTENT_ROOT, OPTIONS.ANALYTICS_API_KEY, OPTIONS.ANALYTICS_DAY_RANGE, OPTIONS.BETA], async function (optionsObj) {
+  chrome.storage.local.get([OPTIONS.FS_CONTENT_ROOT, OPTIONS.ANALYTICS_API_KEY, OPTIONS.ANALYTICS_DAY_RANGE, OPTIONS.CONTENT_API_KEY, OPTIONS.BETA], async function (optionsObj) {
         let beta = (optionsObj[OPTIONS.BETA] || "").split(",").map((s) => s.trim()?.toLowerCase());
         let optionsContentRoot = _getOptionsContentFileSystemPath(optionsObj);
         let selectedTab = localStorage.getItem("selectedTab") || "1";
@@ -51,7 +51,7 @@ export default async function experienceLeaguePopup(response, callback) {
                 <sp-tab data-tabs="1" label="General" value="1"></sp-tab>
                 <sp-tab data-tabs="2" label="Metadata" value="2"></sp-tab>
                 <sp-tab data-tabs="3" label="Analytics" value="3"></sp-tab>
-                <sp-tab data-tabs="4" label="Playlist" value="4"></sp-tab>
+                <sp-tab data-tabs="4" label="Tools" value="4"></sp-tab>
                 <sp-tab data-tabs="5" label="Resources" value="5"></sp-tab>
             </sp-tabs>
 
@@ -124,12 +124,7 @@ export default async function experienceLeaguePopup(response, callback) {
             </div>
 
             <div data-tab="4" class="tab-content">
-             ${getPlaylistTabHtml({
-                title: response.title,
-                metadata: response,
-                url: response.currentDoc.url,
-             })}
-
+             ${await getToolsTabHtml(response, optionsObj)}
             </div> 
 
             <div data-tab="5" class="tab-content">
@@ -155,8 +150,6 @@ export default async function experienceLeaguePopup(response, callback) {
           event.target.selected = tab;
           localStorage.setItem("selectedTab", tab);
         });
-
-
 
         // Handle async calls to get analytics data
         let analyticsApiKey = optionsObj[OPTIONS.ANALYTICS_API_KEY];

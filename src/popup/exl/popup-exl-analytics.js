@@ -13,8 +13,6 @@ export async function injectAnalyticsTabHtml(analyticsApiKey, analyticsRange, ex
   const videos = exlData.videos;
   const videoIds = videos.map((video) => getVideoId(video));
 
-  console.log("Durations", durations);
-
   const analyticsResponse = await fetch(ANALYTICS_PROXY_URL, {
     method: "POST",
     headers: {

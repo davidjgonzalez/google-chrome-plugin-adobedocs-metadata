@@ -25,6 +25,7 @@ const HTML_IDS = {
   FS_CONTENT_ROOT_INPUT: OPTIONS.FS_CONTENT_ROOT,
   ANALYTICS_API_KEY: OPTIONS.ANALYTICS_API_KEY,
   ANALYTICS_DAY_RANGE: OPTIONS.ANALYTICS_DAY_RANGE,
+  CONTENT_API_KEY: OPTIONS.CONTENT_API_KEY,
   BETA: OPTIONS.BETA,
 };
 
@@ -36,6 +37,10 @@ const HTML_IDS = {
 
   chrome.storage.local.get(OPTIONS.ANALYTICS_API_KEY, function (obj) {
     document.getElementById(OPTIONS.ANALYTICS_API_KEY).value = obj[OPTIONS.ANALYTICS_API_KEY] || "";
+  });
+
+  chrome.storage.local.get(OPTIONS.CONTENT_API_KEY, function (obj) {
+    document.getElementById(OPTIONS.CONTENT_API_KEY).value = obj[OPTIONS.CONTENT_API_KEY] || "";
   });
 
   chrome.storage.local.get(OPTIONS.ANALYTICS_DAY_RANGE, function (obj) {
@@ -54,12 +59,14 @@ function _handleSave() {
   const fsContentRootValue = (document.getElementById(OPTIONS.FS_CONTENT_ROOT).value || "").trim();
   const analyticsApiKeyValue = (document.getElementById(OPTIONS.ANALYTICS_API_KEY).value || "").trim();
   const analyticsDayRangeValue = (document.getElementById(HTML_IDS.ANALYTICS_DAY_RANGE).value || "30").trim();
+  const contentApiKeyValue = (document.getElementById(OPTIONS.CONTENT_API_KEY).value || "").trim();
   const beta = (document.getElementById(HTML_IDS.BETA).value || "").trim();
 
   chrome.storage.local.set({ [OPTIONS.FS_CONTENT_ROOT]: fsContentRootValue }, function () { console.log("Saved content root path as: " + fsContentRootValue);});
   chrome.storage.local.set({ [OPTIONS.ANALYTICS_API_KEY]: analyticsApiKeyValue }, function () { console.log("Saved analytics API key as: " + analyticsApiKeyValue);});
   chrome.storage.local.set({ [OPTIONS.ANALYTICS_DAY_RANGE]: analyticsDayRangeValue }, function () { console.log("Saved analytics Day range as: " + analyticsDayRangeValue);});
   chrome.storage.local.set({ [OPTIONS.BETA]: beta }, function () { console.log("Saved beta as: " + beta);});
+  chrome.storage.local.set({ [OPTIONS.CONTENT_API_KEY]: contentApiKeyValue }, function () { console.log("Saved content API key as: " + contentApiKeyValue);});
 
   document.getElementById("saved").style.display = 'block';
 
