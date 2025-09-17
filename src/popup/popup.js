@@ -45,6 +45,7 @@ import experienceLeaguePopup from "./exl/popup-exl.js";
 import { getExlMetadata } from "./exl/popup-exl-eds";
 
 import jiraStoryPopup from "./popup-jira-story";
+import { delegateEvent } from "../utils";
 
 let contentResponse;
 
@@ -142,18 +143,14 @@ function _injectHtml(html, elementId) {
     });
   });
 
-  document.querySelectorAll("[data-copy-to-clipboard]").forEach((el) => {
-    el.addEventListener("click", (e) => {
-      let textarea = document.getElementById(
-        el.getAttribute("data-copy-to-clipboard")
-      );
-
-      if (textarea) {
-        _copyToClipboard(textarea.value);
-      } else {
-        _copyToClipboard(el.getAttribute("data-copy-to-clipboard"));
-      }
-    });
+  delegateEvent('body', 'click', '[data-copy-to-clipboard]', (e) => {
+    const el = e.target;
+    
+    if (el.tagName === 'TEXTAREA') {
+      _copyToClipboard(textarea.value);
+    } else {
+      _copyToClipboard(e.target.getAttribute("data-copy-to-clipboard"));
+    }
   });
 
   document.querySelectorAll("[data-tabs]").forEach((el) => {

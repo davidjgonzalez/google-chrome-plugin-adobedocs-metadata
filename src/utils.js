@@ -94,7 +94,7 @@ async function getMpcVideoData(videos) {
     }
   }
 
-  console.log("Video data:", data);
+  console.debug("Video data:", data);
 
   return data;
 }

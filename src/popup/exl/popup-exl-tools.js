@@ -1,5 +1,6 @@
 import { OPTIONS } from "../../constants";
 import "@spectrum-web-components/progress-circle/sp-progress-circle.js";
+import { delegateEvent } from "../../utils";
 
 const REMOVE_SELECTORS = [
   '.back-to-browsing',
@@ -24,15 +25,25 @@ async function getToolsTabHtml(exl, extensionOptions) {
     <p>Content API key is not set. Please set a Content API key in the extension options.</p>`;
   }
 
+  delegateEvent('body', 'click', '[data-fn-generate-qa]', (e) => {
+    const el = document.getElementById('tools-genai-questions');
+
+    el.innerHTML = '<sp-progress-bar style="width: 100%;" label="Generating questions..." indeterminate size="large"></sp-progress-bar>';
+
+    getGenAiQuestionsHtml(exl, contentApiKey).then(html => {
+      el.innerHTML = html;
+    });
+  });
+
   getGenAiQuestionsHtml(exl, contentApiKey).then(html => {
     document.getElementById('tools-genai-questions').innerHTML = html;
   });
 
   return `
-    <h4>GenAI training</h4>
+    <h4>AI Assistant training (Q&A)</h4>
 
     <div id="tools-genai-questions">
-      <sp-progress-circle label="Generating questions..." indeterminate size="large"></sp-progress-circle>
+      <sp-button data-fn-generate-qa>Generate Q&amp;A</sp-button>
     </div>
   `;
 }
@@ -56,10 +67,14 @@ async function getGenAiQuestionsHtml(exl, contentApiKey) {
     const match = el.href.match(/\/v\/(\d+)/);
     const videoId = match ? match[1] : null;
     if (videoId) {
-      const videoJson = await fetch(`https://video.tv.adobe.com/vc/${videoId}/eng.json`);
-      const videoJsonData = await videoJson.json();
-      const videoCaptions = videoJsonData.captions.map(caption => caption.content).join(' ');
-      el.textContent = videoCaptions;
+      const videoCaptionResponse = await fetch(`https://video.tv.adobe.com/vc/${videoId}/eng.json`);
+      if (videoCaptionResponse.ok) {
+        const videoJsonData = await videoCaptionResponse.json();
+        const videoCaptions = videoJsonData?.captions?.map(caption => caption.content).join(' ') || '';
+        el.textContent = videoCaptions;
+      } else { 
+        el.remove();
+      }
     }
   });
   
@@ -142,6 +157,7 @@ async function getGenAiQuestionsHtml(exl, contentApiKey) {
 
   return `
     <label>${results.length} questions &amp; answers generated for GenAI training.</label>
+    <sp-button style="float: right;" data-copy-to-clipboard="${encodeURIComponent(results.map(r => `Question: ${r.question}\nAnswer: ${r.answer}`).join('\n\n'))}">Copy Q&amp;A to clipboard</sp-button>
     <textarea class="questions">${(results.map(r => `
 Question: ${r.question}
 Answer: ${r.answer}`).join('\n\n')).trim()}</textarea>`

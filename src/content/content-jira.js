@@ -175,7 +175,7 @@ function parsePublishVideoUrl(json) {
     let videoId = parseVideoId(json);
 
     if (videoId) {
-        return `https://video.tv.adobe.com/v/${videoId}/?quality=12&learn=on`
+        return `https://video.tv.adobe.com/v/${videoId}/?quality=12&learn=on&enablevpops`
     } else {
         return '';
     }

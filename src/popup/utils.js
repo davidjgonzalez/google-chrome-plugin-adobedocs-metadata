@@ -1,12 +1,7 @@
 export async function getVideoTranscript(videoId) {
     try {
-        let response = await fetch(`https://video.tv.adobe.com/v/${videoId}?format=json`);
+        let response = await fetch(`https://video.tv.adobe.com/vc/${videoId}/eng.json`);
         let json = await response.json();
-
-        let transcript = json.translations?.find(translation => translation.language_w3c === 'en-US');
-
-        response = await fetch(`https://${transcript.jsonPath}`);
-        json = await response.json();
 
         if (!json.captions || !Array.isArray(json.captions)) return "";
 

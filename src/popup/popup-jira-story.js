@@ -1,9 +1,31 @@
 import { getResourcesTabHtml } from "./popup-common";
 import { getVideoTranscript } from "./utils";
+import { delegateEvent } from "../utils";
 import moment from "moment";
 
 export default async function jiraStoryPopup(response, callback) {
 
+    chrome.storage.local.get([OPTIONS.CONTENT_API_KEY], async function (optionsObj) {
+        const contentApiKey = optionsObj[OPTIONS.CONTENT_API_KEY];
+    });
+
+    delegateEvent(document, 'click', '[data-genai-markdown]', async function (event) {
+        const markdown = getMarkdown(response.jira);
+        const videoTranscript = response.jira.videoId ? await getVideoTranscript(response.jira.videoId) : ''
+        const genAiResponse = await fetch('https://81368-dxpefirefallproxy.adobeio-static.net/api/v1/web/dx-excshell-1/generic', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': `${contentApiKey}`
+            },
+            body: JSON.stringify({
+                systemPrompt: systemPrompt.trim(),
+                userPrompt: userPrompt.trim(),
+            })
+        });
+    });
+
+    
     let markdown = getMarkdown(response.jira);
     let videoTranscript = response.jira.videoId ? await getVideoTranscript(response.jira.videoId) : ''
 
@@ -35,7 +57,12 @@ export default async function jiraStoryPopup(response, callback) {
             ${response.jira.videoId ? 
                 `<sp-button variant="secondary" data-copy-to-clipboard="${encodeURIComponent(videoTranscript)}">
                 Copy video transcript
-                </sp-button>` : ''}                
+                </sp-button>` : ''}   
+                
+            
+            <sp-button variant="secondary" data-genai-markdown class="hidden">
+                Improve Markdown with GenAI
+            </sp-button>
 
             <br/>
             <br/>
