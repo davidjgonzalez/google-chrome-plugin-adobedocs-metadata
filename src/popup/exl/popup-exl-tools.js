@@ -157,8 +157,10 @@ async function getGenAiQuestionsHtml(exl, contentApiKey) {
 
   return `
     <label>${results.length} questions &amp; answers generated for GenAI training.</label>
-    <sp-button style="float: right;" data-copy-to-clipboard="${encodeURIComponent(results.map(r => `Question: ${r.question}\nAnswer: ${r.answer}`).join('\n\n'))}">Copy Q&amp;A to clipboard</sp-button>
-    <textarea class="questions">${(results.map(r => `
+    <sp-button style="float: right;" data-copy-to-clipboard="## AI ASSISTANT Q/A\n\n${encodeURIComponent(results.map(r => `Question: ${r.question}\nAnswer: ${r.answer}`).join('\n\n'))}">Copy Q&amp;A to clipboard</sp-button>
+    <textarea class="questions">## AI ASSISTANT Q/A
+
+${(results.map(r => `
 Question: ${r.question}
 Answer: ${r.answer}`).join('\n\n')).trim()}</textarea>`
 }

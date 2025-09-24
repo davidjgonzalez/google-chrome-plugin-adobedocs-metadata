@@ -149,7 +149,14 @@ function _injectHtml(html, elementId) {
     if (el.tagName === 'TEXTAREA') {
       _copyToClipboard(textarea.value);
     } else {
-      _copyToClipboard(e.target.getAttribute("data-copy-to-clipboard"));
+      const attributeValue = el.getAttribute("data-copy-to-clipboard");
+      if (document.querySelector(attributeValue)) {
+        // If a selector is provied, use that to find the element and copy it's value
+        _copyToClipboard(document.querySelector(attributeValue).value);
+      } else {
+        // Else assume the attribute value is the text to copy
+        _copyToClipboard(attributeValue);
+      }
     }
   });
 

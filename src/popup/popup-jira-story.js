@@ -2,29 +2,13 @@ import { getResourcesTabHtml } from "./popup-common";
 import { getVideoTranscript } from "./utils";
 import { delegateEvent } from "../utils";
 import moment from "moment";
+import { OPTIONS } from "../constants";
 
 export default async function jiraStoryPopup(response, callback) {
 
     chrome.storage.local.get([OPTIONS.CONTENT_API_KEY], async function (optionsObj) {
-        const contentApiKey = optionsObj[OPTIONS.CONTENT_API_KEY];
+       // const contentApiKey = optionsObj[OPTIONS.CONTENT_API_KEY];
     });
-
-    delegateEvent(document, 'click', '[data-genai-markdown]', async function (event) {
-        const markdown = getMarkdown(response.jira);
-        const videoTranscript = response.jira.videoId ? await getVideoTranscript(response.jira.videoId) : ''
-        const genAiResponse = await fetch('https://81368-dxpefirefallproxy.adobeio-static.net/api/v1/web/dx-excshell-1/generic', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': `${contentApiKey}`
-            },
-            body: JSON.stringify({
-                systemPrompt: systemPrompt.trim(),
-                userPrompt: userPrompt.trim(),
-            })
-        });
-    });
-
     
     let markdown = getMarkdown(response.jira);
     let videoTranscript = response.jira.videoId ? await getVideoTranscript(response.jira.videoId) : ''
@@ -41,17 +25,17 @@ export default async function jiraStoryPopup(response, callback) {
 
             ${getWarning(response.jira)}
 
-            <sp-button data-copy-to-clipboard="popup-jira-story__markdown">
+            <sp-button data-copy-to-clipboard="#popup-jira-story__markdown">
                 Copy markdown
             </sp-button>  
 
-            <sp-button variant="secondary" variant="secondary" href="https://81368-exlmpcvideoupload.adobeio-static.net/?load=${new Date().getTime()}#/update/${response.jira.jiraId}"target="_blank">
+            <sp-button variant="secondary" href="https://81368-exlmpcvideoupload.adobeio-static.net/?load=${new Date().getTime()}#/update/${response.jira.jiraId}" target="_blank">
                 Add video to Jira
             </sp-button> 
 
-            ${response.jira.videoId ? 
-                `<sp-button variant="secondary" data-copy-to-clipboard="https://video.tv.adobe.com/v/${response.jira.videoId}?format=jpeg">
-                Copy MPC thumbnail URL
+            ${response.jira.publishUrl ? 
+                `<sp-button variant="secondary" data-copy-to-clipboard="${response.jira.publishUrl}">
+                Copy publish link
                 </sp-button>` : ''}
 
             ${response.jira.videoId ? 
@@ -59,16 +43,10 @@ export default async function jiraStoryPopup(response, callback) {
                 Copy video transcript
                 </sp-button>` : ''}   
                 
-            
-            <sp-button variant="secondary" data-genai-markdown class="hidden">
-                Improve Markdown with GenAI
-            </sp-button>
-
             <br/>
             <br/>
 
             <textarea id="popup-jira-story__markdown" class="markdown" readonly>${markdown}</textarea>
-            <textarea id="popup-jira-story__card-html" class="card hidden" readonly>${getCard(response.jira)}</textarea>
         </div>
 
         <div data-tab="2" class="tab-content">
@@ -81,12 +59,16 @@ export default async function jiraStoryPopup(response, callback) {
 
 function getWarning(jira) {
     let messages = [];
+
+    let description = jira.description || '';
+        description = description.replace(/h\d\. AI ASSISTANT Q\/A.*/im, '').trim();
+
     
     if (!jira.title || jira.title?.length > 59) {
         messages.push('Titles should be no more than 60 characters, but is ' + (jira.title?.length || 0) + ' characters.');
     }
-    if (!jira.description || jira.description?.length < 60 || jira.description?.length > 160) {
-        messages.push('Descriptions should be between 60 and 160 characters, but is ' + (jira.description?.length || 0) + ' characters');
+    if (!description || description?.length < 60 || description?.length > 160) {
+        messages.push('Descriptions should be between 60 and 160 characters, but is ' + (description?.length || 0) + ' characters');
     }
     if (!jira.docType) {
         messages.push('Content Type should be set on Jira issue to popular doc-type metadata.');
@@ -123,12 +105,9 @@ function getMarkdown(jira) {
         //title = title + ' (Titles should be no more than 60 characters, but is ' + title.length + ' characters)';
     }
 
-    let description = jira.description || 'Missing description'
-    description = description.replace(/(\r\n|\n|\r|\*|)/gm,"").trim();
-
-    if (description.length < 60 || description.length > 160) {
-       //description = description + ' (Should be between 60 and 160 characters, but is ' + description.length + ' characters)'
-    } 
+    let description = jira.description || 'Missing description';
+    description = description.replace(/(\r\n|\n|\r|\*|)/gm,'').trim();
+    description = description.replace(/h\d\. AI ASSISTANT Q\/A.*/im, '').trim();
 
     let versions =  null;
 
@@ -211,48 +190,10 @@ jira: ${jira.jiraId}${
 
 # ${title || 'Missing title'}
 
-${jira.description || 'Missing description'}
+${description || 'Missing description'}
 
 ${jira.videoId ? '>[!VIDEO](https://video.tv.adobe.com/v/' + jira.videoId + '/?learn=on&enablevpops)\n' : ''}`;
     return md;
-}
-
-function getCard(jira) {
-
-    const title = jira.title;
-    const description = jira.description;
-    const imgSrc = jira.videoId ? `https://video.tv.adobe.com/v/${jira.videoId}/?format=jpeg` : `https://cdn.experienceleague.adobe.com/thumbs/${jira.jiraId}.jpeg`;
-    const link = "#ENTER THE LINK TO THE MD FILE";
-    const ctaLabel = jira.videoId  ? "Watch the video" : "Learn more";
-
-   return `
-<div class="column is-half-tablet is-half-desktop is-one-third-widescreen" aria-label="${
-        title
-    }" tabIndex="-1">
-    <div class="card" style="height: 100%; display: flex; flex-direction: column; height: 100%;">
-        <div class="card-image">
-        <figure class="image x-is-16by9">
-            <a href="${link}" title="${title}" tabindex="-1">
-            <img class="is-bordered-r-small" src="${imgSrc}" alt="${title}">
-            </a>
-        </figure>
-        </div>
-        <div class="card-content is-padded-small" style="display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between;">
-            <div class="top-card-content">
-                <p class="headline is-size-6 has-text-weight-bold">
-                    <a href="${link}" title="${title}">${title}</a>
-                </p>
-                <p class="is-size-6">${description}</p>
-            </div>
-            <a href="${link}" class="spectrum-Button spectrum-Button--outline spectrum-Button--primary spectrum-Button--sizeM" style="align-self: flex-start; margin-top: 1rem;">
-            <span class="spectrum-Button-label has-no-wrap has-text-weight-bold">${
-                ctaLabel
-            }</span>
-            </a>
-        </div>
-    </div>
-</div>
-    `;
 }
 
 function convertToSeconds(time) {
