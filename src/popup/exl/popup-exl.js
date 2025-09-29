@@ -245,7 +245,13 @@ function getSection(sectionTitle, lists, style) {
     if (jiras && jiras?.length > 0) {
       jiraIds = jiras;
     } else if (kts && kts?.length > 0) {
-      jiraIds = kts.map(kt => `KT-${kt}`);
+      jiraIds = kts.map(kt => { 
+        if (kt.startsWith('KT-')) {
+          return kt;
+        } else {
+          return `KT-${kt}`; 
+        }
+      });
     } else {
       return '';
     }

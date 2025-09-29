@@ -145,14 +145,14 @@ function _injectHtml(html, elementId) {
 
   delegateEvent('body', 'click', '[data-copy-to-clipboard]', (e) => {
     const el = e.target;
-    
     if (el.tagName === 'TEXTAREA') {
       _copyToClipboard(textarea.value);
     } else {
       const attributeValue = el.getAttribute("data-copy-to-clipboard");
-      if (document.querySelector(attributeValue)) {
+      const candidateSelector = CSS.escape(attributeValue);
+      if (document.querySelector(candidateSelector)) {
         // If a selector is provied, use that to find the element and copy it's value
-        _copyToClipboard(document.querySelector(attributeValue).value);
+        _copyToClipboard(document.querySelector(candidateSelector).value);
       } else {
         // Else assume the attribute value is the text to copy
         _copyToClipboard(attributeValue);
