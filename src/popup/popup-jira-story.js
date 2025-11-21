@@ -58,7 +58,13 @@ ${getVideoMarkdown(response.jira)}
           document.querySelector('sp-button[data-copy-to-clipboard="#popup-jira-story__genai-markdown"]').disabled = false;
 
         } else {
-            markdown = genAiResponse;
+            if (!contentApiKey) {
+              markdown = `ERROR: Content API key missing from the Chrome extension's options.
+              
+If you believe need a Content API Key, please contact ORG-SSCHNOOR-ALL@adobe.com`;
+            } else {
+              markdown = genAiResponse;
+            }
         }
 
         document.getElementById('popup-jira-story__genai-markdown').value = markdown;
