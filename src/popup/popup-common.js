@@ -1,5 +1,5 @@
 
-import { DURATIONS } from "../constants.js";
+import { DURATIONS } from "../constants";
 
 function getResourcesTabHtml() {
     return `
@@ -8,8 +8,12 @@ function getResourcesTabHtml() {
 
         <ul>
             <li><a href="https://adobe.ly/ExLquickstart" target="1-0">Experience League quick starts</a></li>
-            <li><a href="https://experienceleague.adobe.com/docs/authoring-guide-exl/using/home.html" target="1-1">Authoring Guide for Adobe Writers docs</a></li>
-            <li><a href="https://experienceleague.adobe.com/docs/authoring-guide-exl/using/authoring/features/metadata.html" target="1-2">Metadata and tagging docs</a></li>
+            <li><a href="adobe.ly/ExLauthoringguide" target="1-1">Authoring Guide for Adobe Writers docs</a>
+                <ul>
+                    <li><a href="https://experienceleague.adobe.com/en/docs/authoring-guide/using/markdown/markdown-syntax" target="1-1-1">Markdown syntax</a></li>
+                    <li><a href="https://experienceleague.adobe.com/en/docs/authoring-guide/using/authoring/using-metadata" target="1-1-2">Metadata and tagging docs</a></li>
+                </ul>
+            </li>
             <li><a href="https://wiki.corp.adobe.com/display/DMSArchitecture/MPC+Video+vPops" target="1-2">Video vPop standards</a></li>
         </ul>
 

@@ -49,7 +49,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 });
 
 function getJira(jiraId) {
-    const JIRA_URL = `/rest/api/latest/issue/${jiraId}`;
+    const JIRA_URL = `/rest/api/latest/issue/${jiraId}?expand=renderedFields`;
 
     if (jiraId) {
         return fetch(JIRA_URL).then(res => res.json());
@@ -73,7 +73,8 @@ async function parseJiraStoryJSON(json) {
     return {
         jiraId: json.key,
         title: parseTitle(json),
-        description: parseDescription(json, '!END DESCRIPTION'),
+        description: parseDescription( json.fields.description, '!END DESCRIPTION'),
+        descriptionHtml: parseDescription( json.renderedFields?.description, '!END DESCRIPTION'),
         kt: parseKT(json),
         role: parseRoles(json),
         level: parseLevels(json),
@@ -117,9 +118,7 @@ function parseCourseDefinition(json) {
     return parseDescription(json);
 }
 
-function parseDescription(json, delimiter) {
-    let description = json.fields.description;
-
+function parseDescription(description, delimiter) {
     if (delimiter) {
         let endDescriptionIndex = (description || '').indexOf(delimiter);
 

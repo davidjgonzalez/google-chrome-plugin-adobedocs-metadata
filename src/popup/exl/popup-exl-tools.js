@@ -88,6 +88,15 @@ async function getPageHtml(exl, contentApiKey) {
     main.querySelectorAll(selector).forEach(el => el.remove());
   });
 
+  // Handle fragments (Slides)
+  await Promise.all(Array.from(doc.querySelectorAll("div.fragment a[href^='/']")).map(async (el) => {
+    const response = await fetch(`https://experienceleague.adobe.com${el.getAttribute('href')}.plain.html`);
+    if (response.ok) {
+      el.parentElement.innerHTML = await response.text();
+    } else {
+      el.remove();
+    }
+  }));
 
   /* Code */
   main.querySelectorAll('pre code').forEach(el => {
@@ -234,7 +243,7 @@ Your task is to assess the content and provide an overall quality score from 0 t
 * 50 = average/adequate but flawed
 * 0 = extremely poor
 
-### General Evaluation Instructions:
+## General Evaluation Instructions:
 
 * Evaluate the content as it actually exists. Only suggest improvements that are directly relevant to this page. Avoid generic advice.
 * If the text is very short but clearly communicates its point (e.g., a video page with only a short intro), recognize that brevity can be a strength and do not suggest adding filler text.

@@ -1,6 +1,6 @@
 // Keep in sync w Duration script and popup-exl.js -> getResourcesHTML tab.
 
-import { DURATIONS } from "../../constants.js";
+import { DURATIONS } from "../../constants";
 
 const AVG_WORDS_PER_MINUTE = DURATIONS.AVG_WORDS_PER_MINUTE;
 const AVG_CODE_WORDS_PER_MINUTE = DURATIONS.AVG_CODE_WORDS_PER_MINUTE;
@@ -21,6 +21,16 @@ export async function getDurations(html = "", videoIds = []) {
       // Remove content not relevant to time.
       el.remove();
     });
+
+  // Handle fragments
+  await Promise.all(Array.from(doc.querySelectorAll("div.fragment a[href^='/']")).map(async (el) => {
+    const response = await fetch(`https://experienceleague.adobe.com${el.getAttribute('href')}.plain.html`);
+    if (response.ok) {
+      el.parentElement.innerHTML = await response.text();
+    } else {
+      el.remove();
+    }
+  }));
 
   const durations = {
     total: 0,

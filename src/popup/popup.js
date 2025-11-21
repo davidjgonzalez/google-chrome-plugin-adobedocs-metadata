@@ -41,7 +41,7 @@ import "@spectrum-css/badge/dist/index-vars.css";
 
 import "./popup.css";
 
-import experienceLeaguePopup from "./exl/popup-exl.js";
+import experienceLeaguePopup from "./exl/popup-exl";
 import { getExlMetadata } from "./exl/popup-exl-eds";
 
 import jiraStoryPopup from "./popup-jira-story";
@@ -168,27 +168,35 @@ function _injectHtml(html, elementId) {
     }
   });
 
-  document.querySelectorAll("[data-tabs]").forEach((el) => {
-    el.addEventListener("click", (e) => {
-      document.querySelectorAll("[data-tab]").forEach((el) => {
-        el.style.display = "none";
-      });
-      document
-        .querySelectorAll('[data-tab="' + el.getAttribute("data-tabs") + '"]')
-        .forEach((el) => {
-          el.style.display = "block";
-        });
+  delegateEvent('body', 'click', "[data-tabs]", (e) => {
+    const el = e.target;
+    const tabSetName = el.getAttribute("data-tab-set");
+    const tabName = el.getAttribute("data-tabs");
+
+    document.querySelectorAll("[data-tab][data-tab-set='" + tabSetName + "']").forEach((hideEl) => {
+      hideEl.style.display = "none";
     });
+
+    document
+      .querySelectorAll('[data-tab="' + tabName + '"][data-tab-set=' + tabSetName + ']')
+      .forEach((showEl) => {
+        showEl.style.display = "block";
+      });
   });
 
+
   setTimeout(() => {
-    if (document.querySelector('[data-tab="1"]').offsetHeight > 600) {
-      const el = document.querySelector(".scroll-down");
-      if (el) {
-        el.style.display = "block";
+    document.querySelectorAll("sp-tabs[selected]").forEach((el) => {
+      const selectedTabId = el.getAttribute("selected");
+      const selectedTab = document.querySelector('[data-tab="' + selectedTabId + '"]');
+      if (selectedTab) {
+        selectedTab.style.display = "block";
       }
-    }
+
+    });
   }, 250);
+
+  
 }
 
 function _copyToClipboard(text) {

@@ -48,14 +48,14 @@ export default async function experienceLeaguePopup(response, callback) {
             </div>
 
             <sp-tabs selected="${selectedTab}">
-                <sp-tab data-tabs="1" label="General" value="1"></sp-tab>
-                <sp-tab data-tabs="2" label="Metadata" value="2"></sp-tab>
-                <sp-tab data-tabs="3" label="Analytics" value="3"></sp-tab>
-                <sp-tab data-tabs="4" label="Tools" value="4"></sp-tab>
-                <sp-tab data-tabs="5" label="Resources" value="5"></sp-tab>
+                <sp-tab data-tabs="1" data-tab-set="main-tabs" label="General" value="1"></sp-tab>
+                <sp-tab data-tabs="2" data-tab-set="main-tabs" label="Metadata" value="2"></sp-tab>
+                <sp-tab data-tabs="3" data-tab-set="main-tabs" label="Analytics" value="3"></sp-tab>
+                <sp-tab data-tabs="4" data-tab-set="main-tabs" label="Tools" value="4"></sp-tab>
+                <sp-tab data-tabs="5" data-tab-set="main-tabs" label="Resources" value="5"></sp-tab>
             </sp-tabs>
 
-            <div data-tab="1" class="tab-content">
+            <div data-tab="1" data-tab-set="main-tabs" class="tab-content">
                 ${getSection("Quick links", [
                     getPageLinks(response.currentDoc.host, response.currentDoc.path),
                     getJira(response.jira, response.kt),
@@ -89,7 +89,7 @@ export default async function experienceLeaguePopup(response, callback) {
                   <div class="scroll-down"><sp-icon-arrow-down size="xxl"/></div>
             </div>
             
-            <div data-tab="2" class="tab-content">
+            <div data-tab="2" data-tab-set="main-tabs" class="tab-content">
                 ${getTable([
                     getDisplayRow(getMeta("Title", response.title, "Missing", Missing.ERROR), "title"),
                     getDisplayRow(getMeta("Description", response.description, "Missing", Missing.ERROR), "description"),
@@ -117,33 +117,22 @@ export default async function experienceLeaguePopup(response, callback) {
                 ])}
             </div>
 
-            <div data-tab="3" class="tab-content" id="analyticsTabHtml">
+            <div data-tab="3" data-tab-set="main-tabs" class="tab-content" id="analyticsTabHtml">
               <div class="loading">
                 <sp-progress-circle label="Loading analytics data..." indeterminate size="large"></sp-progress-circle>
               </div>
             </div>
 
-            <div data-tab="4" class="tab-content">
+            <div data-tab="4" data-tab-set="main-tabs" class="tab-content">
              ${await getToolsTabHtml(response, optionsObj)}
             </div> 
 
-            <div data-tab="5" class="tab-content">
+            <div data-tab="5" data-tab-set="main-tabs" class="tab-content">
                 ${getResourcesTabHtml()}                           
             </div>  
         `;
         
         await callback(html);
-
-
-        /* Handle selected tabs */
-        document.querySelectorAll("[data-tab]").forEach((el) => {
-          el.style.display = "none";
-        });
-        document
-          .querySelectorAll('[data-tab="' + selectedTab + '"]')
-          .forEach((el) => {
-            el.style.display = "block";
-          });
 
         delegateEvent("body", "click", "[data-tabs]", (event) => {
           const tab = event.target.getAttribute("data-tabs");

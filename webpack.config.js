@@ -15,11 +15,19 @@ module.exports = (env, argv) => {
       "content-jira": "./src/content/content-jira.js",
       background: "./src/background.js"
     },
-    output: {
-      filename: "[name].js",
-      path: path.resolve(__dirname, "dist"),
-    },
-    module: {
+  output: {
+    filename: "[name].js",
+    path: path.resolve(__dirname, "dist"),
+  },
+  resolve: {
+    extensions: ['.js', '.json'],
+    fallback: {
+      "buffer": false,
+      "path": false,
+      "fs": false
+    }
+  },
+  module: {
       rules: [
         {
           test: /\.scss$/,
