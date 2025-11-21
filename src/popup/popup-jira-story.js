@@ -33,19 +33,32 @@ export default async function jiraStoryPopup(response, callback) {
         getSystemMessage(),
         getUserMessage({ markdown, videoTranscript }),
         contentApiKey
-      ).then(response => {
-        console.log(response);
+      ).then(genAiResponse => {
 
-        let markdown = '';
 
-        if (response.markdown) {
-          markdown = response.markdown;
+        if (genAiResponse.seoTitle && genAiResponse.seoDescription && genAiResponse.pageTitle && genAiResponse.pageContent) {
           // parse string into frontmatter and markdown content using library that can handle frontmatter and markdown content.
           const parsed = matter(markdown);
+
+          if (genAiResponse.seoTitle.includes("|")) {
+            genAiResponse.seoTitle = genAiResponse.seoTitle.split("|")[0].trim();
+          }
+
+          parsed.attributes.title = genAiResponse.seoTitle;
+          parsed.attributes.description = genAiResponse.seoDescription;
+          parsed.body = `# ${genAiResponse.pageTitle}
+
+${genAiResponse.pageContent}
+
+${getVideoMarkdown(response.jira)}
+
+`;
+
           markdown = stringifyFrontmatter(parsed.attributes, parsed.body);
+          document.querySelector('sp-button[data-copy-to-clipboard="#popup-jira-story__genai-markdown"]').disabled = false;
 
         } else {
-            markdown = response;
+            markdown = genAiResponse;
         }
 
         document.getElementById('popup-jira-story__genai-markdown').value = markdown;
@@ -98,7 +111,7 @@ export default async function jiraStoryPopup(response, callback) {
 
                     <div data-tab="1-1" class="tab-content" data-tab-set="jira-markdown">
                     
-                    <sp-button data-copy-to-clipboard="#popup-jira-story__genai-markdown">
+                    <sp-button data-copy-to-clipboard="#popup-jira-story__genai-markdown" disabled>
                         Copy GenAI optimized markdown
                     </sp-button>  
 
@@ -333,4 +346,12 @@ function stringifyFrontmatter(attributes, body) {
       .join("\n");
   
     return `---\n${yaml}\n---\n\n${body.trim()}`;
+  }
+
+  function getVideoMarkdown(jira) {
+    return jira.videoId
+    ? ">[!VIDEO](https://video.tv.adobe.com/v/" +
+      jira.videoId +
+      "/?learn=on&enablevpops)\n"
+    : ""
   }

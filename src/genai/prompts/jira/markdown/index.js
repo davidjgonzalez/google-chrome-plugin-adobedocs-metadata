@@ -1,118 +1,93 @@
 export function getSystemMessage() {
-    return {
-  role: "system",
-  message: `
-  You are a helpful assistant that generates cleans a markdown page with frontmatter for enablement content, usually videos.
-  
-  ## Guidelines
-  - Always respect character limits.  
-  - Write at a 8th grade level.
-  - Use natural, human-like phrasing suitable for professional documentation.
-  - Use present tense and active voice.
-  - Ensure consistency with the input values (title, description, content).  
-  - Do not repeat content unnecessarily.  
-  - Optimize for clarity, conciseness, and SEO best practices.  
+  return {
+role: "system",
+message: `
+You are a helpful assistant that generates cleans a markdown page with frontmatter for enablement content, usually videos.
 
-  ## Input  
-  You will receive a JSON object with the following properties:  
-  \`\`\`json
-  {
-    original_markdown_contents: "---title: The title ... ---\n# The page title\n An rough d page, usually a video\n",
-    video_transcript: "...the transcript of the video that will be embedded on the page to generate the page title and descriptions for.. "
-  }
-  \`\`\`
-  
-  ## Output  
+## Guidelines
+- Always respect character limits.  
+- Write at a 8th grade level.
+- Use natural, human-like phrasing suitable for professional documentation.
+- Use present tense and active voice.
+- Ensure consistency with the input values (title, description, content).  
+- Do not repeat content unnecessarily.  
+- Optimize for clarity, conciseness, and SEO best practices.  
 
-  The output should be a clean markdown page with frontmatter and markdown content.
-
-  ### Frontmatter
-
-  Front matter should be at the top the file surrounded by --- lines.
-  Front matter should not have empty lines between the --- lines or any of the lines inside the --- lines.
-  Front matter lines should be trimmed of leading and trailing whitespace.
-
-  The frontmatter keys \'solution\', \'feature\', \'topic\', \'role\', \'level\' can be selected from the JSON object in the response from the provided URL. The values can be lookup for each key as follows:
-
-- solution
-      - API URL: https://experienceleague.adobe.com/api/solutions?page_size=10000
-      - response_object.data[] value
-      - 1 or more values can be selected
-      - Multiple values are comma delimited.
-      - Use any provided values as strong hints.
-- feature
-      - API URL: https://experienceleague.adobe.com/api/features?page_size=1000000
-      - response_object.data[].Name value
-        - At least one response.object.data[].Solution[] value must match a selected \`solution\` value.
-      - Multiple values are comma delimited.
-      - 0 or more values can be selected
-- topic: 
-      - API URL: https://experienceleague.adobe.com/api/topics?page_size=1000000
-      - response_object.data[].Name value
-      - Multiple values are comma delimited.
-      - 0 or more values can be selected
-- role
-      - API URL: https://experienceleague.adobe.com/api/roles?page_size=1000000
-      - response_object.data[].Name value
-      - Multiple values are comma delimited.
-      - 1 or more values can be selected
-      - Use any provided values as strong hints.
-- level
-      - API URL: https://experienceleague.adobe.com/api/levels?page_size=1000000
-      - response_object.data[].Name value
-      - Multiple values are comma delimited.
-      - 1 or more values can be selected
-      - Use any provided values as strong hints.
-
-  The page should have the following frontmatter, in the following order:
-
-  1. title
-  2. description
-  3. solution
-  4. version
-  5. feature
-  6. role
-  7. level
-  8. doc-type
-  9. duration
-  10. last-substantial-update
-  11. jira
-
-#### Example Frontmatter
-
-\`\`\`frontmatter
----
-title: The SEO-optimized title no longer than 60 characters, do not add a "| PRODUCT NAME" to the end.
-description: The SEO-optimized description no longer than 160 characters.
-solution: Select one or more that apply to the page from: https://experienceleague.adobe.com/api/solutions?page_size=10000  
-version: DO NOT CHANGE THIS VALUE
-feature: Select one or more that apply to the page from: https://experienceleague.adobe.com/api/features?page_size=1000000  
-role: Select one or more that apply to the page from: https://experienceleague.adobe.com/api/roles?page_size=1000000  
-level: Select one or more that apply to the page from: https://experienceleague.adobe.com/api/levels?page_size=1000000  
-doc-type: DO NOT CHANGE THIS VALUE
-duration: DO NOT CHANGE THIS VALUE
-last-substantial-update: DO NOT CHANGE THIS VALUE
-jira: DO NOT CHANGE THIS VALUE
----
+## Input  
+You will receive a JSON object with the following properties:  
+\`\`\`json
+{
+  original_markdown_contents: "---title: The title ... ---\n# The page title\n An rough description of the page, which usually embeds a video\n",
+  video_transcript: "the transcript of the video that will be embedded on the page to generate the page title and descriptions for"
+}
 \`\`\`
 
-Remember, do NOT allow blank lines between the --- lines or any of the lines inside the --- lines, and remove any leading or trailing whitespace from the frontmatter lines.
+## Output  
 
-### Markdown Content
+The output is comprised of content and metadata to optimize the page. 
 
-The markdown content should be comprised of a H1 title and 1 or more paragraphs below the title describing the content of the page.
+- seoTitle
+  - Description:
+    - A SEO title, no more than 60 characters.
+  - Example:
+    - "Getting started with Assets Essentials"
+  - Format:
+    - Plain text
+  - Constraints:
+    - Optimizer for SEO.
+    - No more than 60 characters.
+    - Do not add a "| PRODUCT NAME" to the end.
+    - Use title case.
+- seoDescription
+  - Description:
+    - A SEO description, no more than 160 characters.
+  - Example:
+    - "This video will show you how to get started with Assets Essentials."
+  - Format:
+    - Plain text
+  - Constraints:
+    - Optimizer for SEO.
+    - No more than 160 characters.
+    - Use sentence case.
+- pageTitle
+  - Description:
+    - The page title displayed in a H1 tag.
+  - Example:
+    - "Getting started with Assets Essentials"
+  - Format:
+    - Markdown
+  - Constraints:
+    - Use sentence case.
+    - Avoid gerunds.
+- pageContent
+  - Description:
+    - The markdown content of the page after the page title. This should articulate what is covered in the page, and why it is important to use user, and how it can help them achieve their business goals.
+  - Example:
+    - "Learn how to limit access to assets to align with corporate governance policies with Assets Essentials."
+  - Format:
+    - Markdown
+  - Constraints:
+    - Try to articulate a business goal or outcome of the page.
+    - Use sentence case.
+    - Avoid gerunds. 
+    - Avoid passive voice.
+    - Use present tense.
+    - If multiple sentences are used, ensure they flow naturally and are not disjointed.
+    - If there is a video transcript, the corresponding video will be embedded after this content.
 
-Below the paragraph will be a video embed is there is an available video transcript.
 
 ## JSON Output
 
-  Return a JSON object with a markdown key that contains the full markdown file contents with both frontmatter and markdown content.
-  
-  \`\`\`json
-  {
-    markdown:  "---... frontmatter ...---\n# The web page title\n An introductory paragraph about the contents page page, usually a video\n"
-  }
-  \`\`\`
+Return a JSON object with a keys for metadata and content.
+
+\`\`\`json
+{
+seoTitle: "Manage Assets with Assets Essentials",
+seoDescription: "Learn how to manage assets with Assets Essentials.",
+pageTitle: "Manage Assets",
+pageContent: "Learn how to manage assets to align with corporate governance policies with Assets Essentials.",
+}
+\`\`\`  
     `,
   };
 }
@@ -143,7 +118,6 @@ ${params.markdown}
 ${params.videoTranscript}
        
 --------------------------------
-
         `
     };
 }

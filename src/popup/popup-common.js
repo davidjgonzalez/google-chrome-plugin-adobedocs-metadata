@@ -8,7 +8,7 @@ function getResourcesTabHtml() {
 
         <ul>
             <li><a href="https://adobe.ly/ExLquickstart" target="1-0">Experience League quick starts</a></li>
-            <li><a href="adobe.ly/ExLauthoringguide" target="1-1">Authoring Guide for Adobe Writers docs</a>
+            <li><a href="https://adobe.ly/ExLauthoringguide" target="1-1">Authoring Guide for Adobe Writers docs</a>
                 <ul>
                     <li><a href="https://experienceleague.adobe.com/en/docs/authoring-guide/using/markdown/markdown-syntax" target="1-1-1">Markdown syntax</a></li>
                     <li><a href="https://experienceleague.adobe.com/en/docs/authoring-guide/using/authoring/using-metadata" target="1-1-2">Metadata and tagging docs</a></li>

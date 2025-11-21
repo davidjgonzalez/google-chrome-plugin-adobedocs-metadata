@@ -10,6 +10,8 @@ export async function genAi(systemPrompt, userPrompt, contentApiKey) {
       body: JSON.stringify({
         systemPrompt: systemPrompt.message?.trim(),
         userPrompt: userPrompt.message?.trim(),
+        temperature: 0.0,
+        model: 'gpt-4o',
       }),
     }
   );
@@ -24,6 +26,5 @@ export async function genAi(systemPrompt, userPrompt, contentApiKey) {
   }
 
   const json = await response.json();
-  console.log(json);
   return json;
 }
