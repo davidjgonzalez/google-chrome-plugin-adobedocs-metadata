@@ -72,7 +72,7 @@ If you believe need a Content API Key, please contact ORG-SSCHNOOR-ALL@adobe.com
 
 
       let html = `
-            <sp-tabs selected="1">
+            <sp-tabs selected="1" data-tab-set="main-tabs">
                 <sp-tab data-tabs="1" data-tab-set="main-tabs" label="Markdown" value="1"></sp-tab>
                 <sp-tab data-tabs="2" data-tab-set="main-tabs" label="Resources" value="2"></sp-tab>
             </sp-tabs>
@@ -108,7 +108,7 @@ If you believe need a Content API Key, please contact ORG-SSCHNOOR-ALL@adobe.com
                 <br/>
                 <br/>
                 
-                    <sp-tabs selected="1-1">
+                    <sp-tabs selected="1-1" data-tab-set="jira-markdown">
                         <sp-tab data-tabs="1-1" data-tab-set="jira-markdown" label="GenAI Optimized" value="1-1"></sp-tab>
                         <sp-tab data-tabs="1-2" data-tab-set="jira-markdown" label="Original" value="1-2"></sp-tab>
                     </sp-tabs>

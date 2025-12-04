@@ -185,16 +185,25 @@ function _injectHtml(html, elementId) {
   });
 
 
-  setTimeout(() => {
+ // setTimeout(() => {
     document.querySelectorAll("sp-tabs[selected]").forEach((el) => {
+      const tabSet = el.getAttribute("data-tab-set");
       const selectedTabId = el.getAttribute("selected");
-      const selectedTab = document.querySelector('[data-tab="' + selectedTabId + '"]');
+
+      [...document.querySelectorAll('[data-tab][data-tab-set="' + tabSet + '"]')].forEach((tabContentEl) => {
+        // Hide all tabs first
+        tabContentEl.style.display = "none";
+      });
+
+      const selectedTab = document.querySelector('[data-tab="' + selectedTabId + '"][data-tab-set="' + tabSet + '"]');
       if (selectedTab) {
         selectedTab.style.display = "block";
       }
 
+
+      document.body.style.display = "block";
     });
-  }, 250);
+  //}, 100);
 
   
 }

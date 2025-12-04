@@ -47,7 +47,7 @@ export default async function experienceLeaguePopup(response, callback) {
               <div class="metadata">${getStatus(response)}</div>
             </div>
 
-            <sp-tabs selected="${selectedTab}">
+            <sp-tabs selected="${selectedTab}" data-tab-set="main-tabs">
                 <sp-tab data-tabs="1" data-tab-set="main-tabs" label="General" value="1"></sp-tab>
                 <sp-tab data-tabs="2" data-tab-set="main-tabs" label="Metadata" value="2"></sp-tab>
                 <sp-tab data-tabs="3" data-tab-set="main-tabs" label="Analytics" value="3"></sp-tab>
