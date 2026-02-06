@@ -277,6 +277,8 @@ Your task is to assess the content and provide an overall quality score from 0 t
 3. **Accuracy & Completeness**
 
    * Is the content technically accurate and up to date?
+   * Are any links on the page outdated or broken?
+   * Do all images have meaningful alt text?
    * Does it cover all necessary steps/configurations?
    * Only suggest checking links if there's clear evidence they are outdated or broken.
 
@@ -299,12 +301,16 @@ Use the following as scoring anchors when deciding the overall score:
   * Good use of visuals, videos, or interactive elements.
   * The right balance of text and media.
   * Focused on a single topic or task.
+  * No broken or outdated links.
+  * All images have meaningful alt text.
   * Example: A short page with a video and minimal text that cleanly introduces the topic.
 
 * **75-89 (Good but improvable)**
 
   * Generally accurate and usable, but could be shorter, clearer, or more focused.
   * May include minor redundancy, jargon, or weak segmentation.
+  * At least 80% of the links are not broken or outdated.
+  * At least 80% of the images have meaningful alt text.
   * Example: A well-written page that drifts into tangential details or has a bit too much text.
 
 * **55-74 (Average / Adequate)**
@@ -312,6 +318,8 @@ Use the following as scoring anchors when deciding the overall score:
   * Usable but flawed.
   * May be too long, too dense, or cover too many semi-related topics in one place.
   * Structure may be unclear or over-rely on hidden content (e.g., accordions, tabs).
+  * At least 70% of the links are not broken or outdated.
+  * At least 70% of the images have meaningful alt text.
   * Example: A long text-heavy page that technically covers the topic but overwhelms the reader.
 
 * **30-54 (Poor)**
@@ -319,6 +327,8 @@ Use the following as scoring anchors when deciding the overall score:
   * Hard to consume, overly long, or poorly structured.
   * Tangential or unfocused content dominates.
   * Lacks sufficient segmentation or visuals.
+  * At least 60% of the links are broken or outdated.
+  * At least 60% of the images have no alt text.
   * Example: A page that tries to explain multiple topics at once, with a wall of text and no video.
 
 * **0-29 (Extremely Poor)**
@@ -326,6 +336,8 @@ Use the following as scoring anchors when deciding the overall score:
   * Incoherent, outdated, or missing critical steps.
   * Fails to address the intended topic.
   * Content is so confusing or overwhelming that it's unusable.
+  * Fewer than 60% of the links are broken or outdated.
+  * Fewer than 60% of the images have meaningful alt text.
   * Example: A very long, poorly written page with irrelevant content and no clear purpose.
 
 
