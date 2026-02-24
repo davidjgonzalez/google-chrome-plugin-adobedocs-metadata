@@ -59,7 +59,7 @@ export default async function experienceLeaguePopup(response, callback) {
                 ${getSection("Quick links", [
                     getPageLinks(response.currentDoc.host, response.currentDoc.path),
                     getJira(response.jira, response.kt),
-                    getCorpGitEdit(response.gitEdit),
+                    getCorpGitEdit(response.gitAuthor, response.gitEdit),
                     getPublicGitEdit(response.gitEdit),
                     getVsCode(
                     optionsContentRoot,
@@ -289,17 +289,17 @@ function getSection(sectionTitle, lists, style) {
     };
   }
   
-  function getCorpGitEdit(publicGitEdit) {
+  function getCorpGitEdit(authorGit, publicGitEdit) {
     if (!publicGitEdit) {
       return '';
     }
   
     const corpGitEdit = publicGitEdit.replace(
-      "//github.com/",
-      "//git.corp.adobe.com/"
+      "https://github.com/AdobeDocs/",
+      authorGit
     );
   
-    return `<sp-action-button href="${corpGitEdit}" target="_blank">Adobe Corp Git</sp-action-button>`        
+    return `<sp-action-button href="${corpGitEdit}" target="_blank">Author GitHub</sp-action-button>`        
   }
   
   function getPublicGitEdit(publicGitEdit) {
@@ -307,7 +307,7 @@ function getSection(sectionTitle, lists, style) {
       return '';
     }
   
-    return `<sp-action-button href="${publicGitEdit}" target="_blank">Github.com</sp-action-button>`        
+    return `<sp-action-button href="${publicGitEdit}" target="_blank">Public GitHub Mirror</sp-action-button>`        
   }
   
   function getVsCode(contentRoot, gitRepo, filename) {

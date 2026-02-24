@@ -16,6 +16,7 @@ export async function getExlMetadata(url) {
     language: doc.documentElement.lang || "en",
     analyticsPageName: getAnalyticsPageName(doc),
     description: getMeta(doc, "description"),
+    gitAuthor: getMeta(doc, "build-date") ? 'https://git.corp.adobe.com/AdobeDocs/' : 'https://github.com/Adobe-Enterprise-Docs/',
     gitEdit: getMeta(doc, "git-edit"),
     gitRepo: getMeta(doc, "git-repo"),
     gitFilename: getMeta(doc, "git-filename"),

@@ -84,7 +84,7 @@ If you believe need a Content API Key, please contact ORG-SSCHNOOR-ALL@adobe.com
                 <sp-button variant="secondary" href="https://81368-exlmpcvideoupload.adobeio-static.net/?load=${new Date().getTime()}#/update/${
         response.jira.jiraId
       }" target="_blank">
-                    Add video to Jira
+                    Update/add video to Jira
                 </sp-button> 
 
                 ${
