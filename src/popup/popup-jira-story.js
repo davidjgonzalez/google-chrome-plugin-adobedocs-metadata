@@ -11,8 +11,24 @@ import {
 } from "../genai/prompts/jira/markdown/index";
 import matter from "simple-front-matter";
 
-
 const turndownService = new TurndownService();
+
+const JIRA_GENAI_RESPONSE_SCHEMA = {
+  type: "json_schema",
+  json_schema: {
+    name: "markdown_page",
+    schema: {
+      type: "object",
+      properties: {
+        pageTitle: { type: "string" },
+        pageContent: { type: "string" },
+        seoTitle: { type: "string" },
+        seoDescription: { type: "string" }
+      },
+      required: ["pageTitle", "pageContent", "seoTitle", "seoDescription"]
+    }
+  }
+}
 
 export default async function jiraStoryPopup(response, callback) {
   chrome.storage.local.get(
@@ -32,7 +48,8 @@ export default async function jiraStoryPopup(response, callback) {
       genAi(
         getSystemMessage(),
         getUserMessage({ markdown, videoTranscript }),
-        contentApiKey
+        contentApiKey,
+        JIRA_GENAI_RESPONSE_SCHEMA
       ).then(genAiResponse => {
 
 
@@ -58,13 +75,13 @@ ${getVideoMarkdown(response.jira)}
           document.querySelector('sp-button[data-copy-to-clipboard="#popup-jira-story__genai-markdown"]').disabled = false;
 
         } else {
-            if (!contentApiKey) {
-              markdown = `ERROR: Content API key missing from the Chrome extension's options.
+          if (!contentApiKey) {
+            markdown = `ERROR: Content API key missing from the Chrome extension's options.
               
 If you believe need a Content API Key, please contact ORG-SSCHNOOR-ALL@adobe.com`;
-            } else {
-              markdown = genAiResponse;
-            }
+          } else {
+            markdown = genAiResponse;
+          }
         }
 
         document.getElementById('popup-jira-story__genai-markdown').value = markdown;
@@ -81,29 +98,26 @@ If you believe need a Content API Key, please contact ORG-SSCHNOOR-ALL@adobe.com
                 <br/>
                 <br/>
 
-                <sp-button variant="secondary" href="https://81368-exlmpcvideoupload.adobeio-static.net/?load=${new Date().getTime()}#/update/${
-        response.jira.jiraId
-      }" target="_blank">
+                <sp-button variant="secondary" href="https://81368-exlmpcvideoupload.adobeio-static.net/?load=${new Date().getTime()}#/update/${response.jira.jiraId
+        }" target="_blank">
                     Update/add video to Jira
                 </sp-button> 
 
-                ${
-                  response.jira.publishUrl
-                    ? `<sp-button variant="secondary" data-copy-to-clipboard="${response.jira.publishUrl}">
+                ${response.jira.publishUrl
+          ? `<sp-button variant="secondary" data-copy-to-clipboard="${response.jira.publishUrl}">
                     Copy publish link
                     </sp-button>`
-                    : ""
-                }
+          : ""
+        }
 
-                ${
-                  response.jira.videoId
-                    ? `<sp-button variant="secondary" data-copy-to-clipboard="${encodeURIComponent(
-                        videoTranscript
-                      )}">
+                ${response.jira.videoId
+          ? `<sp-button variant="secondary" data-copy-to-clipboard="${encodeURIComponent(
+            videoTranscript
+          )}">
                     Copy video transcript
                     </sp-button>`
-                    : ""
-                }   
+          : ""
+        }   
                     
                 <br/>
                 <br/>
@@ -158,15 +172,15 @@ function getWarning(jira) {
   if (!jira.title || jira.title?.length > 59) {
     messages.push(
       "Titles should be no more than 60 characters, but is " +
-        (jira.title?.length || 0) +
-        " characters."
+      (jira.title?.length || 0) +
+      " characters."
     );
   }
   if (!description || description?.length < 60 || description?.length > 160) {
     messages.push(
       "Descriptions should be between 60 and 160 characters, but is " +
-        (description?.length || 0) +
-        " characters"
+      (description?.length || 0) +
+      " characters"
     );
   }
   if (!jira.docType) {
@@ -184,10 +198,10 @@ function getWarning(jira) {
                         <div class="spectrum-Toast-content">
                             <ul>
                             ${messages
-                              .map((message) => {
-                                return `<li>${message}</li>`;
-                              })
-                              .join("")}
+        .map((message) => {
+          return `<li>${message}</li>`;
+        })
+        .join("")}
                             </ul>
                         </div>
                     </div>
@@ -285,53 +299,46 @@ function getMarkdown(jira) {
 
   let md = `---
 title: ${title}
-description: ${jira.description?.replace(/(\r\n|\n|\r|\*|)/gm, "").trim()}${
-    versions != null
+description: ${jira.description?.replace(/(\r\n|\n|\r|\*|)/gm, "").trim()}${versions != null
       ? "\nversion: " + (versions.length === 0 ? "???" : versions.join(", "))
       : ""
-  }
+    }
 feature: ??? - select one or more from: https://adobe.ly/3JfnRW9
 topic: ??? - select 0 or more from: https://adobe.ly/3NRHfMp
-role: ${
-    roles.length > 0
+role: ${roles.length > 0
       ? roles?.join(", ")
       : "??? - select one or more: Leader, Architect, Developer, Data Architect, Data Engineer, Admin, User"
-  }
-level: ${
-    levels.length > 0
+    }
+level: ${levels.length > 0
       ? levels?.join(", ")
       : "??? - select one or more: Beginner, Intermediate, Experienced"
-  }
-doc-type: ${jira.docType}${
-    jira.duration != null
+    }
+doc-type: ${jira.docType}${jira.duration != null
       ? `\nduration: ${convertToSeconds(jira.duration)}`
       : ""
-  }
-last-substantial-update: ${
-    today.getUTCFullYear() +
+    }
+last-substantial-update: ${today.getUTCFullYear() +
     "-" +
     ("0" + (today.getUTCMonth() + 1)).slice(-2) +
     "-" +
     ("0" + today.getUTCDate()).slice(-2)
-  }
-jira: ${jira.jiraId}${
-    jira.videoId
+    }
+jira: ${jira.jiraId}${jira.videoId
       ? ""
       : `\nthumbnail: ${jira.videoId ? jira.videoId : jira.jiraId}.jpeg`
-  }
+    }
 ---
 
 # ${title || "Missing title"}
 
 ${description || "Missing description"}
 
-${
-  jira.videoId
-    ? ">[!VIDEO](https://video.tv.adobe.com/v/" +
+${jira.videoId
+      ? ">[!VIDEO](https://video.tv.adobe.com/v/" +
       jira.videoId +
       "/?learn=on&enablevpops)\n"
-    : ""
-}`;
+      : ""
+    }`;
   return md;
 }
 
@@ -347,17 +354,17 @@ function convertToSeconds(time) {
 
 
 function stringifyFrontmatter(attributes, body) {
-    const yaml = Object.entries(attributes)
-      .map(([key, value]) => `${key}: ${value}`.trim())
-      .join("\n");
-  
-    return `---\n${yaml}\n---\n\n${body.trim()}`;
-  }
+  const yaml = Object.entries(attributes)
+    .map(([key, value]) => `${key}: ${value}`.trim())
+    .join("\n");
 
-  function getVideoMarkdown(jira) {
-    return jira.videoId
+  return `---\n${yaml}\n---\n\n${body.trim()}`;
+}
+
+function getVideoMarkdown(jira) {
+  return jira.videoId
     ? ">[!VIDEO](https://video.tv.adobe.com/v/" +
-      jira.videoId +
-      "/?learn=on&enablevpops)\n"
+    jira.videoId +
+    "/?learn=on&enablevpops)\n"
     : ""
-  }
+}

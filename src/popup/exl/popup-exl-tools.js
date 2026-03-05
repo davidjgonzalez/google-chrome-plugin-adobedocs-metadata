@@ -14,11 +14,72 @@ const REMOVE_SELECTORS = [
   '.mini-toc',
   '.target-insertion'
 ]
+
+
+const GENAI_QA_RESPONSE_SCHEMA = {
+  type: "json_schema",
+  json_schema: {
+    name: "qa_results",
+    schema: {
+      type: "object",
+      properties: {
+        results: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              answer: { type: "string" },
+              question: { type: "string" }
+            },
+            required: ["answer", "question"],
+            additionalProperties: false
+          }
+        }
+      },
+      required: ["results"],
+      additionalProperties: false
+    }
+  }
+}
+
+
+const GENAI_CONTENT_ASSESSMENT_RESPONSE_SCHEMA = {
+  type: "json_schema",
+  json_schema: {
+    "name": "category_report",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "score": { "type": "integer", "minimum": 0, "maximum": 100 },
+              "suggestions": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            },
+            "required": ["name", "score", "suggestions"],
+            "additionalProperties": false
+          }
+        },
+        "overall_score": { "type": "integer", "minimum": 0, "maximum": 100 }
+      },
+      "required": ["categories", "overall_score"],
+      "additionalProperties": false
+    }
+  }
+}
+
+
 /* HTML */
 
 async function getToolsTabHtml(exl, extensionOptions) {
   const contentApiKey = extensionOptions[OPTIONS.CONTENT_API_KEY];
-  
+
   if (!contentApiKey) {
     return `
     <h4>Sorry! No tools are enabled.</h4>
@@ -77,7 +138,7 @@ async function getPageText(exl, contentApiKey) {
 async function getPageHtml(exl, contentApiKey) {
   const response = await fetch(exl.currentDoc.url);
   const text = await response.text();
-  
+
   // create a DOM form text
   const parser = new DOMParser();
   const doc = parser.parseFromString(text, 'text/html');
@@ -106,7 +167,7 @@ async function getPageHtml(exl, contentApiKey) {
       table.replaceWith(el);
     }
   });
-   
+
   /* Videos */
   const videoPromises = Array.from(main.querySelectorAll('.embed a[href^="https://video.tv.adobe.com/v"]')).map(async el => {
     const match = el.href.match(/\/v\/(\d+)/);
@@ -119,12 +180,12 @@ async function getPageHtml(exl, contentApiKey) {
         el.parentElement.innerHTML = `
             <video src="${el.getAttribute('href')}"/>
             <section aria-labelledby="video-transcript">${videoCaptions?.replace(/\s+/g, ' ').trim()}</section>`;
-      } else {  
+      } else {
         el.remove();
       }
     }
   });
-  
+
   await Promise.all(videoPromises);
 
   /* Slides */
@@ -132,7 +193,7 @@ async function getPageHtml(exl, contentApiKey) {
     const slidesResponse = await fetch(`https://experienceleague.adobe.com${el.getAttribute('href')}.plain.html`);
     if (slidesResponse.ok) {
       el.parentElement.innerHTML = await slidesResponse.text();
-    } else {  
+    } else {
       el.remove();
     }
   });
@@ -144,7 +205,7 @@ async function getPageHtml(exl, contentApiKey) {
 }
 
 async function getGenAiQuestionsHtml(exl, contentApiKey) {
- 
+
   const content = await getPageText(exl, contentApiKey);
 
   const systemPrompt = `
@@ -181,7 +242,7 @@ async function getGenAiQuestionsHtml(exl, contentApiKey) {
     }`;
 
 
-    const userPrompt = `  
+  const userPrompt = `  
     The content to analyze is below:
 
     --- 
@@ -194,7 +255,7 @@ async function getGenAiQuestionsHtml(exl, contentApiKey) {
   `;
 
   //chrome-extension://amfhglmmhhacmgkbnifpcdnancapklog/
-  
+
   const genAiResponse = await fetch('https://81368-dxpefirefallproxy.adobeio-static.net/api/v1/web/dx-excshell-1/generic', {
     method: 'POST',
     headers: {
@@ -204,13 +265,14 @@ async function getGenAiQuestionsHtml(exl, contentApiKey) {
     body: JSON.stringify({
       systemPrompt: systemPrompt.trim(),
       userPrompt: userPrompt.trim(),
+      responseFormat: GENAI_QA_RESPONSE_SCHEMA
     })
   });
 
   if (!genAiResponse.ok) {
     const json = await genAiResponse.json();
     if (genAiResponse.status === 401) {
-      return `<sp-badge style="width: 100%;" size="M" variant="negative">Invalid Content API key</sp-badge>`;      
+      return `<sp-badge style="width: 100%;" size="M" variant="negative">Invalid Content API key</sp-badge>`;
     } else {
       return `<sp-badge  style="width: 100%;" size="M" variant="negative">Error generating questions: ${genAiResponse.status} -- ${json.error}</sp-badge>`;
     }
@@ -232,7 +294,7 @@ Answer: ${r.answer}`).join('\n\n')).trim()}</textarea>`
 
 
 async function getContentAssessmentHtml(exl, contentApiKey) {
- 
+
   const content = (await getPageHtml(exl, contentApiKey)).documentElement.outerHTML;
 
   const systemPrompt = `You are a content evaluator for Adobe Experience League web pages that provide enablement content for using Adobe's Enterprise products. I will provide the HTML content of a page (or the raw text) and/or a URL.
@@ -374,7 +436,7 @@ Provide detailed, objective feedback and make the suggestions practical and acti
 `;
 
 
-    const userPrompt = `  
+  const userPrompt = `  
     The content to assess and evaluate is below:
 
     --- 
@@ -386,7 +448,7 @@ Provide detailed, objective feedback and make the suggestions practical and acti
   `;
 
   //chrome-extension://amfhglmmhhacmgkbnifpcdnancapklog/
-  
+
   const genAiResponse = await fetch('https://81368-dxpefirefallproxy.adobeio-static.net/api/v1/web/dx-excshell-1/generic', {
     method: 'POST',
     headers: {
@@ -396,13 +458,14 @@ Provide detailed, objective feedback and make the suggestions practical and acti
     body: JSON.stringify({
       systemPrompt: systemPrompt.trim(),
       userPrompt: userPrompt.trim(),
+      responseFormat: GENAI_CONTENT_ASSESSMENT_RESPONSE_SCHEMA
     })
   });
 
   if (!genAiResponse.ok) {
     const json = await genAiResponse.json();
     if (genAiResponse.status === 401) {
-      return `<sp-badge style="width: 100%;" size="M" variant="negative">Invalid Content API key</sp-badge>`;      
+      return `<sp-badge style="width: 100%;" size="M" variant="negative">Invalid Content API key</sp-badge>`;
     } else {
       return `<sp-badge  style="width: 100%;" size="M" variant="negative">Error generating questions: ${genAiResponse.status} -- ${json.error}</sp-badge>`;
     }

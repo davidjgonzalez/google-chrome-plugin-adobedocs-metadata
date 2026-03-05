@@ -1,4 +1,4 @@
-export async function genAi(systemPrompt, userPrompt, contentApiKey) {
+export async function genAi(systemPrompt, userPrompt, contentApiKey, responseFormat = {}) {
   const response = await fetch(
     "https://81368-dxpefirefallproxy.adobeio-static.net/api/v1/web/dx-excshell-1/generic",
     {
@@ -10,8 +10,7 @@ export async function genAi(systemPrompt, userPrompt, contentApiKey) {
       body: JSON.stringify({
         systemPrompt: systemPrompt.message?.trim(),
         userPrompt: userPrompt.message?.trim(),
-        temperature: 0.0,
-        model: 'gpt-4o',
+        responseFormat: responseFormat,
       }),
     }
   );
