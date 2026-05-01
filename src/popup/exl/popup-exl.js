@@ -168,10 +168,10 @@ function _getOptionsContentFileSystemPath(obj) {
   function _getOptionsAnalyticsRange(obj) {
     let value = obj[OPTIONS.ANALYTICS_DAY_RANGE];
 
-    if (value && Number.isInteger(value)) {
-      return value;
+    if (value && Number.parseInt(value) !== NaN && Number.parseInt(value) > 0) {
+      return Number.parseInt(value);
     } else {
-      console.log("Defaulting to 30 days for analytics range");
+      console.log(`"${value}" cannot be parsed to a positive integer. Defaulting to 30 days for analytics range`);
       return 30;
     }
   }
