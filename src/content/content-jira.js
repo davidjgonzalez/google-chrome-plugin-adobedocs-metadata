@@ -73,14 +73,13 @@ async function parseJiraStoryJSON(json) {
     return {
         jiraId: json.key,
         title: parseTitle(json),
+        series: parseSeries(json),
         description: parseDescription( json.fields.description, '!END DESCRIPTION'),
         descriptionHtml: parseDescription( json.renderedFields?.description, '!END DESCRIPTION'),
         kt: parseKT(json),
         role: parseRoles(json),
         level: parseLevels(json),
         versions: parseVersions(json),
-        topics: '',
-        features: '',
         videoId: parseVideoId(json),
         videoUrl: parsePublishVideoUrl(json),
         publishUrl: parsePublishUrl(json),
@@ -112,6 +111,12 @@ async function parseJiraCourseJSON(json) {
 
 function parseTitle(json) {
     return parseJiraTitle(json.fields.summary);
+}
+
+function parseSeries(json) {
+    // [Marketo Deep Dives] Unlock Your Boldest ... -> "Marketo Deep Dives"
+    let found = json.fields.summary?.match(/^\s*\[([^\]]+)\]/);
+    return found ? found[1].trim() : '';
 }
 
 function parseCourseDefinition(json) {

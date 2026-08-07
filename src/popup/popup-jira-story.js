@@ -9,6 +9,10 @@ import {
   getSystemMessage,
   getUserMessage,
 } from "../genai/prompts/jira/markdown/index";
+import {
+  getSystemMessage as getEventSystemMessage,
+  getUserMessage as getEventUserMessage,
+} from "../genai/prompts/jira/markdown/event";
 import matter from "simple-front-matter";
 
 const turndownService = new TurndownService();
@@ -40,30 +44,47 @@ export default async function jiraStoryPopup(response, callback) {
         response.jira.descriptionHtml
       );
 
-      let markdown = getMarkdown(response.jira);
+      const isEvent = response.jira.docType === "Event";
+
+      let markdown = isEvent
+        ? getEventMarkdown(response.jira)
+        : getMarkdown(response.jira);
       let videoTranscript = response.jira.videoId
         ? await getVideoTranscript(response.jira.videoId)
         : "";
 
       genAi(
-        getSystemMessage(),
-        getUserMessage({ markdown, videoTranscript }),
+        isEvent ? getEventSystemMessage() : getSystemMessage(),
+        isEvent
+          ? getEventUserMessage({ markdown, videoTranscript })
+          : getUserMessage({ markdown, videoTranscript, docType: response.jira.docType }),
         contentApiKey,
         JIRA_GENAI_RESPONSE_SCHEMA
       ).then(genAiResponse => {
 
 
         if (genAiResponse.seoTitle && genAiResponse.seoDescription && genAiResponse.pageTitle && genAiResponse.pageContent) {
-          // parse string into frontmatter and markdown content using library that can handle frontmatter and markdown content.
-          const parsed = matter(markdown);
+          if (isEvent) {
+            // Event frontmatter is rebuilt directly (not round-tripped through the
+            // frontmatter parser) because it needs multi-line YAML lists (role/level/product),
+            // which simple-front-matter's naive `key: value`-per-line parser silently drops.
+            markdown = getEventMarkdown(response.jira, {
+              title: genAiResponse.seoTitle,
+              description: genAiResponse.seoDescription,
+              pageTitle: genAiResponse.pageTitle,
+              pageContent: genAiResponse.pageContent,
+            });
+          } else {
+            // parse string into frontmatter and markdown content using library that can handle frontmatter and markdown content.
+            const parsed = matter(markdown);
 
-          if (genAiResponse.seoTitle.includes("|")) {
-            genAiResponse.seoTitle = genAiResponse.seoTitle.split("|")[0].trim();
-          }
+            if (genAiResponse.seoTitle.includes("|")) {
+              genAiResponse.seoTitle = genAiResponse.seoTitle.split("|")[0].trim();
+            }
 
-          parsed.attributes.title = genAiResponse.seoTitle;
-          parsed.attributes.description = genAiResponse.seoDescription;
-          parsed.body = `# ${genAiResponse.pageTitle}
+            parsed.attributes.title = genAiResponse.seoTitle;
+            parsed.attributes.description = genAiResponse.seoDescription;
+            parsed.body = `# ${genAiResponse.pageTitle}
 
 ${genAiResponse.pageContent}
 
@@ -71,7 +92,9 @@ ${getVideoMarkdown(response.jira)}
 
 `;
 
-          markdown = stringifyFrontmatter(parsed.attributes, parsed.body);
+            markdown = stringifyFrontmatter(parsed.attributes, parsed.body);
+          }
+
           document.querySelector('sp-button[data-copy-to-clipboard="#popup-jira-story__genai-markdown"]').disabled = false;
 
         } else {
@@ -169,7 +192,9 @@ function getWarning(jira) {
   let description = jira.description || "";
   description = description.replace(/h\d\. AI ASSISTANT Q\/A.*/im, "").trim();
 
-  if (!jira.title || jira.title?.length > 59) {
+  // Event titles (e.g. webinar/session names) routinely run longer than 60 characters, so
+  // that limit only applies to the default enablement-page template.
+  if (jira.docType !== "Event" && (!jira.title || jira.title?.length > 59)) {
     messages.push(
       "Titles should be no more than 60 characters, but is " +
       (jira.title?.length || 0) +
@@ -267,35 +292,8 @@ function getMarkdown(jira) {
     }
   }
 
-  let levels = [];
-  if (jira.level) {
-    levels.push(
-      ...jira.level?.map((level) => {
-        if (level === "Advanced") {
-          return "Experienced";
-        } else {
-          return level;
-        }
-      })
-    );
-  }
-
-  let roles = [];
-  if (jira.role) {
-    roles.push(
-      ...jira.role?.map((role) => {
-        if (role === "Business Practitioner") {
-          return "User";
-        } else if (role === "Administrator") {
-          return "Admin";
-        } else if (role === "Executive") {
-          return "Leader";
-        } else {
-          return role;
-        }
-      })
-    );
-  }
+  let levels = mapLevels(jira.level);
+  let roles = mapRoles(jira.role);
 
   let md = `---
 title: ${title}
@@ -303,8 +301,6 @@ description: ${jira.description?.replace(/(\r\n|\n|\r|\*|)/gm, "").trim()}${vers
       ? "\nversion: " + (versions.length === 0 ? "???" : versions.join(", "))
       : ""
     }
-feature: ??? - select one or more from: https://adobe.ly/3JfnRW9
-topic: ??? - select 0 or more from: https://adobe.ly/3NRHfMp
 role: ${roles.length > 0
       ? roles?.join(", ")
       : "??? - select one or more: Leader, Architect, Developer, Data Architect, Data Engineer, Admin, User"
@@ -340,6 +336,90 @@ ${jira.videoId
       : ""
     }`;
   return md;
+}
+
+function mapRoles(role) {
+  return (role || []).map((role) => {
+    if (role === "Business Practitioner") {
+      return "User";
+    } else if (role === "Administrator") {
+      return "Admin";
+    } else if (role === "Executive") {
+      return "Leader";
+    } else {
+      return role;
+    }
+  });
+}
+
+function mapLevels(level) {
+  return (level || []).map((level) => (level === "Advanced" ? "Experienced" : level));
+}
+
+function yamlListField(key, values) {
+  const list = (values || []).filter(Boolean);
+
+  if (list.length === 0) {
+    return `${key}: ???`;
+  } else if (list.length === 1) {
+    return `${key}: ${list[0]}`;
+  } else {
+    return `${key}:\n` + list.map((value) => `  - ${value}`).join("\n");
+  }
+}
+
+function getEventFrontmatter(jira, overrides = {}) {
+  const today = new Date();
+
+  const lastSubstantialUpdate =
+    today.getUTCFullYear() +
+    "-" +
+    ("0" + (today.getUTCMonth() + 1)).slice(-2) +
+    "-" +
+    ("0" + today.getUTCDate()).slice(-2);
+
+  const title = overrides.title ?? (jira.title || "Missing title");
+  const description =
+    overrides.description ??
+    (jira.description?.replace(/(\r\n|\n|\r|\*|)/gm, "").trim() || "Missing description");
+
+  return `---
+title: ${title}
+description: ${description}
+${yamlListField("product", jira.products)}
+${yamlListField("role", mapRoles(jira.role))}
+${yamlListField("level", mapLevels(jira.level))}
+doc-type: Event
+type: Event
+last-substantial-update: ${lastSubstantialUpdate}
+jira: ${jira.jiraId}
+duration: ${convertToSeconds(jira.duration)}
+series: ${jira.series || "???"}
+user-guide-breadcrumb: ${jira.series || "???"}
+user-guide-description:
+---`;
+}
+
+function getEventMarkdown(jira, overrides = {}) {
+  if (!jira) {
+    return "Could not collect information from Jira to generate the Markdown &#9785;";
+  }
+
+  const title = overrides.pageTitle ?? (jira.title || "Missing title");
+
+  let body = overrides.pageContent;
+  if (body == null) {
+    body = jira.descriptionMd || jira.description || "Missing description";
+    body = body.replace(/h\d\. AI ASSISTANT Q\/A.*/im, "").trim();
+  }
+
+  return `${getEventFrontmatter(jira, overrides)}
+
+${getVideoMarkdown(jira)}
+# ${title}
+
+${body}
+`;
 }
 
 function convertToSeconds(time) {

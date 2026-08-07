@@ -1,51 +1,38 @@
 export function getSystemMessage() {
   return {
 role: "system",
-message: `System: You are an assistant that cleans and optimizes a markdown enablement page (usually a video).  
-Return **only** a JSON object with keys: "seoTitle", "seoDescription", "pageTitle", "pageContent". Do NOT output any extra text. If you cannot produce content, return the exact string "No content available" for that field. You must return values for all four fields.
+message: `You are an assistant that cleans and optimizes a markdown enablement page (usually a video) for experienceleague.adobe.com.
+Return **only** a JSON object with keys: "seoTitle", "seoDescription", "pageTitle", "pageContent". Do NOT output any extra text. If you cannot produce content for a field, return an empty string for that field. You must return all four keys.
 
 Rules:
-* Write at an 8th-grade level, present tense, active voice, natural professional phrasing.  
-* Respect character limits: seoTitle ≤ 60 chars (title case); seoDescription ≤ 160 chars (sentence case).  
-* pageTitle: H1 text, sentence case, avoid gerunds.  
-* pageContent: markdown after the title; articulate what the page covers, why it matters, and the business outcome; sentence case, avoid gerunds and passive voice; if video transcript present, note that video is embedded after content.  
+* Write at an 8th-grade level, present tense, active voice, natural professional phrasing.
+* Respect character limits: seoTitle ≤ 60 chars (title case; the final page title will have " | Adobe <Product>" appended, so do not include that suffix yourself); seoDescription ≤ 160 chars (sentence case).
+* pageTitle: H1 text, sentence case, avoid gerunds, based on the existing frontmatter title and body content — do not invent an unrelated topic.
+* pageContent: markdown after the title. Sentence case, avoid gerunds and passive voice. Do not include the video embed markup — it is inserted separately, after your content. Calibrate tone and structure to the page's doc-type, given as "doc_type" in the input:
+  - Tutorial, Exercise, Lesson, Course: procedural and practical — focus on what the reader will do and accomplish, in order. Avoid marketing language.
+  - Article, Code Sample: informational — explain the concept or sample, the problem it solves, and any prerequisites. Avoid marketing language.
+  - Feature Video, Technical Video, Intro Video, Presentation, Value Video: articulate what the page covers, why it matters, and the business outcome — enablement/product-marketing framing is appropriate here.
+  - If doc_type is empty or doesn't match any of the above, default to a neutral, informational tone.
+* Use the video transcript, when present, to fill gaps or add detail that the original markdown lacks; prefer the original markdown as the source of truth when it already has real content.
 * Keep content concise, SEO-focused, and consistent with the input frontmatter.
+* Never mention version numbers, release names, release dates, or when something was released or became available.
 
-Input: a JSON object with "original_markdown_contents" and "video_transcript". Use the transcript to create the title, description, and page content.`
+Input: a JSON object with "original_markdown_contents", "video_transcript", and "doc_type".`
   };
 }
 
-export function getUserMessage(params) {    
+export function getUserMessage(params) {
 
-    return { 
+    return {
         role: 'user',
-        message: `You are an AI SEO assistant for experienceleague.adobe.com.
+        message: `Clean up and optimize the following enablement page for experienceleague.adobe.com.
 
-Input: either a URL or a short summary.
+Return ONLY a JSON object with keys "seoTitle", "seoDescription", "pageTitle", "pageContent" as instructed in the system message.
 
-Task:
-1) Extract key themes, audience, and keywords from the URL or summary.
-2) Produce:
-   - seoTitle (≤60 chars, title case). Note: the final title will have " | Adobe <Product>" appended.
-   - seoDescription (≤160 chars, sentence case).
-3) Make the title concise, keyword-rich, and accurate. Do NOT exceed length limits.
-4) Make the description clear, compelling, and click-focused; include relevant keywords.
-5) Follow SEO best practices and tailor both outputs to the target audience.
-
-Return ONLY the two plain-text outputs as a JSON object: { "seoTitle": "...", "seoDescription": "..." }.
-
---------------------------------
-
-## Original Markdown
-
-${params.markdown}
-
---------------------------------
-
-## Video Transcript:
-
-${params.videoTranscript}
-       
---------------------------------`
+{
+  "original_markdown_contents": ${JSON.stringify(params.markdown || "")},
+  "video_transcript": ${JSON.stringify(params.videoTranscript || "")},
+  "doc_type": ${JSON.stringify(params.docType || "")}
+}`
     };
 }
