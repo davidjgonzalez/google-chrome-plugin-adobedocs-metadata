@@ -394,7 +394,7 @@ ${yamlListField("role", mapRoles(jira.role))}
 ${yamlListField("level", mapLevels(jira.level))}
 doc-type: Event
 type: Event
-event-start-time: ${jira.dueDate || "???"}
+event-date: ${jira.dueDate || "???"}
 last-substantial-update: ${lastSubstantialUpdate}
 jira: ${jira.jiraId}
 duration: ${convertToSeconds(jira.duration)}
