@@ -88,6 +88,7 @@ async function parseJiraStoryJSON(json) {
         duration: parseDuration(json),
         publishLink: parsePublishLink(json),
         docType: parseDocType(json),
+        dueDate: parseDueDate(json),
     }
 }
 
@@ -211,6 +212,11 @@ function parseComponents(json) {
 
 function parseDuration(json) {
     return json?.fields?.customfield_32300 || '00:00:00';
+}
+
+function parseDueDate(json) {
+    // Jira's built-in duedate field is already formatted as YYYY-MM-DD.
+    return json?.fields?.duedate;
 }
 
 function parsePublishLink(json) {

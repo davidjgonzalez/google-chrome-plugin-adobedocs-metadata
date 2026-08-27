@@ -84,9 +84,12 @@ export default async function jiraStoryPopup(response, callback) {
 
             parsed.attributes.title = genAiResponse.seoTitle;
             parsed.attributes.description = genAiResponse.seoDescription;
+            // The model sometimes repeats the H1 inside pageContent despite being told not to;
+            // strip a leading H1 defensively since the H1 is already rendered above from pageTitle.
+            const pageContent = (genAiResponse.pageContent || "").replace(/^\s*#\s+.+\n+/, "");
             parsed.body = `# ${genAiResponse.pageTitle}
 
-${genAiResponse.pageContent}
+${pageContent}
 
 ${getVideoMarkdown(response.jira)}
 
@@ -391,6 +394,7 @@ ${yamlListField("role", mapRoles(jira.role))}
 ${yamlListField("level", mapLevels(jira.level))}
 doc-type: Event
 type: Event
+event-start-time: ${jira.dueDate || "???"}
 last-substantial-update: ${lastSubstantialUpdate}
 jira: ${jira.jiraId}
 duration: ${convertToSeconds(jira.duration)}
@@ -411,6 +415,10 @@ function getEventMarkdown(jira, overrides = {}) {
   if (body == null) {
     body = jira.descriptionMd || jira.description || "Missing description";
     body = body.replace(/h\d\. AI ASSISTANT Q\/A.*/im, "").trim();
+  } else {
+    // The model sometimes repeats the H1 inside pageContent despite being told not to;
+    // strip a leading H1 defensively since the H1 is already rendered above from `title`.
+    body = body.replace(/^\s*#\s+.+\n+/, "");
   }
 
   return `${getEventFrontmatter(jira, overrides)}
