@@ -66,7 +66,7 @@ export default async function jiraStoryPopup(response, callback) {
         if (genAiResponse.seoTitle && genAiResponse.seoDescription && genAiResponse.pageTitle && genAiResponse.pageContent) {
           if (isEvent) {
             // Event frontmatter is rebuilt directly (not round-tripped through the
-            // frontmatter parser) because it needs multi-line YAML lists (role/level/product),
+            // frontmatter parser) because it needs multi-line YAML lists (role/level),
             // which simple-front-matter's naive `key: value`-per-line parser silently drops.
             markdown = getEventMarkdown(response.jira, {
               title: genAiResponse.seoTitle,
@@ -132,6 +132,13 @@ If you believe need a Content API Key, please contact ORG-SSCHNOOR-ALL@adobe.com
                 ${response.jira.publishUrl
           ? `<sp-button variant="secondary" data-copy-to-clipboard="${response.jira.publishUrl}">
                     Copy publish link
+                    </sp-button>`
+          : ""
+        }
+
+                ${response.jira.videoUrl
+          ? `<sp-button variant="secondary" data-copy-to-clipboard="${response.jira.videoUrl}">
+                    Copy MPC video URL
                     </sp-button>`
           : ""
         }
@@ -389,7 +396,6 @@ function getEventFrontmatter(jira, overrides = {}) {
   return `---
 title: ${title}
 description: ${description}
-${yamlListField("product", jira.products)}
 ${yamlListField("role", mapRoles(jira.role))}
 ${yamlListField("level", mapLevels(jira.level))}
 doc-type: Event
