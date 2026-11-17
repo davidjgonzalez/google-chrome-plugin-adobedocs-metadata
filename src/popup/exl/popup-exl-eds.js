@@ -14,9 +14,8 @@ export async function getExlMetadata(url) {
       url: new URL(url).href,
     },
     language: doc.documentElement.lang || "en",
-    analyticsPageName: getAnalyticsPageName(doc),
+    analyticsPageName: (await getCoursePageName(url, doc)) || getAnalyticsPageName(doc),
     description: getMeta(doc, "description"),
-    gitAuthor: getMeta(doc, "build-date") ? 'https://git.corp.adobe.com/AdobeDocs/' : 'https://github.com/Adobe-Enterprise-Docs/',
     gitEdit: getMeta(doc, "git-edit"),
     gitRepo: getMeta(doc, "git-repo"),
     gitFilename: getMeta(doc, "git-filename"),
@@ -110,8 +109,69 @@ function getElementText(doc, name, defaultValue) {
 }
 
 
+/**
+ * Course module and step pages carry no type/solution meta and don't contain the
+ * course or module names, so the name is built from the parent pages:
+ *   module: xl:learn:courses:<solution>:<course>:<module>
+ *   step:   xl:learn:courses:<solution>:<course>:<module>:<step>
+ * Returns null for any other page, or on any failure, so the caller falls back
+ * to getAnalyticsPageName.
+ */
+async function getCoursePageName(url, doc) {
+  try {
+    const theme = getMeta(doc, "theme") || "";
+    const isStep = /\bcourse-step\b/.test(theme);
+    const isModule = /\bcourse-module\b/.test(theme);
+    if (!isStep && !isModule) {
+      return null;
+    }
+
+    const parsedUrl = new URL(url);
+    const parts = parsedUrl.pathname.split("/").filter(Boolean); // [lang, courses, course, module, step?]
+    if (parts[1] !== "courses" || parts.length !== (isStep ? 5 : 4)) {
+      return null;
+    }
+
+    const base = `${parsedUrl.origin}/${parts[0]}/courses`;
+    const courseUrl = `${base}/${parts[2]}`;
+    const moduleUrl = `${courseUrl}/${parts[3]}`;
+
+    const fetchDoc = async (u) => {
+      const res = await fetch(u);
+      if (!res.ok) {
+        throw new Error(`${res.status} fetching ${u}`);
+      }
+      return new DOMParser().parseFromString(await res.text(), "text/html");
+    };
+    const getTitle = (d) =>
+      d.head.querySelector('meta[name="english-title"]')?.getAttribute("content") ||
+      d.head.querySelector("title")?.textContent.split("|")[0].trim() ||
+      "";
+
+    const [courseDoc, moduleDoc] = await Promise.all([
+      fetchDoc(courseUrl),
+      isModule ? doc : fetchDoc(moduleUrl),
+    ]);
+
+    const solution = (getMeta(courseDoc, "solution") || "").split(",")[0].trim();
+    const courseTitle = getTitle(courseDoc);
+    const moduleTitle =
+      moduleDoc.querySelector(".module-meta > div:first-child > div")?.textContent.trim() ||
+      getTitle(moduleDoc);
+    const stepTitle = isStep ? getTitle(doc) : "";
+
+    if (!solution || !courseTitle || !moduleTitle || (isStep && !stepTitle)) {
+      return null;
+    }
+
+    return `xl:learn:courses:${solution}:${courseTitle}:${moduleTitle}${isStep ? ":" + stepTitle : ""}`.toLowerCase();
+  } catch (e) {
+    console.log("Could not build course analytics page name, using default", e);
+    return null;
+  }
+}
+
 function getAnalyticsPageName(doc) {
-  // https://git.corp.adobe.com/GP/website/blob/master/src/js/common/analytics.js
 
   /*
   const type = doc.querySelector('meta[name="type"]') !== null ? doc.querySelector('meta[name="type"]').content.split(',')[0].trim().toLowerCase() : '';
@@ -173,6 +233,16 @@ function getAnalyticsPageName(doc) {
   } else if (type === 'perspective') {
     // Perspectives page
     pageName = `xl:learn:${solution}:${type}:${subsolution ? subsolution + ":" : ""}${title}`;
+
+  } else if (
+    siteSection === 'courses' &&
+    type === 'course' &&
+    siteSections.filter(Boolean).length === 3
+  ) {
+    // Course landing page (/<lang>/courses/<course>). Module and step pages
+    // have no type/solution meta and still use the fallback below.
+    // Should look like: xl:learn:courses:experience manager:manage and deliver digital assets using adobe experience manager
+    pageName = `xl:learn:courses:${solution}:${title}`;
 
   } else if (siteSection === 'docs' && siteSections.length > 3) {
     // Docs page

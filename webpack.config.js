@@ -3,6 +3,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const path = require("path");
+const webpack = require("webpack");
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
@@ -13,6 +14,8 @@ module.exports = (env, argv) => {
       popup: "./src/popup/popup.js",
       "content-exl": "./src/content/content-exl.js",
       "content-jira": "./src/content/content-jira.js",
+      "content-github": "./src/content/content-github.js",
+      "content-github-main": "./src/content/content-github-main.js",
       background: "./src/background.js"
     },
   output: {
@@ -44,6 +47,8 @@ module.exports = (env, argv) => {
       ],
     },
     plugins: [
+      // Identifies this build; the Improve tab discards saved results from other builds.
+      new webpack.DefinePlugin({ __BUILD_ID__: JSON.stringify(String(Date.now())) }),
       new CleanWebpackPlugin(),
       new MiniCssExtractPlugin({
         filename: "[name].css",

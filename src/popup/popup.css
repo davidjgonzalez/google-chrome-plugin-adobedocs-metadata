@@ -176,12 +176,6 @@ textarea.markdown {
     height: 23rem;
 }
 
-textarea.questions {
-    width: 100%;
-    height: 23rem;
-    margin: 1rem 0;
-}
-
 #popup-jira-story__markdown {
     height: 23rem;
 }
@@ -336,3 +330,70 @@ hr {
 #metadata table tbody tr td:hover {
     cursor: copy;
 }
+/* Improve tab */
+
+.improve { padding: 1rem 0 5rem; }
+.improve-intro { margin-top: 0; }
+.improve-progress { padding: 2rem 0; }
+.improve-option { display: flex; gap: .5rem; align-items: flex-start; margin: 1rem 0; }
+
+.improve-status { border-left: 4px solid #999; background: #f5f5f5; padding: .5rem .75rem; margin: .75rem 0; border-radius: 4px; }
+.improve-status p { margin: .25rem 0 0; }
+.improve-status--ok { border-color: #12805c; }
+.improve-status--notice { border-color: #e68619; background: #fff8ee; }
+.improve-status--error { border-color: #d7373f; background: #fff0f0; }
+
+.improve-summary { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin: .75rem 0; }
+.improve-when { color: #6e6e6e; font-size: .85em; }
+
+.improve-metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: .5rem; margin: .75rem 0 1rem; }
+.improve-metric { background: #f5f5f5; border-radius: 4px; padding: .4rem .5rem; display: flex; flex-direction: column; }
+.improve-metric { border-top: 3px solid #ccc; }
+.improve-metric span { color: #6e6e6e; font-size: .8em; }
+.improve-metric .improve-metric-target { margin-top: .15rem; }
+.improve-metric--good { border-top-color: #12805c; }
+.improve-metric--near { border-top-color: #e68619; }
+.improve-metric--off { border-top-color: #d7373f; }
+
+.improve-category { margin-top: 1.25rem; }
+.improve-category-title { margin: 0 0 .25rem; color: #4b4b4b; }
+
+.improve-criterion { border-bottom: 1px solid #e6e6e6; padding: .35rem 0; }
+.improve-criterion summary { cursor: pointer; display: flex; gap: .5rem; align-items: center; }
+.improve-criterion summary input[type="checkbox"], .improve-issue input[type="checkbox"] { margin: 0; flex: none; width: 14px; height: 14px; }
+.improve-criterion-label { flex: 1; }
+.improve-count { background: #e6e6e6; border-radius: 1rem; padding: 0 .5rem; font-size: .85em; }
+.improve-spacer { display: inline-block; flex: none; width: 14px; }
+
+.improve-tag { font-size: .75em; border-radius: 3px; padding: 0 .35rem; white-space: nowrap; }
+.improve-tag--auto { background: #e0f2ea; color: #0b5e43; }
+.improve-tag--ai { background: #e8eefc; color: #1a4fa0; }
+.improve-tag--flag { background: #fdf0e0; color: #8a4600; }
+
+.improve-issues { list-style: none; padding: 0 0 0 22px; margin: .5rem 0; }
+.improve-issue { margin: 0 0 .6rem; }
+/* Checkbox is vertically centered on the first line of text (line box ≈ 1.4em). */
+.improve-issue label { display: flex; gap: .5rem; align-items: flex-start; line-height: 1.4; }
+.improve-issue label input[type="checkbox"], .improve-issue label .improve-spacer { margin-top: calc((1.4em - 14px) / 2); }
+.improve-line { font-family: monospace; color: #6e6e6e; margin-right: .25rem; }
+.improve-change { margin: .25rem 0 0 22px; font-family: monospace; font-size: .85em; white-space: pre-wrap; word-break: break-word; }
+.improve-change del { background: #ffebe9; text-decoration: line-through; }
+.improve-change ins { background: #e6ffec; text-decoration: none; }
+.improve-change q { color: #4b4b4b; }
+.improve-arrow { margin: 0 .35rem; color: #6e6e6e; }
+
+.improve-actions { position: fixed; bottom: 0; left: 0; right: 0; display: flex; gap: .5rem; align-items: center; justify-content: flex-end; padding: .6rem 1rem; background: #fff; border-top: 1px solid #ddd; z-index: 10; }
+.improve-actions-count { margin-right: auto; color: #4b4b4b; }
+
+.improve-diff { font-family: monospace; font-size: .8em; border: 1px solid #ddd; border-radius: 4px; overflow-x: auto; }
+.improve-hunk + .improve-hunk { border-top: 1px dashed #ccc; }
+.improve-diff-line { display: grid; grid-template-columns: 2.5rem 2.5rem 1rem 1fr; white-space: pre-wrap; word-break: break-word; }
+.improve-diff-line--add { background: #e6ffec; }
+.improve-diff-line--del { background: #ffebe9; }
+.improve-diff-no { color: #999; text-align: right; padding-right: .4rem; user-select: none; }
+.improve-diff-sign { color: #6e6e6e; user-select: none; }
+
+.improve-flash { position: fixed; bottom: 4rem; right: 1rem; background: #323232; color: #fff; padding: .5rem .75rem; border-radius: 4px; z-index: 11; }
+.improve-diagnostics { margin: .35rem 0; font-size: .85em; color: #4b4b4b; }
+.improve-diagnostics ul { margin: .25rem 0; padding-left: 1.25rem; }
+.improve-muted { color: #6e6e6e; font-size: .9em; }

@@ -19,22 +19,6 @@ function getResourcesTabHtml() {
 
         <hr/>
 
-        <p class="spectrum-Heading spectrum-Heading--sizeXXS spectrum-Heading--light">Allowed metadata values <em>(Adobe Corp Git)</em></p>
-
-        <ul>
-            <li><a href="https://git.corp.adobe.com/AdobeDocs/exl-config/blob/master/metadata-values/product.yml" target="2-2">Product</a></li>
-            <li><a href="https://git.corp.adobe.com/AdobeDocs/exl-config/blob/master/metadata-values/cloud.yml" target="2-3">Cloud</a></li>
-            <li><a href="https://git.corp.adobe.com/AdobeDocs/exl-config/blob/master/metadata-values/solution.yml" target="2-4">Solution</a></li>
-            <li><a href="https://git.corp.adobe.com/AdobeDocs/exl-config/blob/master/metadata-values/version.yml" target="2-5">Version</a></li>
-            <li><a href="https://git.corp.adobe.com/AdobeDocs/exl-config/blob/master/metadata-values/type.yml" target="2-6">Type</a></li>
-            <li><a href="https://git.corp.adobe.com/AdobeDocs/exl-config/blob/master/metadata-values/topic.yml" target="2-7">Topic</a></li>
-            <li><a href="https://git.corp.adobe.com/AdobeDocs/exl-config/blob/master/metadata-values/feature.yml" target="2-8">Feature</a></li>
-            <li><a href="https://git.corp.adobe.com/AdobeDocs/exl-config/blob/master/metadata-values/role.yml" target="2-9">Role</a></li>
-            <li><a href="https://git.corp.adobe.com/AdobeDocs/exl-config/blob/master/metadata-values/level.yml" target="2-10">Level</a></li>                
-        </ul>
-
-        <hr/>
-    
         <p class="spectrum-Heading spectrum-Heading--sizeS spectrum-Heading--light">About this extension</em></p>
 
         <p>

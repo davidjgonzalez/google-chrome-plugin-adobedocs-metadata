@@ -1,8 +1,18 @@
 {
   "name": "AdobeDocs metadata",
-  "version": "1.41.0",
+  "version": "1.41.1",
   "description": "AdobeDocs metadata extension!",
-  "permissions": ["activeTab", "declarativeContent", "storage"],
+  "permissions": ["activeTab", "declarativeContent", "storage", "scripting"],
+
+  "host_permissions": [
+    "https://github.com/*",
+    "https://raw.githubusercontent.com/*"
+  ],
+
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
@@ -31,6 +41,21 @@
       ],
     "js": ["content-jira.js"],
     "css": ["content-jira.css"]
+  },
+  {
+    "matches": [
+      "https://github.com/Adobe-Enterprise-Docs/*"
+      ],
+    "js": ["content-github.js"],
+    "run_at": "document_idle"
+  },
+  {
+    "matches": [
+      "https://github.com/Adobe-Enterprise-Docs/*"
+      ],
+    "js": ["content-github-main.js"],
+    "run_at": "document_idle",
+    "world": "MAIN"
   }],
   "icons": { 
     "16": "icon128.png",

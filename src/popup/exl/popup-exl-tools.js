@@ -16,33 +16,6 @@ const REMOVE_SELECTORS = [
 ]
 
 
-const GENAI_QA_RESPONSE_SCHEMA = {
-  type: "json_schema",
-  json_schema: {
-    name: "qa_results",
-    schema: {
-      type: "object",
-      properties: {
-        results: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              answer: { type: "string" },
-              question: { type: "string" }
-            },
-            required: ["answer", "question"],
-            additionalProperties: false
-          }
-        }
-      },
-      required: ["results"],
-      additionalProperties: false
-    }
-  }
-}
-
-
 const GENAI_CONTENT_ASSESSMENT_RESPONSE_SCHEMA = {
   type: "json_schema",
   json_schema: {
@@ -86,17 +59,6 @@ async function getToolsTabHtml(exl, extensionOptions) {
     <p>Content API key is not set. Please set a Content API key in the extension options.</p>`;
   }
 
-  delegateEvent('body', 'click', '[data-fn-generate-qa]', (e) => {
-    const el = document.getElementById('tools-genai-questions');
-
-    el.innerHTML = '<sp-progress-bar style="width: 100%;" label="Generating questions..." indeterminate size="large"></sp-progress-bar>';
-
-    getGenAiQuestionsHtml(exl, contentApiKey).then(html => {
-      el.innerHTML = html;
-    });
-  });
-
-
   delegateEvent('body', 'click', '[data-fn-assess-content]', (e) => {
     const el = document.getElementById('tools-content-assessment');
 
@@ -110,14 +72,6 @@ async function getToolsTabHtml(exl, extensionOptions) {
 
 
   return `
-    <h4>AI Assistant training (Q&A)</h4>
-
-    <div id="tools-genai-questions">
-      <sp-button data-fn-generate-qa>Generate Q&amp;A</sp-button>
-    </div>
-
-    <hr style="margin: 1rem 0;"/>
-
     <h4>AI content assessment (Alpha)</h4>
 
     <p><em>Content assessment quality is a work in progress</em></p>
@@ -203,95 +157,6 @@ async function getPageHtml(exl, contentApiKey) {
   return doc;
 
 }
-
-async function getGenAiQuestionsHtml(exl, contentApiKey) {
-
-  const content = await getPageText(exl, contentApiKey);
-
-  const systemPrompt = `
-    You are a helpful assistant that generates insightful metadata, specifically questions and answers, about content to help train other AI models on Adobe products.
-    
-    * Your task is to analyze the provided content and generate a list of insightful questions along with their corresponding answers.
-    * Each question should be clear, concise, and relevant to the content.
-    * The answers should be accurate and directly address the questions posed.
-    * Avoid generating questions specifically about the documentation itself; instead generate questions that are more general and applicable to the product and its features.
-    * Avoid generating questions that are too broad or too specific.
-    * Avoid generating questions and answers that are too specific to example, sample, or demo context; instead generate questions and answers that are more general and applicable to the product and its features.
-    * Avoid asking about prerequisites or dependencies of the content itself; instead generate questions that are more general and applicable to the product and its features.
-    * Ensure the questions and answers scoped to the content provided, and do not include any external information.
-    * If the content is insufficient to generate meaningful questions, indicate that no questions can be generated.
-    
-    Generate as many insightful questions as possible, up to a maximum of 20.
-    
-    Avoid generating questions that are too broad or too specific;
-    Ensure the questions and answers scoped to the content provided, and do not include any external information.
-    If the content is insufficient to generate meaningful questions, indicate that no questions can be generated.
-    
-    Generate as many insightful questions as possible, up to a maximum of 20.
-
-    The output format should be JSON object in the following structure:
-
-    {
-      results: [
-        { question: "Question 1", answer: "Answer 1" },
-        { question: "Question 2", answer: "Answer 2" },
-        { question: "Question 3", answer: "Answer 3" },
-        { question: "Question 4", answer: "Answer 4" },
-        { question: "Question 5", answer: "Answer 5" },            
-      ]
-    }`;
-
-
-  const userPrompt = `  
-    The content to analyze is below:
-
-    --- 
-    
-    ${content}
-    
-    ---
-
-    Ensure the questions are relevant and cover a range of topics within the content.
-  `;
-
-  //chrome-extension://amfhglmmhhacmgkbnifpcdnancapklog/
-
-  const genAiResponse = await fetch('https://81368-dxpefirefallproxy.adobeio-static.net/api/v1/web/dx-excshell-1/generic', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': `${contentApiKey}`
-    },
-    body: JSON.stringify({
-      systemPrompt: systemPrompt.trim(),
-      userPrompt: userPrompt.trim(),
-      responseFormat: GENAI_QA_RESPONSE_SCHEMA
-    })
-  });
-
-  if (!genAiResponse.ok) {
-    const json = await genAiResponse.json();
-    if (genAiResponse.status === 401) {
-      return `<sp-badge style="width: 100%;" size="M" variant="negative">Invalid Content API key</sp-badge>`;
-    } else {
-      return `<sp-badge  style="width: 100%;" size="M" variant="negative">Error generating questions: ${genAiResponse.status} -- ${json.error}</sp-badge>`;
-    }
-  }
-
-  const json = await genAiResponse.json()
-  const results = json.results || [];
-
-  return `
-    <label>${results.length} questions &amp; answers generated for GenAI training.</label>
-    <sp-button style="float: right;" data-copy-to-clipboard="## AI ASSISTANT Q/A\n\n${encodeURIComponent(results.map(r => `Question: ${r.question}\nAnswer: ${r.answer}`).join('\n\n'))}">Copy Q&amp;A to clipboard</sp-button>
-    <textarea class="questions">## AI ASSISTANT Q/A
-
-${(results.map(r => `
-Question: ${r.question}
-Answer: ${r.answer}`).join('\n\n')).trim()}</textarea>`
-}
-
-
 
 async function getContentAssessmentHtml(exl, contentApiKey) {
 

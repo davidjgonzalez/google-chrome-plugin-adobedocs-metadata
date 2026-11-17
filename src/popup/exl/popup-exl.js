@@ -7,6 +7,7 @@ import { injectAnalyticsTabHtml, injectNoAnalyticsTabHtml } from "./popup-exl-an
 import { getToolsTabHtml } from "./popup-exl-tools";
 import { getDurations } from "./popup-exl-duration";  
 import { getVideoTranscript } from '../utils';
+import { getImproveTabHtml, initImproveTab } from "./improve/improve-tab";
 
 const Missing = {
     ERROR: 'error',
@@ -52,6 +53,7 @@ export default async function experienceLeaguePopup(response, callback) {
                 <sp-tab data-tabs="2" data-tab-set="main-tabs" label="Metadata" value="2"></sp-tab>
                 <sp-tab data-tabs="3" data-tab-set="main-tabs" label="Analytics" value="3"></sp-tab>
                 <sp-tab data-tabs="4" data-tab-set="main-tabs" label="Tools" value="4"></sp-tab>
+                <sp-tab data-tabs="6" data-tab-set="main-tabs" label="Improve" value="6"></sp-tab>
                 <sp-tab data-tabs="5" data-tab-set="main-tabs" label="Resources" value="5"></sp-tab>
             </sp-tabs>
 
@@ -59,7 +61,7 @@ export default async function experienceLeaguePopup(response, callback) {
                 ${getSection("Quick links", [
                     getPageLinks(response.currentDoc.host, response.currentDoc.path),
                     getJira(response.jira, response.kt),
-                    getCorpGitEdit(response.gitAuthor, response.gitEdit),
+                    getAuthorGitEdit(response.gitEdit),
                     getPublicGitEdit(response.gitEdit),
                     getVsCode(
                     optionsContentRoot,
@@ -127,12 +129,18 @@ export default async function experienceLeaguePopup(response, callback) {
              ${await getToolsTabHtml(response, optionsObj)}
             </div> 
 
+            <div data-tab="6" data-tab-set="main-tabs" class="tab-content">
+                ${getImproveTabHtml()}
+            </div>
+
             <div data-tab="5" data-tab-set="main-tabs" class="tab-content">
-                ${getResourcesTabHtml()}                           
-            </div>  
+                ${getResourcesTabHtml()}
+            </div>
         `;
         
         await callback(html);
+
+        initImproveTab(response, optionsObj);
 
         delegateEvent("body", "click", "[data-tabs]", (event) => {
           const tab = event.target.getAttribute("data-tabs");
@@ -289,17 +297,18 @@ function getSection(sectionTitle, lists, style) {
     };
   }
   
-  function getCorpGitEdit(authorGit, publicGitEdit) {
+  function getAuthorGitEdit(publicGitEdit) {
     if (!publicGitEdit) {
       return '';
     }
-  
-    const corpGitEdit = publicGitEdit.replace(
+
+    // git-edit points at the public AdobeDocs mirror; authoring happens in Adobe-Enterprise-Docs.
+    const authorGitEdit = publicGitEdit.replace(
       "https://github.com/AdobeDocs/",
-      authorGit
+      "https://github.com/Adobe-Enterprise-Docs/"
     );
-  
-    return `<sp-action-button href="${corpGitEdit}" target="_blank">Author GitHub</sp-action-button>`        
+
+    return `<sp-action-button href="${authorGitEdit}" target="_blank">Author GitHub</sp-action-button>`
   }
   
   function getPublicGitEdit(publicGitEdit) {
